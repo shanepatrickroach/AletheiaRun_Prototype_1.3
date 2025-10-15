@@ -1,214 +1,720 @@
-// Features/Library/LibraryView.swift (COMPLETE REBUILD)
-
 import SwiftUI
 
-struct LibraryView: View {
-    @StateObject private var viewModel = LibraryViewModel()
-    @State private var showingFilters = false
-    @State private var showingSortOptions = false
-    @State private var selectedRun: Run?
+// MARK: - Library View Model
+// This manages the state for our Library screen
+class LibraryViewModel: ObservableObject {
+    // Published properties trigger UI updates when changed
+    @Published var runs: [Run] = []
+    @Published var searchText: String = ""
+    @Published var selectedMode: RunMode? = nil // nil = "All"
+    @Published var sortOption: SortOption = .date
+    @Published var viewMode: ViewMode = .list
+    @Published var showingSortMenu = false
+    @Published var selectedDate: Date? = nil // For calendar view
     
-    var body: some View {
-        NavigationStack {
-            ZStack {
-                Color.backgroundBlack.ignoresSafeArea()
-                
-                VStack(spacing: 0) {
-                    // Search Bar
-                    SearchBar(text: $viewModel.searchText)
-                        .padding(.horizontal, Spacing.l)
-                        .padding(.vertical, Spacing.m)
-                    
-                    // View Mode Toggle & Stats
-                    HStack {
-                        // View Mode Picker
-                        Picker("View Mode", selection: $viewModel.viewMode) {
-                            ForEach(LibraryViewMode.allCases, id: \.self) { mode in
-                                Label(mode.rawValue, systemImage: mode.icon)
-                                    .tag(mode)
-                            }
-                        }
-                        .pickerStyle(.segmented)
-                        .frame(width: 200)
-                        
-                        Spacer()
-                        
-                        // Results count
-                        Text("\(viewModel.filteredAndSortedRuns.count) runs")
-                            .font(.bodySmall)
-                            .foregroundColor(.textSecondary)
-                    }
-                    .padding(.horizontal, Spacing.l)
-                    .padding(.bottom, Spacing.m)
-                    
-                    // Filter & Sort Bar
-                    HStack(spacing: Spacing.m) {
-                        // Filter Button
-                        Button(action: {
-                            showingFilters = true
-                        }) {
-                            HStack(spacing: Spacing.xs) {
-                                Image(systemName: "line.3.horizontal.decrease.circle\(viewModel.filter.isActive ? ".fill" : "")")
-                                    .foregroundColor(viewModel.filter.isActive ? .primaryOrange : .textSecondary)
-                                
-                                Text("Filter")
-                                    .font(.bodySmall)
-                                    .foregroundColor(viewModel.filter.isActive ? .primaryOrange : .textPrimary)
-                                
-                                if viewModel.filter.isActive {
-                                    Text("(\(viewModel.filter.activeFilterCount))")
-                                        .font(.caption)
-                                        .foregroundColor(.primaryOrange)
-                                }
-                            }
-                            .padding(.horizontal, Spacing.m)
-                            .padding(.vertical, Spacing.s)
-                            .background(
-                                viewModel.filter.isActive
-                                    ? Color.primaryOrange.opacity(0.1)
-                                    : Color.cardBackground
-                            )
-                            .cornerRadius(CornerRadius.medium)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: CornerRadius.medium)
-                                    .stroke(
-                                        viewModel.filter.isActive
-                                            ? Color.primaryOrange
-                                            : Color.cardBorder,
-                                        lineWidth: 1
-                                    )
-                            )
-                        }
-                        
-                        // Sort Button
-                        Button(action: {
-                            showingSortOptions = true
-                        }) {
-                            HStack(spacing: Spacing.xs) {
-                                Image(systemName: viewModel.sortOption.icon)
-                                    .foregroundColor(.textSecondary)
-                                
-                                Text(viewModel.sortOption.rawValue)
-                                    .font(.bodySmall)
-                                    .foregroundColor(.textPrimary)
-                                    .lineLimit(1)
-                                
-                                Image(systemName: "chevron.down")
-                                    .font(.system(size: 10))
-                                    .foregroundColor(.textTertiary)
-                            }
-                            .padding(.horizontal, Spacing.m)
-                            .padding(.vertical, Spacing.s)
-                            .background(Color.cardBackground)
-                            .cornerRadius(CornerRadius.medium)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: CornerRadius.medium)
-                                    .stroke(Color.cardBorder, lineWidth: 1)
-                            )
-                        }
-                        
-                        Spacer()
-                    }
-                    .padding(.horizontal, Spacing.l)
-                    .padding(.bottom, Spacing.m)
-                    
-                    // Content
-                    if viewModel.filteredAndSortedRuns.isEmpty {
-                        EmptyLibraryView(hasFilters: viewModel.filter.isActive)
-                    } else {
-                        switch viewModel.viewMode {
-                        case .list:
-                            RunListView(
-                                runs: viewModel.filteredAndSortedRuns,
-                                onLikeTap: { run in
-                                    viewModel.toggleLike(for: run)
-                                },
-                                onRunTap: { run in
-                                    selectedRun = run
-                                }
-                            )
-                        case .calendar:
-                            RunCalendarView(
-                                runs: viewModel.filteredAndSortedRuns,
-                                onRunTap: { run in
-                                    selectedRun = run
-                                }
-                            )
-                        }
-                    }
-                }
+    init() {
+        // Generate sample data for testing
+        self.runs = SampleRunData.generateSampleRuns(count: 30)
+    }
+    
+    // Filtered and sorted runs based on user selection
+    var filteredRuns: [Run] {
+        var result = runs
+        
+        // Filter by mode if selected
+        if let mode = selectedMode {
+            result = result.filter { $0.mode == mode }
+        }
+        
+        // Filter by search text (searches in mode and terrain)
+        if !searchText.isEmpty {
+            result = result.filter { run in
+                run.mode.rawValue.localizedCaseInsensitiveContains(searchText) ||
+                run.terrain.rawValue.localizedCaseInsensitiveContains(searchText)
             }
-            .navigationTitle("Library")
-            .navigationBarTitleDisplayMode(.large)
         }
-        .sheet(isPresented: $showingFilters) {
-            FilterSheet(filter: $viewModel.filter)
+        
+        // Sort by selected option
+        switch sortOption {
+        case .date:
+            result.sort { $0.date > $1.date } // Newest first
+        case .distance:
+            result.sort { $0.distance > $1.distance } // Longest first
         }
-        .sheet(isPresented: $showingSortOptions) {
-            SortSheet(sortOption: $viewModel.sortOption)
-        }
-        .sheet(item: $selectedRun) { run in
-            RunDetailView(run: run)
+        
+        return result
+    }
+    
+    // Get runs for a specific date (for calendar view)
+    func runs(for date: Date) -> [Run] {
+        filteredRuns.filter { Calendar.current.isDate($0.date, inSameDayAs: date) }
+    }
+    
+    // Check if a date has runs
+    func hasRuns(on date: Date) -> Bool {
+        runs.contains { Calendar.current.isDate($0.date, inSameDayAs: date) }
+    }
+}
+
+// MARK: - Enums
+enum ViewMode: String, CaseIterable {
+    case list = "List"
+    case calendar = "Calendar"
+}
+
+enum SortOption: String, CaseIterable {
+    case date = "Date"
+    case distance = "Distance"
+    
+    var icon: String {
+        switch self {
+        case .date: return "calendar"
+        case .distance: return "ruler"
         }
     }
 }
 
-// MARK: - Search Bar
-struct SearchBar: View {
-    @Binding var text: String
+// MARK: - Main Library View
+struct LibraryView: View {
+    @StateObject private var viewModel = LibraryViewModel()
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                Color.backgroundBlack.ignoresSafeArea()
+                
+                VStack(spacing: 0) {
+                    // Header with segmented control
+                    headerSection
+                    
+                    // Search and filters
+                    searchAndFiltersSection
+                    
+                    // Content based on view mode
+                    if viewModel.viewMode == .list {
+                        listContentView
+                    } else {
+                        calendarContentView
+                    }
+                }
+            }
+            .navigationBarHidden(true)
+        }
+    }
+    
+    // MARK: - Header Section
+    private var headerSection: some View {
+        VStack(spacing: Spacing.m) {
+            // Title
+            HStack {
+                Text("Library")
+                    .font(.titleLarge)
+                    .foregroundColor(.textPrimary)
+                
+                Spacer()
+                
+                // Sort button
+                Button(action: { viewModel.showingSortMenu.toggle() }) {
+                    HStack(spacing: Spacing.xs) {
+                        Image(systemName: viewModel.sortOption.icon)
+                        Text(viewModel.sortOption.rawValue)
+                            .font(.bodySmall)
+                    }
+                    .foregroundColor(.primaryOrange)
+                    .padding(.horizontal, Spacing.m)
+                    .padding(.vertical, Spacing.xs)
+                    .background(Color.cardBackground)
+                    .cornerRadius(CornerRadius.small)
+                }
+            }
+            .padding(.horizontal, Spacing.m)
+            .padding(.top, Spacing.m)
+            
+            // Segmented Control
+            Picker("View Mode", selection: $viewModel.viewMode) {
+                ForEach(ViewMode.allCases, id: \.self) { mode in
+                    Text(mode.rawValue).tag(mode)
+                }
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal, Spacing.m)
+        }
+        .padding(.bottom, Spacing.m)
+        .background(Color.backgroundBlack)
+        .overlay(
+            // Sort Menu Overlay
+            Group {
+                if viewModel.showingSortMenu {
+                    sortMenuOverlay
+                }
+            }
+        )
+    }
+    
+    // MARK: - Sort Menu
+    private var sortMenuOverlay: some View {
+        ZStack {
+            // Dimmed background
+            Color.black.opacity(0.4)
+                .ignoresSafeArea()
+                .onTapGesture {
+                    viewModel.showingSortMenu = false
+                }
+            
+            VStack(spacing: 0) {
+                Spacer()
+                
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("Sort by")
+                        .font(.headline)
+                        .foregroundColor(.textPrimary)
+                        .padding(.horizontal, Spacing.m)
+                        .padding(.top, Spacing.m)
+                        .padding(.bottom, Spacing.s)
+                    
+                    Divider()
+                        .background(Color.cardBorder)
+                    
+                    ForEach(SortOption.allCases, id: \.self) { option in
+                        Button(action: {
+                            viewModel.sortOption = option
+                            viewModel.showingSortMenu = false
+                        }) {
+                            HStack {
+                                Image(systemName: option.icon)
+                                    .foregroundColor(.primaryOrange)
+                                    .frame(width: 24)
+                                
+                                Text(option.rawValue)
+                                    .font(.bodyMedium)
+                                    .foregroundColor(.textPrimary)
+                                
+                                Spacer()
+                                
+                                if viewModel.sortOption == option {
+                                    Image(systemName: "checkmark")
+                                        .foregroundColor(.primaryOrange)
+                                }
+                            }
+                            .padding(.horizontal, Spacing.m)
+                            .padding(.vertical, Spacing.m)
+                        }
+                        
+                        if option != SortOption.allCases.last {
+                            Divider()
+                                .background(Color.cardBorder)
+                                .padding(.leading, Spacing.xxxxl)
+                        }
+                    }
+                }
+                .background(Color.cardBackground)
+                .cornerRadius(CornerRadius.large)
+                .padding(.horizontal, Spacing.m)
+                .padding(.bottom, Spacing.xxl)
+            }
+        }
+    }
+    
+    // MARK: - Search and Filters
+    private var searchAndFiltersSection: some View {
+        VStack(spacing: Spacing.m) {
+            // Search Bar
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.textTertiary)
+                
+                TextField("Search runs...", text: $viewModel.searchText)
+                    .foregroundColor(.textPrimary)
+                    .font(.bodyMedium)
+                
+                if !viewModel.searchText.isEmpty {
+                    Button(action: { viewModel.searchText = "" }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.textTertiary)
+                    }
+                }
+            }
+            .padding(.horizontal, Spacing.m)
+            .padding(.vertical, Spacing.s)
+            .background(Color.cardBackground)
+            .cornerRadius(CornerRadius.medium)
+            .padding(.horizontal, Spacing.m)
+            
+            // Filter Chips
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: Spacing.xs) {
+                    // "All" chip
+                    FilterChip(
+                        title: "All",
+                        isSelected: viewModel.selectedMode == nil,
+                        action: { viewModel.selectedMode = nil }
+                    )
+                    
+                    // Mode chips
+                    ForEach(RunMode.allCases, id: \.self) { mode in
+                        FilterChip(
+                            title: mode.rawValue,
+                            icon: mode.icon,
+                            isSelected: viewModel.selectedMode == mode,
+                            action: { viewModel.selectedMode = mode }
+                        )
+                    }
+                }
+                .padding(.horizontal, Spacing.m)
+            }
+        }
+        .padding(.bottom, Spacing.m)
+    }
+    
+    // MARK: - List Content View
+    private var listContentView: some View {
+        ScrollView {
+            LazyVStack(spacing: Spacing.m) {
+                if viewModel.filteredRuns.isEmpty {
+                    emptyStateView
+                } else {
+                    ForEach(viewModel.filteredRuns) { run in
+                        RunCard(run: run)
+                    }
+                }
+            }
+            .padding(.horizontal, Spacing.m)
+            .padding(.bottom, Spacing.xxl)
+        }
+    }
+    
+    // MARK: - Calendar Content View
+    private var calendarContentView: some View {
+        ScrollView {
+            VStack(spacing: Spacing.m) {
+                CalendarGridView(
+                    selectedDate: $viewModel.selectedDate,
+                    hasRuns: viewModel.hasRuns
+                )
+                .padding(.horizontal, Spacing.m)
+                
+                // Show runs for selected date
+                if let selectedDate = viewModel.selectedDate {
+                    let runsForDate = viewModel.runs(for: selectedDate)
+                    
+                    VStack(alignment: .leading, spacing: Spacing.m) {
+                        Text(selectedDate.formatted(date: .long, time: .omitted))
+                            .font(.headline)
+                            .foregroundColor(.textPrimary)
+                        
+                        if runsForDate.isEmpty {
+                            Text("No runs on this date")
+                                .font(.bodyMedium)
+                                .foregroundColor(.textSecondary)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, Spacing.xxl)
+                        } else {
+                            ForEach(runsForDate) { run in
+                                RunCard(run: run)
+                            }
+                        }
+                    }
+                    .padding(.horizontal, Spacing.m)
+                }
+            }
+            .padding(.bottom, Spacing.xxl)
+        }
+    }
+    
+    // MARK: - Empty State
+    private var emptyStateView: some View {
+        VStack(spacing: Spacing.m) {
+            Image(systemName: "figure.run.circle")
+                .font(.system(size: 64))
+                .foregroundColor(.textTertiary)
+                .padding(.top, Spacing.xxxxl)
+            
+            Text("No runs found")
+                .font(.headline)
+                .foregroundColor(.textPrimary)
+            
+            Text("Try adjusting your filters or start a new run")
+                .font(.bodyMedium)
+                .foregroundColor(.textSecondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding(.horizontal, Spacing.xxl)
+    }
+}
+
+// MARK: - Filter Chip Component
+struct FilterChip: View {
+    let title: String
+    var icon: String? = nil
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: Spacing.xs) {
+                if let icon = icon {
+                    Image(systemName: icon)
+                        .font(.caption)
+                }
+                Text(title)
+                    .font(.bodySmall)
+            }
+            .foregroundColor(isSelected ? .backgroundBlack : .textPrimary)
+            .padding(.horizontal, Spacing.m)
+            .padding(.vertical, Spacing.xs)
+            .background(isSelected ? Color.primaryOrange : Color.cardBackground)
+            .cornerRadius(CornerRadius.large)
+        }
+    }
+}
+
+// MARK: - Run Card Component
+struct RunCard: View {
+    let run: Run
     
     var body: some View {
         HStack(spacing: Spacing.m) {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(.textTertiary)
+            // Force Portrait Thumbnail
+            ForcePortraitThumbnail(score: run.metrics.overallScore)
+                .frame(width: 90, height: 75)
             
-            TextField("Search runs...", text: $text)
-                .font(.bodyMedium)
-                .foregroundColor(.textPrimary)
-                .autocorrectionDisabled()
-            
-            if !text.isEmpty {
-                Button(action: {
-                    text = ""
-                }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.textTertiary)
+            // Run Info
+            VStack(alignment: .leading, spacing: Spacing.xs) {
+                HStack {
+                    Text(run.date.formatted(date: .abbreviated, time: .omitted))
+                        .font(.bodyMedium)
+                        .foregroundColor(.textPrimary)
+                    
+                    Spacer()
+                    
+                    // Efficiency Score
+                    Text("\(run.metrics.overallScore)")
+                        .font(.headline)
+                        .foregroundColor(scoreColor(run.metrics.overallScore))
+                }
+                
+                HStack(spacing: Spacing.m) {
+                    // Distance
+                    Label(String(format: "%.2f mi", run.distance), systemImage: "figure.run")
+                        .font(.bodySmall)
+                        .foregroundColor(.textSecondary)
+                    
+                    // Duration
+                    Label(formatDuration(run.duration), systemImage: "timer")
+                        .font(.bodySmall)
+                        .foregroundColor(.textSecondary)
+                }
+                
+                HStack(spacing: Spacing.xs) {
+                    // Mode badge
+                    BadgeView(text: run.mode.rawValue, color: .primaryOrange)
+                    
+                    // Terrain badge
+                    BadgeView(text: run.terrain.rawValue, color: .infoBlue)
                 }
             }
         }
         .padding(Spacing.m)
         .background(Color.cardBackground)
         .cornerRadius(CornerRadius.medium)
+        .overlay(
+            RoundedRectangle(cornerRadius: CornerRadius.medium)
+                .stroke(Color.cardBorder, lineWidth: 1)
+        )
+    }
+    
+    private func scoreColor(_ score: Int) -> Color {
+        if score >= 80 { return .successGreen }
+        else if score >= 60 { return .warningYellow }
+        else { return .errorRed }
+    }
+    
+    private func formatDuration(_ duration: TimeInterval) -> String {
+        let minutes = Int(duration) / 60
+        let seconds = Int(duration) % 60
+        return String(format: "%d:%02d", minutes, seconds)
     }
 }
 
-// MARK: - Empty Library View
-struct EmptyLibraryView: View {
-    let hasFilters: Bool
+// MARK: - Badge Component
+struct BadgeView: View {
+    let text: String
+    let color: Color
+    
+    var body: some View {
+        Text(text)
+            .font(.caption)
+            .foregroundColor(color)
+            .padding(.horizontal, Spacing.xs)
+            .padding(.vertical, 2)
+            .background(color.opacity(0.15))
+            .cornerRadius(CornerRadius.small)
+    }
+}
+
+// MARK: - Force Portrait Thumbnail
+struct ForcePortraitThumbnail: View {
+    let score: Int
+    
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: CornerRadius.small)
+                .fill(Color.black)
+            
+//            // Placeholder waveform icon
+//            Image(systemName: "waveform.path.ecg")
+//                .font(.system(size: 32))
+//                .foregroundColor(scoreColor.opacity(0.6))
+//            
+            
+            // Force Portrait Image
+            Image("ForcePortrait")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 100, height: 100)
+                .opacity(0.9)
+            
+//            // Overlay color based on score
+//            RoundedRectangle(cornerRadius: CornerRadius.small)
+//                .fill(scoreColor.opacity(0.2))
+        }
+        .overlay(
+            RoundedRectangle(cornerRadius: CornerRadius.small)
+                .stroke(Color.primaryOrange.opacity(0.3), lineWidth: 1)
+        )
+    }
+    
+    private var scoreColor: Color {
+        if score >= 80 { return .successGreen }
+        else if score >= 60 { return .warningYellow }
+        else { return .errorRed }
+    }
+}
+
+// MARK: - Calendar Grid View
+struct CalendarGridView: View {
+    @Binding var selectedDate: Date?
+    let hasRuns: (Date) -> Bool
+    
+    @State private var currentMonth = Date()
+    
+    private let calendar = Calendar.current
+    private let daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     
     var body: some View {
         VStack(spacing: Spacing.m) {
-            Image(systemName: hasFilters ? "line.3.horizontal.decrease.circle" : "figure.run")
-                .font(.system(size: 60))
-                .foregroundColor(.textTertiary)
+            // Month Header
+            HStack {
+                Button(action: previousMonth) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.primaryOrange)
+                }
+                
+                Spacer()
+                
+                Text(currentMonth.formatted(.dateTime.month(.wide).year()))
+                    .font(.headline)
+                    .foregroundColor(.textPrimary)
+                
+                Spacer()
+                
+                Button(action: nextMonth) {
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(.primaryOrange)
+                }
+            }
+            .padding(.horizontal, Spacing.m)
             
-            Text(hasFilters ? "No Matching Runs" : "No Runs Yet")
-                .font(.headline)
-                .foregroundColor(.textPrimary)
+            // Today button
+            Button(action: goToToday) {
+                Text("Today")
+                    .font(.bodySmall)
+                    .foregroundColor(.primaryOrange)
+                    .padding(.horizontal, Spacing.m)
+                    .padding(.vertical, Spacing.xs)
+                    .background(Color.cardBackground)
+                    .cornerRadius(CornerRadius.small)
+            }
             
-            Text(hasFilters
-                ? "Try adjusting your filters"
-                : "Record your first run to see it here"
-            )
-                .font(.bodySmall)
-                .foregroundColor(.textSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, Spacing.xl)
+            // Days of week
+            HStack(spacing: 0) {
+                ForEach(daysOfWeek, id: \.self) { day in
+                    Text(day)
+                        .font(.caption)
+                        .foregroundColor(.textSecondary)
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            
+            // Calendar grid
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: Spacing.xs) {
+                ForEach(monthDates, id: \.self) { date in
+                    if let date = date {
+                        DayCell(
+                            date: date,
+                            isSelected: selectedDate.map { calendar.isDate($0, inSameDayAs: date) } ?? false,
+                            isToday: calendar.isDateInToday(date),
+                            hasRuns: hasRuns(date),
+                            onTap: { selectedDate = date }
+                        )
+                    } else {
+                        Color.clear
+                            .frame(height: 50)
+                    }
+                }
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(Spacing.m)
+        .background(Color.cardBackground)
+        .cornerRadius(CornerRadius.medium)
+        .onAppear {
+            // Select today by default
+            selectedDate = Date()
+        }
+    }
+    
+    private var monthDates: [Date?] {
+        guard let monthInterval = calendar.dateInterval(of: .month, for: currentMonth),
+              let monthFirstWeek = calendar.dateInterval(of: .weekOfMonth, for: monthInterval.start) else {
+            return []
+        }
+        
+        let days = calendar.generateDates(
+            inside: monthInterval,
+            matching: DateComponents(hour: 0, minute: 0, second: 0)
+        )
+        
+        // Add leading empty cells
+        let firstWeekday = calendar.component(.weekday, from: monthInterval.start)
+        let leadingEmptyCells = firstWeekday - 1
+        
+        var result: [Date?] = Array(repeating: nil, count: leadingEmptyCells)
+        result.append(contentsOf: days.map { $0 as Date? })
+        
+        return result
+    }
+    
+    private func previousMonth() {
+        currentMonth = calendar.date(byAdding: .month, value: -1, to: currentMonth) ?? currentMonth
+    }
+    
+    private func nextMonth() {
+        currentMonth = calendar.date(byAdding: .month, value: 1, to: currentMonth) ?? currentMonth
+    }
+    
+    private func goToToday() {
+        currentMonth = Date()
+        selectedDate = Date()
     }
 }
 
+// MARK: - Day Cell
+struct DayCell: View {
+    let date: Date
+    let isSelected: Bool
+    let isToday: Bool
+    let hasRuns: Bool
+    let onTap: () -> Void
+    
+    var body: some View {
+        Button(action: onTap) {
+            VStack(spacing: 4) {
+                Text("\(Calendar.current.component(.day, from: date))")
+                    .font(.bodySmall)
+                    .foregroundColor(textColor)
+                
+                // Orange dot if has runs
+                Circle()
+                    .fill(hasRuns ? Color.primaryOrange : Color.clear)
+                    .frame(width: 4, height: 4)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 50)
+            .background(backgroundColor)
+            .cornerRadius(CornerRadius.small)
+            .overlay(
+                RoundedRectangle(cornerRadius: CornerRadius.small)
+                    .stroke(borderColor, lineWidth: isToday ? 2 : 0)
+            )
+        }
+    }
+    
+    private var textColor: Color {
+        if isSelected { return .backgroundBlack }
+        return .textPrimary
+    }
+    
+    private var backgroundColor: Color {
+        if isSelected { return .primaryOrange }
+        return Color.clear
+    }
+    
+    private var borderColor: Color {
+        isToday ? .primaryOrange : .clear
+    }
+}
+
+// MARK: - Calendar Helper Extension
+extension Calendar {
+    func generateDates(
+        inside interval: DateInterval,
+        matching components: DateComponents
+    ) -> [Date] {
+        var dates: [Date] = []
+        dates.append(interval.start)
+        
+        enumerateDates(
+            startingAfter: interval.start,
+            matching: components,
+            matchingPolicy: .nextTime
+        ) { date, _, stop in
+            if let date = date {
+                if date < interval.end {
+                    dates.append(date)
+                } else {
+                    stop = true
+                }
+            }
+        }
+        
+        return dates
+    }
+}
+
+// MARK: - Sample Data
+struct SampleRunData {
+    static func generateSampleRuns(count: Int) -> [Run] {
+        var runs: [Run] = []
+        
+        for i in 0..<count {
+            let daysAgo = i
+            let date = Calendar.current.date(byAdding: .day, value: -daysAgo, to: Date()) ?? Date()
+            
+            let run = Run(
+                date: date,
+                mode: RunMode.allCases.randomElement() ?? .run,
+                terrain: TerrainType.allCases.randomElement() ?? .road,
+                distance: Double.random(in: 2.0...10.0),
+                duration: TimeInterval.random(in: 1200...3600),
+                metrics: RunMetrics(
+                    efficiency: Int.random(in: 60...95),
+                    sway: Int.random(in: 60...95),
+                    endurance: Int.random(in: 60...95),
+                    warmup: Int.random(in: 60...95),
+                    impact: Int.random(in: 60...95),
+                    braking: Int.random(in: 60...95),
+                    variation: Int.random(in: 60...95)
+                )
+            )
+            
+            runs.append(run)
+        }
+        
+        return runs
+    }
+}
+
+// MARK: - Preview
 #Preview {
     LibraryView()
 }
