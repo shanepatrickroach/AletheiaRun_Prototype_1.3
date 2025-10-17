@@ -1,3 +1,11 @@
+//
+//  PostRunNotesView.swift
+//  AletheiaRun_Prototype_1.3
+//
+//  Created by Shane Roach on 10/15/25.
+//
+
+
 import SwiftUI
 
 // MARK: - Post Run Notes View
@@ -114,7 +122,7 @@ struct PostRunNotesView: View {
                     GridItem(.flexible())
                 ], spacing: Spacing.xs) {
                     ForEach(PainPoint.allCases, id: \.self) { point in
-                        PainPointButton(
+                        RunDetailPainPointButton(
                             point: point,
                             isSelected: survey.painPoints.contains(point),
                             isEnabled: isEditing,
@@ -353,7 +361,7 @@ struct EnergyButton: View {
 }
 
 // MARK: - Pain Point Button Component
-struct PainPointButton: View {
+struct RunDetailPainPointButton: View {
     let point: PainPoint
     let isSelected: Bool
     let isEnabled: Bool

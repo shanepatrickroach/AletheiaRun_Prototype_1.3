@@ -6,7 +6,7 @@ struct MainTabView: View {
     @State private var selectedTab: Tab = .home
     @State private var showingPreRun = false
     @State private var showingCalendar = false
-    
+
     enum Tab {
         case home
         case library
@@ -14,26 +14,26 @@ struct MainTabView: View {
         case progress
         case profile
     }
-    
+
     var body: some View {
         ZStack(alignment: .bottom) {
-            
-            
-            VStack{
-                // Subscription Banner (appears at top if no subscription)
-                                if case .authenticated(let user) = authManager.authState,
-                                   !user.hasActiveSubscription {
-                                    SubscriptionBanner()
-                                }
-            }
-           
+
+//            VStack {
+//                // Subscription Banner (appears at top if no subscription)
+//                if case .authenticated(let user) = authManager.authState,
+//                    !user.hasActiveSubscription
+//                {
+//                    SubscriptionBanner()
+//                }
+//            }
+
             // Content
             Group {
                 switch selectedTab {
                 case .home:
                     HomeView(
                         onLibraryTap: { selectedTab = .library },
-                        onCalendarTap: { showingCalendar = true},
+                        onCalendarTap: { showingCalendar = true },
                         onProgressTap: { selectedTab = .progress },
                         onStartRunTap: { showingPreRun = true }
                     )
@@ -42,7 +42,7 @@ struct MainTabView: View {
                 case .record:
                     HomeView(
                         onLibraryTap: { selectedTab = .library },
-                        onCalendarTap: { },
+                        onCalendarTap: {},
                         onProgressTap: { selectedTab = .progress },
                         onStartRunTap: { showingPreRun = true }
                     )
@@ -52,7 +52,7 @@ struct MainTabView: View {
                     ProfileView()
                 }
             }
-            
+
             // Custom Tab Bar with Center Record Button
             CenterRecordTabBar(
                 selectedTab: $selectedTab,
@@ -63,20 +63,21 @@ struct MainTabView: View {
         }
         .ignoresSafeArea(.keyboard)
         .sheet(isPresented: $showingPreRun) {
-                    PreRunView()
-            }
+            PreRunView()
+        }
         .sheet(isPresented: $showingCalendar) {
-                    NavigationStack {
-                        SeperateCalendarView()
-                    }
-                }
-        .environmentObject(gamificationManager)
-            .sheet(isPresented: $gamificationManager.showAchievementUnlock) {
-                if let achievement = gamificationManager.recentlyUnlockedAchievement {
-                    AchievementUnlockView(achievement: achievement)
-                }
+            NavigationStack {
+                SeperateCalendarView()
             }
-        
+        }
+        .environmentObject(gamificationManager)
+        .sheet(isPresented: $gamificationManager.showAchievementUnlock) {
+            if let achievement = gamificationManager.recentlyUnlockedAchievement
+            {
+                AchievementUnlockView(achievement: achievement)
+            }
+        }
+
     }
 }
 
@@ -85,7 +86,7 @@ struct CenterRecordTabBar: View {
     @Binding var selectedTab: MainTabView.Tab
     let onRecordTap: () -> Void
     @State private var pulseAnimation = false
-    
+
     var body: some View {
         ZStack {
             // Tab bar background with cutout
@@ -94,16 +95,17 @@ struct CenterRecordTabBar: View {
                     let width = geometry.size.width
                     let height: CGFloat = 84
                     let centerWidth: CGFloat = 80
-                    
+
                     path.move(to: CGPoint(x: 0, y: 0))
-                    path.addLine(to: CGPoint(x: (width - centerWidth) / 2 - 20, y: 0))
-                    
+                    path.addLine(
+                        to: CGPoint(x: (width - centerWidth) / 2 - 20, y: 0))
+
                     // Curve for center button
                     path.addQuadCurve(
                         to: CGPoint(x: (width + centerWidth) / 2 + 20, y: 0),
                         control: CGPoint(x: width / 2, y: -20)
                     )
-                    
+
                     path.addLine(to: CGPoint(x: width, y: 0))
                     path.addLine(to: CGPoint(x: width, y: height))
                     path.addLine(to: CGPoint(x: 0, y: height))
@@ -111,22 +113,24 @@ struct CenterRecordTabBar: View {
                 }
                 .fill(Color.cardBackground)
                 .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: -5)
-                
+
                 // Top border
                 Path { path in
                     let width = geometry.size.width
                     let centerWidth: CGFloat = 80
-                    
+
                     path.move(to: CGPoint(x: 0, y: 0))
-                    path.addLine(to: CGPoint(x: (width - centerWidth) / 2 - 20, y: 0))
-                    
-                    path.move(to: CGPoint(x: (width + centerWidth) / 2 + 20, y: 0))
+                    path.addLine(
+                        to: CGPoint(x: (width - centerWidth) / 2 - 20, y: 0))
+
+                    path.move(
+                        to: CGPoint(x: (width + centerWidth) / 2 + 20, y: 0))
                     path.addLine(to: CGPoint(x: width, y: 0))
                 }
                 .stroke(Color.cardBorder, lineWidth: 1)
             }
             .frame(height: 84)
-            
+
             // Tab bar buttons
             HStack(spacing: 0) {
                 TabBarButton(
@@ -135,25 +139,25 @@ struct CenterRecordTabBar: View {
                     isSelected: selectedTab == .home,
                     action: { selectedTab = .home }
                 )
-                
+
                 TabBarButton(
                     icon: "tray.fill",
                     title: "Library",
                     isSelected: selectedTab == .library,
                     action: { selectedTab = .library }
                 )
-                
+
                 // Spacer for center button
                 Spacer()
                     .frame(width: 80)
-                
+
                 TabBarButton(
                     icon: "chart.bar.fill",
                     title: "Progress",
                     isSelected: selectedTab == .progress,
                     action: { selectedTab = .progress }
                 )
-                
+
                 TabBarButton(
                     icon: "person.fill",
                     title: "Profile",
@@ -164,43 +168,49 @@ struct CenterRecordTabBar: View {
             .padding(.horizontal, Spacing.xs)
             .padding(.top, Spacing.s)
             .padding(.bottom, Spacing.l)
-            
+
             // Center Record Button
             VStack {
                 Button(action: {
                     // Haptic feedback
                     let generator = UIImpactFeedbackGenerator(style: .medium)
                     generator.impactOccurred()
-                    
+
                     onRecordTap()
                 }) {
                     ZStack {
                         // Outer pulse ring
                         Circle()
-                            .stroke(Color.primaryOrange.opacity(0.3), lineWidth: 2)
+                            .stroke(
+                                Color.primaryOrange.opacity(0.3), lineWidth: 2
+                            )
                             .frame(width: 74, height: 74)
                             .scaleEffect(pulseAnimation ? 1.2 : 1.0)
                             .opacity(pulseAnimation ? 0 : 1)
-                        
+
                         // Main button
                         Circle()
                             .fill(
                                 LinearGradient(
-                                    colors: [Color.primaryOrange, Color.primaryLight],
+                                    colors: [
+                                        Color.primaryOrange, Color.primaryLight,
+                                    ],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 )
                             )
                             .frame(width: 68, height: 68)
-                            .shadow(color: Color.primaryOrange.opacity(0.5), radius: 15, x: 0, y: 5)
-                        
+                            .shadow(
+                                color: Color.primaryOrange.opacity(0.5),
+                                radius: 15, x: 0, y: 5)
+
                         // Icon
                         Image(systemName: "play.fill")
                             .font(.system(size: 30, weight: .bold))
                             .foregroundColor(.black)
                     }
                 }
-                .offset(y: -28) // Lift above tab bar
+                .offset(y: -28)  // Lift above tab bar
             }
             .frame(maxHeight: .infinity, alignment: .bottom)
             .padding(.bottom, 8)
@@ -222,18 +232,21 @@ struct TabBarButton: View {
     let title: String
     let isSelected: Bool
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             VStack(spacing: 4) {
                 Image(systemName: icon)
                     .font(.system(size: 20))
-                    .foregroundColor(isSelected ? .primaryOrange : .textTertiary)
+                    .foregroundColor(
+                        isSelected ? .primaryOrange : .textTertiary
+                    )
                     .frame(height: 24)
-                
+
                 Text(title)
                     .font(.caption)
-                    .foregroundColor(isSelected ? .primaryOrange : .textTertiary)
+                    .foregroundColor(
+                        isSelected ? .primaryOrange : .textTertiary)
             }
             .frame(maxWidth: .infinity)
         }

@@ -13,8 +13,7 @@ import SwiftUI
 struct PrivacySettingsView: View {
     @State private var shareDataForResearch = false
     @State private var allowAnalytics = true
-    @State private var showInLeaderboards = true
-    @State private var allowFriendRequests = true
+    
     
     var body: some View {
         ZStack {
@@ -39,14 +38,28 @@ struct PrivacySettingsView: View {
                     }
                     .padding(.top, Spacing.xl)
                     
+                    // Permissions
+                    SettingsToggleSection(title: "Data Sharing") {
+                        
+                        
+                        SettingsToggle(
+                            icon: "chart.bar.xaxis",
+                            title: "Location",
+                            description: "Aletheia Run uses location information to track your speef and distance.",
+                            isOn: $allowAnalytics
+                        )
+                        
+                        SettingsToggle(
+                            icon: "chart.bar.yaxis",
+                            title: "Bluetooth",
+                            description: "Aletheia Run uses bluetooth to conect to the sensor.",
+                            isOn: $allowAnalytics
+                        )
+                    }
+                    
                     // Data Sharing
                     SettingsToggleSection(title: "Data Sharing") {
-                        SettingsToggle(
-                            icon: "chart.xyaxis.line",
-                            title: "Research Contribution",
-                            description: "Share anonymized data to improve running science",
-                            isOn: $shareDataForResearch
-                        )
+                        
                         
                         SettingsToggle(
                             icon: "chart.bar.xaxis",
@@ -56,22 +69,6 @@ struct PrivacySettingsView: View {
                         )
                     }
                     
-                    // Social Privacy
-                    SettingsToggleSection(title: "Social Privacy") {
-                        SettingsToggle(
-                            icon: "list.number",
-                            title: "Show in Leaderboards",
-                            description: "Display your stats in anonymous leaderboards",
-                            isOn: $showInLeaderboards
-                        )
-                        
-                        SettingsToggle(
-                            icon: "person.badge.plus",
-                            title: "Friend Requests",
-                            description: "Allow others to send you friend requests",
-                            isOn: $allowFriendRequests
-                        )
-                    }
                     
                     // Data Management
                     SettingsSection(title: "Data Management") {

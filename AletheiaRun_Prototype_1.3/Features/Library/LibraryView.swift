@@ -130,14 +130,37 @@ struct LibraryView: View {
             .padding(.horizontal, Spacing.m)
             .padding(.top, Spacing.m)
             
-            // Segmented Control
-            Picker("View Mode", selection: $viewModel.viewMode) {
+//            // Segmented Control
+//            Picker("View Mode", selection: $viewModel.viewMode) {
+//                ForEach(ViewMode.allCases, id: \.self) { mode in
+//                    
+//                    
+//                    Text(mode.rawValue).tag(mode)
+//                    
+//                    
+//                }
+//            }
+//            .pickerStyle(.segmented).tint(.orange)
+//            .padding(.horizontal, Spacing.m)
+//            .tint(.orange)
+            
+            HStack(spacing: 8) {
                 ForEach(ViewMode.allCases, id: \.self) { mode in
-                    Text(mode.rawValue).tag(mode)
+                    Text(mode.rawValue)
+                        .font(.headline)
+                        .foregroundColor(viewModel.viewMode == mode ? .black : .white)
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 16)
+                        .background(viewModel.viewMode == mode ? Color.primaryOrange : Color.gray.opacity(0.3))
+                        .cornerRadius(50)
+                        .onTapGesture {
+                            viewModel.viewMode = mode
+                        }
                 }
             }
-            .pickerStyle(.segmented)
-            .padding(.horizontal, Spacing.m)
+            
+            
+
         }
         .padding(.bottom, Spacing.m)
         .background(Color.backgroundBlack)
@@ -274,7 +297,10 @@ struct LibraryView: View {
                     emptyStateView
                 } else {
                     ForEach(viewModel.filteredRuns) { run in
-                        RunCard(run: run)
+                        NavigationLink(destination: RunDetailView(run: run)) {
+                            RunCard(run: run)
+                        }
+                        .buttonStyle(PlainButtonStyle())
                     }
                 }
             }
@@ -461,18 +487,13 @@ struct ForcePortraitThumbnail: View {
             RoundedRectangle(cornerRadius: CornerRadius.small)
                 .fill(Color.black)
             
-//            // Placeholder waveform icon
-//            Image(systemName: "waveform.path.ecg")
-//                .font(.system(size: 32))
-//                .foregroundColor(scoreColor.opacity(0.6))
-//            
-            
             // Force Portrait Image
             Image("ForcePortrait")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 100, height: 100)
+                .frame(width: 80, height: 60)
                 .opacity(0.9)
+            
             
 //            // Overlay color based on score
 //            RoundedRectangle(cornerRadius: CornerRadius.small)

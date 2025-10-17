@@ -25,19 +25,22 @@ struct AboutView: View {
                             RoundedRectangle(cornerRadius: 20)
                                 .fill(
                                     LinearGradient(
-                                        colors: [.primaryOrange, .primaryLight],
+                                        colors: [.primaryOrange.opacity(0.5), .black],
                                         startPoint: .topLeading,
                                         endPoint: .bottomTrailing
                                     )
                                 )
                                 .frame(width: 100, height: 100)
                             
-                            Image(systemName: "figure.run")
+                            Image("LogoGradient")
+                                .resizable()
                                 .font(.system(size: 50))
                                 .foregroundColor(.black)
+                                .frame(width:80, height: 80)
+                               
                         }
                         
-                        Text("Aletheia")
+                        Text("Aletheia Run")
                             .font(.titleLarge)
                             .foregroundColor(.textPrimary)
                         
@@ -100,7 +103,7 @@ struct AboutView: View {
                             .font(.caption)
                             .foregroundColor(.textSecondary)
                         
-                        Text("© 2025 Aletheia. All rights reserved.")
+                        Text("© 2025 Aletheia Run. All rights reserved.")
                             .font(.caption)
                             .foregroundColor(.textTertiary)
                     }

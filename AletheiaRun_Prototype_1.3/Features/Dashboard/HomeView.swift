@@ -13,9 +13,7 @@ struct HomeView: View {
 
     // Sample data - replace with actual data from your app
     let latestRun = SampleData.runs.first
-    let recommendedExercises = Exercise.sampleExercises.sorted {
-        $0.priority > $1.priority
-    }.prefix(3)
+
     let weeklyTip = WeeklyTip.currentTip
 
     enum ForcePortraitViewType: String, CaseIterable {
@@ -40,19 +38,18 @@ struct HomeView: View {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: Spacing.xl) {
                         SubscriptionBanner()
-                        //                        FloatingSubscriptionBanner()
+
                         // MARK: - Header with Greeting
                         headerSection
 
                         
-                        
                         // MARK: - Latest Force Portrait (3 Views)
                         forcePortraitSection
                         
+                        // Quick Coach Summary
                         
-                        // Quick Stats
-//                        QuickStatsSection()
-//                            .padding(.horizontal, Spacing.l)
+                        CoachHomeCard(latestRun: latestRun)
+                     
 
                         // Recent Achievements (NEW)
                         if !gamificationManager.unlockedAchievements.isEmpty {
@@ -117,9 +114,7 @@ struct HomeView: View {
 
                         
 
-                        // MARK: - Recommended Exercises
-                        recommendedExercisesSection
-
+                        
                         // MARK: - Quick Actions
                         //                        quickActionsSection()
 
@@ -452,14 +447,14 @@ struct HomeView: View {
             }
             .padding(.horizontal, Spacing.m)
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: Spacing.m) {
-                    ForEach(Array(recommendedExercises)) { exercise in
-                        ExerciseCard(exercise: exercise)
-                    }
-                }
-                .padding(.horizontal, Spacing.m)
-            }
+//            ScrollView(.horizontal, showsIndicators: false) {
+//                HStack(spacing: Spacing.m) {
+//                    ForEach(Array(recommendedExercises)) { exercise in
+//                        ExerciseCard(exercise: exercise)
+//                    }
+//                }
+//                .padding(.horizontal, Spacing.m)
+//            }
         }
     }
 
@@ -562,147 +557,6 @@ struct QuickMetricCard: View {
     }
 }
 
-// MARK: - Exercise Card
-struct ExerciseCard: View {
-    let exercise: Exercise
-
-    var body: some View {
-        Button(action: {
-            // Navigate to exercise detail
-        }) {
-            VStack(alignment: .leading, spacing: Spacing.m) {
-                // Header with category badge
-                HStack {
-                    HStack(spacing: Spacing.xs) {
-                        Image(systemName: exercise.category.icon)
-                            .font(.system(size: 12))
-
-                        Text(exercise.category.rawValue)
-                            .font(.caption)
-                    }
-                    .foregroundColor(categoryColor(exercise.category))
-                    .padding(.horizontal, Spacing.s)
-
-                    .background(categoryColor(exercise.category).opacity(0.2))
-                    .cornerRadius(CornerRadius.small)
-
-                    Spacer()
-
-                    // Priority indicator
-                    HStack(spacing: 4) {
-                        Image(systemName: "star.fill")
-                            .font(.system(size: 10))
-                        Text("\(exercise.priority)")
-                            .font(.caption)
-                    }
-                    .foregroundColor(.warningYellow)
-                }
-
-                // Exercise title
-                Text(exercise.title)
-                    .font(.bodyLarge)
-                    .foregroundColor(.textPrimary)
-                    .lineLimit(2)
-                    .frame(height: 44, alignment: .topLeading)
-
-                // Description
-                Text(exercise.description)
-                    .font(.bodySmall)
-                    .foregroundColor(.textSecondary)
-                    .lineLimit(3)
-                    .frame(height: 54, alignment: .top)
-
-                Divider()
-                    .background(Color.cardBorder)
-
-                // Footer
-                HStack {
-                    HStack(spacing: 4) {
-                        Image(systemName: "clock")
-                            .font(.system(size: 12))
-                        Text(exercise.duration)
-                            .font(.caption)
-                    }
-                    .foregroundColor(.textTertiary)
-
-                    Spacer()
-
-                    Text(exercise.difficulty.rawValue)
-                        .font(.caption)
-                        .foregroundColor(.textTertiary)
-                }
-
-                // Target metrics
-                FlowLayout(spacing: 4) {
-                    ForEach(exercise.targetMetrics, id: \.self) { metric in
-                        Text(metric)
-                            .font(.system(size: 10))
-                            .foregroundColor(.primaryOrange)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.primaryOrange.opacity(0.1))
-                            .cornerRadius(4)
-                    }
-                }
-            }
-            .padding(Spacing.m)
-            .frame(width: 260)
-            .background(Color.cardBackground)
-            .cornerRadius(CornerRadius.large)
-            .overlay(
-                RoundedRectangle(cornerRadius: CornerRadius.large)
-                    .stroke(Color.cardBorder, lineWidth: 1)
-            )
-        }
-    }
-
-    private func categoryColor(_ category: ExerciseCategory) -> Color {
-        switch category.color {
-        case "errorRed": return .errorRed
-        case "infoBlue": return .infoBlue
-        case "primaryOrange": return .primaryOrange
-        case "successGreen": return .successGreen
-        case "warningYellow": return .warningYellow
-        default: return .primaryOrange
-        }
-    }
-}
-
-//// MARK: - Quick Action Button
-//struct QuickActionButton: View {
-//    let icon: String
-//    let title: String
-//    let color: Color
-//    let action: () -> Void
-//
-//    var body: some View {
-//        Button(action: action) {
-//            VStack(spacing: Spacing.m) {
-//                ZStack {
-//                    Circle()
-//                        .fill(color.opacity(0.2))
-//                        .frame(width: 56, height: 56)
-//
-//                    Image(systemName: icon)
-//                        .font(.system(size: 24))
-//                        .foregroundColor(color)
-//                }
-//
-//                Text(title)
-//                    .font(.bodyMedium)
-//                    .foregroundColor(.textPrimary)
-//            }
-//            .frame(maxWidth: .infinity)
-//            .padding(.vertical, Spacing.l)
-//            .background(Color.cardBackground)
-//            .cornerRadius(CornerRadius.large)
-//            .overlay(
-//                RoundedRectangle(cornerRadius: CornerRadius.large)
-//                    .stroke(Color.cardBorder, lineWidth: 1)
-//            )
-//        }
-//    }
-//}
 
 // MARK: - Tip Card
 struct TipCard: View {

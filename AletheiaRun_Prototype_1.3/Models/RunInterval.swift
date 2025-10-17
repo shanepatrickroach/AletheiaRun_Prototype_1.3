@@ -1,3 +1,11 @@
+//
+//  RunInterval.swift
+//  AletheiaRun_Prototype_1.3
+//
+//  Created by Shane Roach on 10/15/25.
+//
+
+
 import Foundation
 
 // MARK: - Run Interval Model

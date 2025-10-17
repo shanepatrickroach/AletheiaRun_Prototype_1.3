@@ -104,12 +104,6 @@ struct ChallengeStatsCard: View {
                 .frame(height: 40)
                 .background(Color.cardBorder)
             
-            StatItem(
-                value: "85%",
-                label: "Success Rate",
-                icon: "chart.line.uptrend.xyaxis",
-                color: .infoBlue
-            )
         }
         .padding(Spacing.m)
         .background(Color.cardBackground)
@@ -159,7 +153,7 @@ struct FilterButton: View {
                     .font(.system(size: 16))
                 
                 Text(title)
-                    .font(.bodyMedium)
+                    .font(.bodySmall)
                     .fontWeight(isSelected ? .semibold : .regular)
                 
                 Spacer()

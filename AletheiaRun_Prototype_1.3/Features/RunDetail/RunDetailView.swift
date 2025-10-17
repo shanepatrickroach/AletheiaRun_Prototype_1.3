@@ -1,3 +1,10 @@
+//
+//  RunDetailView.swift
+//  AletheiaRun_Prototype_1.3
+//
+//  Created by Shane Roach on 10/15/25.
+//
+
 import SwiftUI
 
 // MARK: - Run Detail View
@@ -9,25 +16,25 @@ struct RunDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var selectedTab: DetailTab = .intervals
     @State private var intervals: [RunInterval] = []
-    
+
     // MARK: - Body
     var body: some View {
         ZStack {
             Color.backgroundBlack.ignoresSafeArea()
-            
+
             VStack(spacing: 0) {
                 // Custom Navigation Header
                 navigationHeader
-                
+
                 // Tab Selector
                 tabSelector
-                
+
                 // Content based on selected tab
                 ScrollView {
                     VStack(spacing: Spacing.m) {
                         // Run Summary Card at top
                         runSummaryCard
-                        
+
                         // Tab Content
                         switch selectedTab {
                         case .intervals:
@@ -37,7 +44,7 @@ struct RunDetailView: View {
                         case .metrics:
                             MetricsOverTimeView()
                         case .coach:
-                            PocketCoachView()
+                            PocketCoachView(interval: intervals.first ?? .sample)
                         case .notes:
                             PostRunNotesView(run: run)
                         case .map:
@@ -55,7 +62,7 @@ struct RunDetailView: View {
             loadIntervals()
         }
     }
-    
+
     // MARK: - Navigation Header
     private var navigationHeader: some View {
         HStack {
@@ -67,9 +74,9 @@ struct RunDetailView: View {
                 }
                 .foregroundColor(.primaryOrange)
             }
-            
+
             Spacer()
-            
+
             // Share button (placeholder)
             Button(action: {}) {
                 Image(systemName: "square.and.arrow.up")
@@ -80,7 +87,7 @@ struct RunDetailView: View {
         .padding(.vertical, Spacing.m)
         .background(Color.backgroundBlack)
     }
-    
+
     // MARK: - Tab Selector
     private var tabSelector: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -99,7 +106,7 @@ struct RunDetailView: View {
         .padding(.vertical, Spacing.s)
         .background(Color.backgroundBlack)
     }
-    
+
     // MARK: - Run Summary Card
     private var runSummaryCard: some View {
         VStack(alignment: .leading, spacing: Spacing.m) {
@@ -109,7 +116,7 @@ struct RunDetailView: View {
                     Text(run.date.formatted(date: .long, time: .shortened))
                         .font(.headline)
                         .foregroundColor(.textPrimary)
-                    
+
                     HStack(spacing: Spacing.xs) {
                         Image(systemName: run.mode.icon)
                         Text(run.mode.rawValue)
@@ -117,45 +124,45 @@ struct RunDetailView: View {
                     .font(.bodySmall)
                     .foregroundColor(.textSecondary)
                 }
-                
+
                 Spacer()
-                
+
                 // Overall Score
                 VStack(spacing: Spacing.xxs) {
                     Text("\(run.metrics.overallScore)")
                         .font(.titleLarge)
                         .foregroundColor(scoreColor(run.metrics.overallScore))
-                    
+
                     Text("Overall")
                         .font(.caption)
                         .foregroundColor(.textSecondary)
                 }
             }
-            
+
             Divider()
                 .background(Color.cardBorder)
-            
+
             // Key Stats
             HStack(spacing: Spacing.xl) {
-                StatItem(
+                RunDetailStatItem(
                     icon: "figure.run",
                     value: String(format: "%.2f", run.distance),
                     label: "Miles"
                 )
-                
-                StatItem(
+
+                RunDetailStatItem(
                     icon: "timer",
                     value: formatDuration(run.duration),
                     label: "Duration"
                 )
-                
-                StatItem(
+
+                RunDetailStatItem(
                     icon: "speedometer",
                     value: formatPace(run.distance, run.duration),
                     label: "Pace"
                 )
-                
-                StatItem(
+
+                RunDetailStatItem(
                     icon: run.terrain.icon,
                     value: run.terrain.rawValue,
                     label: "Terrain"
@@ -170,31 +177,38 @@ struct RunDetailView: View {
                 .stroke(Color.cardBorder, lineWidth: 1)
         )
     }
-    
+
     // MARK: - Helper Functions
     private func loadIntervals() {
         // In a real app, this would load from the database
-        intervals = RunInterval.generateSampleIntervals(count: Int(run.distance * 2))
+        intervals = RunInterval.generateSampleIntervals(
+            count: Int(run.distance * 2))
     }
-    
+
     private func scoreColor(_ score: Int) -> Color {
-        if score >= 80 { return .successGreen }
-        else if score >= 60 { return .warningYellow }
-        else { return .errorRed }
+        if score >= 80 {
+            return .successGreen
+        } else if score >= 60 {
+            return .warningYellow
+        } else {
+            return .errorRed
+        }
     }
-    
+
     private func formatDuration(_ duration: TimeInterval) -> String {
         let hours = Int(duration) / 3600
         let minutes = (Int(duration) % 3600) / 60
         let seconds = Int(duration) % 60
-        
+
         if hours > 0 {
             return String(format: "%d:%02d:%02d", hours, minutes, seconds)
         }
         return String(format: "%d:%02d", minutes, seconds)
     }
-    
-    private func formatPace(_ distance: Double, _ duration: TimeInterval) -> String {
+
+    private func formatPace(_ distance: Double, _ duration: TimeInterval)
+        -> String
+    {
         guard distance > 0 else { return "0:00" }
         let pace = (duration / 60) / distance
         let minutes = Int(pace)
@@ -212,11 +226,11 @@ enum DetailTab: String, CaseIterable, Identifiable {
     case coach = "Coach"
     case notes = "Notes"
     case map = "Map"
-    
+
     var id: String { rawValue }
-    
+
     var title: String { rawValue }
-    
+
     var icon: String {
         switch self {
         case .intervals: return "chart.bar.fill"
@@ -235,41 +249,43 @@ struct TabButton: View {
     let icon: String
     let isSelected: Bool
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             VStack(spacing: Spacing.xxs) {
                 Image(systemName: icon)
                     .font(.bodySmall)
-                
+
                 Text(title)
                     .font(.caption)
             }
             .foregroundColor(isSelected ? .primaryOrange : .textSecondary)
             .padding(.horizontal, Spacing.m)
             .padding(.vertical, Spacing.xs)
-            .background(isSelected ? Color.primaryOrange.opacity(0.15) : Color.clear)
+            .background(
+                isSelected ? Color.primaryOrange.opacity(0.15) : Color.clear
+            )
             .cornerRadius(CornerRadius.small)
         }
     }
 }
 
 // MARK: - Stat Item Component
-struct StatItem: View {
+struct RunDetailStatItem: View {
     let icon: String
     let value: String
     let label: String
-    
+
     var body: some View {
         VStack(spacing: Spacing.xxs) {
             Image(systemName: icon)
                 .font(.bodyMedium)
                 .foregroundColor(.primaryOrange)
-            
+
             Text(value)
                 .font(.bodyMedium)
                 .foregroundColor(.textPrimary)
-            
+
             Text(label)
                 .font(.caption)
                 .foregroundColor(.textSecondary)
@@ -282,7 +298,7 @@ struct StatItem: View {
 /// Shows all intervals with their Force Portraits and metrics
 struct IntervalsContentView: View {
     let intervals: [RunInterval]
-    
+
     var body: some View {
         VStack(spacing: Spacing.m) {
             // Section Header
@@ -290,14 +306,14 @@ struct IntervalsContentView: View {
                 Text("Run Intervals")
                     .font(.headline)
                     .foregroundColor(.textPrimary)
-                
+
                 Spacer()
-                
+
                 Text("\(intervals.count) intervals")
                     .font(.bodySmall)
                     .foregroundColor(.textSecondary)
             }
-            
+
             // Intervals List
             ForEach(intervals) { interval in
                 IntervalCard(interval: interval)
@@ -310,11 +326,11 @@ struct IntervalsContentView: View {
 struct IntervalCard: View {
     let interval: RunInterval
     @State private var isExpanded = false
-    
+
     var body: some View {
         VStack(spacing: 0) {
             // Header - Always Visible
-            Button(action: { withAnimation { isExpanded.toggle() }}) {
+            Button(action: { withAnimation { isExpanded.toggle() } }) {
                 HStack(spacing: Spacing.m) {
                     // Interval Number Badge
                     Text("\(interval.intervalNumber)")
@@ -323,50 +339,58 @@ struct IntervalCard: View {
                         .frame(width: 40, height: 40)
                         .background(Color.primaryOrange)
                         .cornerRadius(CornerRadius.small)
-                    
+
                     // Force Portrait Thumbnail
-                    ForcePortraitThumbnail(score: interval.performanceMetrics.overallScore)
-                        .frame(width: 60, height: 50)
-                    
+                    ForcePortraitThumbnail(
+                        score: interval.performanceMetrics.overallScore
+                    )
+                    .frame(width: 60, height: 50)
+
                     // Quick Stats
                     VStack(alignment: .leading, spacing: Spacing.xxs) {
                         Text(interval.formattedDistance)
                             .font(.bodyMedium)
                             .foregroundColor(.textPrimary)
-                        
+
                         Text("\(interval.formattedPace) pace")
                             .font(.bodySmall)
                             .foregroundColor(.textSecondary)
                     }
-                    
+
                     Spacer()
-                    
+
                     // Overall Score
                     VStack(spacing: 2) {
                         Text("\(interval.performanceMetrics.overallScore)")
                             .font(.headline)
-                            .foregroundColor(scoreColor(interval.performanceMetrics.overallScore))
-                        
-                        Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                            .font(.caption)
-                            .foregroundColor(.textTertiary)
+                            .foregroundColor(
+                                scoreColor(
+                                    interval.performanceMetrics.overallScore))
+
+                        Image(
+                            systemName: isExpanded
+                                ? "chevron.up" : "chevron.down"
+                        )
+                        .font(.caption)
+                        .foregroundColor(.textTertiary)
                     }
                 }
                 .padding(Spacing.m)
             }
-            
+
             // Expanded Content
             if isExpanded {
                 VStack(spacing: Spacing.m) {
                     Divider()
                         .background(Color.cardBorder)
-                    
+
                     // Performance Metrics
-                    PerformanceMetricsSection(metrics: interval.performanceMetrics)
-                    
+                    PerformanceMetricsSection(
+                        metrics: interval.performanceMetrics)
+
                     Divider()
                         .background(Color.cardBorder)
-                    
+
                     // Injury Diagnostics
                     InjuryDiagnosticsSection(metrics: interval.injuryMetrics)
                 }
@@ -381,25 +405,29 @@ struct IntervalCard: View {
                 .stroke(Color.cardBorder, lineWidth: 1)
         )
     }
-    
+
     private func scoreColor(_ score: Int) -> Color {
-        if score >= 80 { return .successGreen }
-        else if score >= 60 { return .warningYellow }
-        else { return .errorRed }
+        if score >= 80 {
+            return .successGreen
+        } else if score >= 60 {
+            return .warningYellow
+        } else {
+            return .errorRed
+        }
     }
 }
 
 // MARK: - Performance Metrics Section
 struct PerformanceMetricsSection: View {
     let metrics: PerformanceMetrics
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.s) {
             Text("Performance Metrics")
                 .font(.bodyMedium)
                 .foregroundColor(.textPrimary)
                 .fontWeight(.semibold)
-            
+
             ForEach(metrics.allMetrics, id: \.name) { metric in
                 MetricRow(
                     name: metric.name,
@@ -414,7 +442,7 @@ struct PerformanceMetricsSection: View {
 // MARK: - Injury Diagnostics Section
 struct InjuryDiagnosticsSection: View {
     let metrics: InjuryMetrics
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.s) {
             HStack {
@@ -422,9 +450,9 @@ struct InjuryDiagnosticsSection: View {
                     .font(.bodyMedium)
                     .foregroundColor(.textPrimary)
                     .fontWeight(.semibold)
-                
+
                 Spacer()
-                
+
                 // Risk Level Badge
                 HStack(spacing: Spacing.xxs) {
                     Image(systemName: metrics.riskLevel.icon)
@@ -437,7 +465,7 @@ struct InjuryDiagnosticsSection: View {
                 .background(riskColor(metrics.riskLevel).opacity(0.15))
                 .cornerRadius(CornerRadius.small)
             }
-            
+
             ForEach(metrics.allMetrics, id: \.name) { metric in
                 MetricRow(
                     name: metric.name,
@@ -447,7 +475,7 @@ struct InjuryDiagnosticsSection: View {
             }
         }
     }
-    
+
     private func riskColor(_ level: RiskLevel) -> Color {
         switch level {
         case .low: return .successGreen
@@ -463,7 +491,7 @@ struct MetricRow: View {
     let value: Int
     let description: String
     @State private var showDescription = false
-    
+
     var body: some View {
         VStack(spacing: Spacing.xs) {
             HStack {
@@ -471,15 +499,15 @@ struct MetricRow: View {
                 Text(name)
                     .font(.bodySmall)
                     .foregroundColor(.textPrimary)
-                
+
                 Spacer()
-                
+
                 // Value
                 Text("\(value)")
                     .font(.bodySmall)
                     .foregroundColor(scoreColor(value))
                     .fontWeight(.medium)
-                
+
                 // Info button
                 Button(action: { showDescription.toggle() }) {
                     Image(systemName: "info.circle")
@@ -487,7 +515,7 @@ struct MetricRow: View {
                         .foregroundColor(.textTertiary)
                 }
             }
-            
+
             // Progress Bar
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
@@ -495,15 +523,17 @@ struct MetricRow: View {
                     RoundedRectangle(cornerRadius: 2)
                         .fill(Color.cardBorder)
                         .frame(height: 4)
-                    
+
                     // Progress
                     RoundedRectangle(cornerRadius: 2)
                         .fill(scoreColor(value))
-                        .frame(width: geometry.size.width * CGFloat(value) / 100, height: 4)
+                        .frame(
+                            width: geometry.size.width * CGFloat(value) / 100,
+                            height: 4)
                 }
             }
             .frame(height: 4)
-            
+
             // Description (if shown)
             if showDescription {
                 Text(description)
@@ -514,13 +544,45 @@ struct MetricRow: View {
             }
         }
     }
-    
+
     private func scoreColor(_ score: Int) -> Color {
-        if score >= 80 { return .successGreen }
-        else if score >= 60 { return .warningYellow }
-        else { return .errorRed }
+        if score >= 80 {
+            return .successGreen
+        } else if score >= 60 {
+            return .warningYellow
+        } else {
+            return .errorRed
+        }
     }
 }
+
+
+extension RunInterval {
+    static var sample: RunInterval {
+        RunInterval(
+            id: UUID(),
+            intervalNumber: 1,
+            distance: 0.5,
+            duration: 240,
+            timestamp: Date(),
+            performanceMetrics: PerformanceMetrics(
+                efficiency: 85,
+                sway: 55,
+                braking: 72, endurance: 78,
+                warmup: 80,
+                impact: 45,
+                variation: 68
+            ),
+            injuryMetrics: InjuryMetrics(
+                hipMobility: 65,
+                hipStability: 75,
+                portraitSymmetry: 82
+            )
+        )
+    }
+}
+
+
 
 // MARK: - Preview
 #Preview {
@@ -540,6 +602,6 @@ struct MetricRow: View {
             variation: 77
         )
     )
-    
+
     RunDetailView(run: sampleRun)
 }

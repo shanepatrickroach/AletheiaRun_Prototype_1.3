@@ -166,7 +166,7 @@ struct PreRunConfirmationView: View {
                         .frame(height: 200)
                     
                     VStack(spacing: Spacing.s) {
-                        Image(systemName: "figure.run")
+                        Image("Orientation")
                             .font(.system(size: 80))
                             .foregroundColor(.primaryOrange.opacity(0.5))
                         
@@ -248,9 +248,8 @@ struct PreRunConfirmationView: View {
             }
             
             VStack(alignment: .leading, spacing: Spacing.s) {
-                TipRow(text: "Keep your phone nearby (within 30 feet)")
                 TipRow(text: "Your screen can turn off - data is still recording")
-                TipRow(text: "Try to maintain consistent form throughout")
+                TipRow(text: "Keep the sensor placed in the same position throughout recording.")
             }
             .padding(Spacing.m)
             .background(Color.cardBackground)

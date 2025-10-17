@@ -15,7 +15,7 @@ struct PreRunView: View {
     @State private var selectedMode: RunMode = .run
     @State private var selectedTerrain: TerrainType = .road
     @State private var showingSensorList = false
-    @State private var showingConfirmation = true
+    @State private var showingConfirmation = false
     @State private var navigateToActiveRun = false
     
     @Environment(\.dismiss) private var dismiss
@@ -35,7 +35,7 @@ struct PreRunView: View {
                     terrainSection
                     
                     // MARK: - Start Button
-                    if bluetoothManager.connectedSensor != nil {
+                    if bluetoothManager.connectedSensor == nil {
                         PrimaryButton(
                             title: "Continue"
                             

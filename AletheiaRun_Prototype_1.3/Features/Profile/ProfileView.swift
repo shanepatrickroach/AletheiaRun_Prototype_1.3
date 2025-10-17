@@ -14,10 +14,12 @@ struct ProfileView: View {
     @State private var showingEditProfile = false
     @State private var showingNotifications = false
     @State private var showingPrivacy = false
+    @State private var showingSubscription = false
     @State private var showingSensorSettings = false
     @State private var showingAbout = false
     @State private var showingHelp = false
     @State private var showingContact = false
+    @State private var showingUnits = false
     
     var user: User? {
         authManager.currentUser
@@ -62,7 +64,7 @@ struct ProfileView: View {
                                 icon: "ticket.fill",
                                 title: "Subscription"
                             ) {
-                                showingPrivacy = true
+                                showingSubscription = true
                             }
                         }
                         
@@ -72,6 +74,12 @@ struct ProfileView: View {
                                 title: "Sensor Settings"
                             ) {
                                 showingSensorSettings = true
+                            }
+                            SettingsRow(
+                                icon: "base.unit",
+                                title: "Units"
+                            ) {
+                                showingUnits = true
                             }
                             
                             SettingsRow(
@@ -137,18 +145,25 @@ struct ProfileView: View {
             }
             .navigationTitle("Profile")
             .navigationBarTitleDisplayMode(.large)
-            // Navigation destinations
-//            .navigationDestination(isPresented: $showingEditProfile) {
-//                EditProfileView()
-//            }
+             // Navigation destinations
+            .navigationDestination(isPresented: $showingEditProfile) {
+                EditProfileView()
+            }
             .navigationDestination(isPresented: $showingNotifications) {
                 NotificationSettingsView()
             }
             .navigationDestination(isPresented: $showingPrivacy) {
                 PrivacySettingsView()
             }
+            .navigationDestination(isPresented: $showingSubscription) {
+                SubscriptionView()
+            }
+            
             .navigationDestination(isPresented: $showingSensorSettings) {
                 SensorSettingsView()
+            }
+            .navigationDestination(isPresented: $showingUnits) {
+                UnitSettingsView()
             }
             .navigationDestination(isPresented: $showingAbout) {
                 AboutView()

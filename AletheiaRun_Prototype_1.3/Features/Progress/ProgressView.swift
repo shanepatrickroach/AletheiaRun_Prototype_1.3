@@ -18,6 +18,9 @@ struct ProgressView: View {
                 Color.backgroundBlack.ignoresSafeArea()
                 
                 VStack(spacing: 0) {
+                    
+                
+    
                     // Segmented Control
                     SegmentedControl(selection: $selectedTab)
                         .padding(.horizontal, Spacing.l)

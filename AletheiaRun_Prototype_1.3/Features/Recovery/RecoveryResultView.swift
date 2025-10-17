@@ -1,3 +1,11 @@
+//
+//  RecoveryResultView.swift
+//  AletheiaRun_Prototype_1.3
+//
+//  Created by Shane Roach on 10/15/25.
+//
+
+
 import SwiftUI
 
 // MARK: - Recovery Result View
@@ -127,7 +135,7 @@ struct RecoveryResultView: View {
             // Stats grid
             HStack(spacing: Spacing.xl) {
                 if let distance = result.formattedDistance {
-                    StatColumn(
+                    RecoverRunStatColumn(
                         icon: "figure.run",
                         value: distance,
                         label: "Distance"
@@ -135,7 +143,7 @@ struct RecoveryResultView: View {
                 }
                 
                 if let duration = result.formattedDuration {
-                    StatColumn(
+                    RecoverRunStatColumn(
                         icon: "timer",
                         value: duration,
                         label: "Duration"
@@ -143,7 +151,7 @@ struct RecoveryResultView: View {
                 }
                 
                 if let dataPoints = result.dataPoints {
-                    StatColumn(
+                    RecoverRunStatColumn(
                         icon: "waveform.path.ecg",
                         value: "\(dataPoints)",
                         label: "Data Points"
@@ -344,7 +352,7 @@ struct RecoveryResultView: View {
 }
 
 // MARK: - Stat Column Component
-struct StatColumn: View {
+struct RecoverRunStatColumn: View {
     let icon: String
     let value: String
     let label: String
@@ -414,7 +422,7 @@ struct ReasonRow: View {
 }
 
 // MARK: - Tip Row Component
-struct TipRow: View {
+struct RecoverRunTipRow: View {
     let text: String
     
     var body: some View {

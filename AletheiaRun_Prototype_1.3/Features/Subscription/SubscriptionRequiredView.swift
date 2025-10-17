@@ -66,9 +66,9 @@ struct SubscriptionRequiredView: View {
                         // Subscription Options
                         VStack(spacing: Spacing.m) {
                             SubscriptionOptionCard(
-                                title: "Monthly",
-                                price: "$29.99",
-                                period: "per month",
+                                title: "Free Trial",
+                                price: "0",
+                                period: "for 30 days",
                                 isPopular: false
                             )
                             
@@ -116,9 +116,7 @@ struct SubscriptionRequiredView: View {
     }
     
     private func subscribe() {
-        print("🟣 Subscribe button tapped")
-        // TODO: Implement actual subscription flow
-        
+       
         // For now, simulate successful subscription
         var updatedUser = user
         updatedUser.hasActiveSubscription = true
@@ -128,7 +126,7 @@ struct SubscriptionRequiredView: View {
     }
     
     private func skipSubscription() {
-        print("🟣 Skip subscription tapped")
+       
         // Allow limited access
         authManager.currentUser = user
         authManager.authState = .authenticated(user: user)

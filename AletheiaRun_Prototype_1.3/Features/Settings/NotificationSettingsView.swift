@@ -46,12 +46,7 @@ struct NotificationSettingsView: View {
                             isOn: $runReminders
                         )
                         
-                        SettingsToggle(
-                            icon: "battery.25",
-                            title: "Sensor Battery",
-                            description: "Alerts when sensor battery is low",
-                            isOn: $sensorBatteryAlerts
-                        )
+                       
                     }
                     
                     // Achievement Notifications
@@ -81,15 +76,7 @@ struct NotificationSettingsView: View {
                         )
                     }
                     
-                    // Social (Future Feature)
-                    SettingsToggleSection(title: "Social") {
-                        SettingsToggle(
-                            icon: "person.2",
-                            title: "Social Updates",
-                            description: "Friend activities and leaderboards",
-                            isOn: $socialUpdates
-                        )
-                    }
+                   
                     
                     // Info Card
                     VStack(alignment: .leading, spacing: Spacing.s) {
