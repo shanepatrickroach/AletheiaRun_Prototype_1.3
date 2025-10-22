@@ -97,17 +97,20 @@ struct PostRunSurveyView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             
             HStack(spacing: Spacing.m) {
+                
+                SummaryMetric(
+                    icon: "ruler",
+                    value: String(format: "%.2f mi", runSession.distance),
+                    label: "Distance"
+                )
+                
                 SummaryMetric(
                     icon: "clock.fill",
                     value: runSession.formattedDuration,
                     label: "Duration"
                 )
                 
-                SummaryMetric(
-                    icon: "road.lanes",
-                    value: String(format: "%.2f mi", runSession.distance),
-                    label: "Distance"
-                )
+                
                 
                 SummaryMetric(
                     icon: "speedometer",

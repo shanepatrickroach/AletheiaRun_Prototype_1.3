@@ -15,7 +15,7 @@ struct PreRunConfirmationView: View {
     let onConfirm: () -> Void
     
     @Environment(\.dismiss) private var dismiss
-    @State private var hasConfirmedPlacement = false
+    @State private var hasConfirmedPlacement = true
     
     var body: some View {
         NavigationStack {
@@ -48,7 +48,7 @@ struct PreRunConfirmationView: View {
                         sensorPlacementReminder
                         
                         // MARK: - Placement Confirmation Checkbox
-                        placementConfirmation
+                        //placementConfirmation
                         
                         // MARK: - Important Tips
                         importantTips
@@ -200,38 +200,38 @@ struct PreRunConfirmationView: View {
         }
     }
     
-    // MARK: - Placement Confirmation
-    private var placementConfirmation: some View {
-        Button(action: {
-            hasConfirmedPlacement.toggle()
-        }) {
-            HStack(spacing: Spacing.m) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 6)
-                        .stroke(hasConfirmedPlacement ? Color.primaryOrange : Color.cardBorder, lineWidth: 2)
-                        .frame(width: 24, height: 24)
-                    
-                    if hasConfirmedPlacement {
-                        Image(systemName: "checkmark")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(.primaryOrange)
-                    }
-                }
-                
-                Text("I confirm the sensor is properly placed and secured")
-                    .font(Font.bodyMedium)
-                    .foregroundColor(.textPrimary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .padding(Spacing.m)
-            .background(Color.cardBackground)
-            .cornerRadius(CornerRadius.medium)
-            .overlay(
-                RoundedRectangle(cornerRadius: CornerRadius.medium)
-                    .stroke(hasConfirmedPlacement ? Color.primaryOrange : Color.cardBorder, lineWidth: hasConfirmedPlacement ? 2 : 1)
-            )
-        }
-    }
+//    // MARK: - Placement Confirmation
+//    private var placementConfirmation: some View {
+//        Button(action: {
+//            hasConfirmedPlacement.toggle()
+//        }) {
+//            HStack(spacing: Spacing.m) {
+//                ZStack {
+//                    RoundedRectangle(cornerRadius: 6)
+//                        .stroke(hasConfirmedPlacement ? Color.primaryOrange : Color.cardBorder, lineWidth: 2)
+//                        .frame(width: 24, height: 24)
+//                    
+//                    if hasConfirmedPlacement {
+//                        Image(systemName: "checkmark")
+//                            .font(.system(size: 14, weight: .bold))
+//                            .foregroundColor(.primaryOrange)
+//                    }
+//                }
+//                
+//                Text("I confirm the sensor is properly placed and secured")
+//                    .font(Font.bodyMedium)
+//                    .foregroundColor(.textPrimary)
+//                    .frame(maxWidth: .infinity, alignment: .leading)
+//            }
+//            .padding(Spacing.m)
+//            .background(Color.cardBackground)
+//            .cornerRadius(CornerRadius.medium)
+//            .overlay(
+//                RoundedRectangle(cornerRadius: CornerRadius.medium)
+//                    .stroke(hasConfirmedPlacement ? Color.primaryOrange : Color.cardBorder, lineWidth: hasConfirmedPlacement ? 2 : 1)
+//            )
+//        }
+//    }
     
     // MARK: - Important Tips
     private var importantTips: some View {
