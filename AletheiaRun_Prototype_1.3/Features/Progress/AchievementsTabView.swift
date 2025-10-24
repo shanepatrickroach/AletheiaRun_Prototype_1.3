@@ -67,6 +67,7 @@ struct AchievementsTabView: View {
                 }
                 .padding(.horizontal, Spacing.l)
             }
+            .background(Color.backgroundBlack)
             .padding(.bottom, Spacing.xxxl)
         }
     }
@@ -119,23 +120,23 @@ struct OverallProgressCard: View {
                 
                 Spacer()
                 
-                // Circular progress
-                ZStack {
-                    Circle()
-                        .stroke(Color.cardBorder, lineWidth: 6)
-                        .frame(width: 60, height: 60)
-                    
-                    Circle()
-                        .trim(from: 0, to: gamificationManager.achievementProgress / 100)
-                        .stroke(Color.primaryOrange, style: StrokeStyle(lineWidth: 6, lineCap: .round))
-                        .frame(width: 60, height: 60)
-                        .rotationEffect(.degrees(-90))
-                    
-                    Text("\(Int(gamificationManager.achievementProgress))%")
-                        .font(.bodySmall)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.textPrimary)
-                }
+//                // Circular progress
+//                ZStack {
+//                    Circle()
+//                        .stroke(Color.cardBorder, lineWidth: 6)
+//                        .frame(width: 60, height: 60)
+//                    
+//                    Circle()
+//                        .trim(from: 0, to: gamificationManager.achievementProgress / 100)
+//                        .stroke(Color.primaryOrange, style: StrokeStyle(lineWidth: 6, lineCap: .round))
+//                        .frame(width: 60, height: 60)
+//                        .rotationEffect(.degrees(-90))
+//                    
+//                    Text("\(Int(gamificationManager.achievementProgress))%")
+//                        .font(.bodySmall)
+//                        .fontWeight(.semibold)
+//                        .foregroundColor(.textPrimary)
+//                }
             }
             
             // Tier Breakdown

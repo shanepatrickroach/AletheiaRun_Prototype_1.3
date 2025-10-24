@@ -2,94 +2,315 @@
 
 import SwiftUI
 
-/// A circular dial showing the gait cycle breakdown with colored segments
-struct GaitCycleDial: View {
+/// Enhanced dual-dial view showing left and right leg gait cycles
+struct DualGaitCycleDial: View {
     let metrics: GaitCycleMetrics
     let size: CGFloat
-    let showLabels: Bool
     
-    init(
-        metrics: GaitCycleMetrics,
-        size: CGFloat = 200,
-        showLabels: Bool = true
-    ) {
+    init(metrics: GaitCycleMetrics, size: CGFloat = 300) {
         self.metrics = metrics
         self.size = size
-        self.showLabels = showLabels
     }
     
     var body: some View {
+        VStack(spacing: Spacing.xl) {
+            // Symmetry Score Header
+            HStack {
+                Spacer()
+                
+                VStack(spacing: Spacing.xxs) {
+                    Text("Symmetry")
+                        .font(.caption)
+                        .foregroundColor(.textSecondary)
+                    
+                    HStack(spacing: 4) {
+                        Text("\(metrics.symmetryScore)")
+                            .font(.titleMedium)
+                            .foregroundColor(symmetryColor)
+                        
+                        Image(systemName: symmetryIcon)
+                            .font(.bodyMedium)
+                            .foregroundColor(symmetryColor)
+                    }
+                }
+                
+                Spacer()
+            }
+            
+            // Dual Dials
+            HStack(spacing: Spacing.xxl) {
+                // Left Leg
+                VStack(spacing: Spacing.m) {
+                    EnhancedGaitCycleDial(
+                        legCycle: metrics.leftLeg,
+                        size: size / 2.2,
+                        isLeftLeg: true
+                    )
+                    
+                    Text("Left Leg")
+                        .font(.bodySmall)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.textPrimary)
+                }
+                
+                // Right Leg
+                VStack(spacing: Spacing.m) {
+                    EnhancedGaitCycleDial(
+                        legCycle: metrics.rightLeg,
+                        size: size / 2.2,
+                        isLeftLeg: false
+                    )
+                    
+                    Text("Right Leg")
+                        .font(.bodySmall)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.textPrimary)
+                }
+            }
+            
+            // Cadence Display
+            HStack(spacing: Spacing.xl) {
+                Spacer()
+                
+                HStack(spacing: Spacing.xs) {
+                    Image(systemName: "metronome.fill")
+                        .foregroundColor(.primaryOrange)
+                    
+                    Text("\(metrics.cadence)")
+                        .font(.titleMedium)
+                        .foregroundColor(.textPrimary)
+                    
+                    Text("SPM")
+                        .font(.bodySmall)
+                        .foregroundColor(.textSecondary)
+                }
+                
+                Spacer()
+            }
+        }
+    }
+    
+    private var symmetryColor: Color {
+        let score = metrics.symmetryScore
+        if score >= 85 { return .successGreen }
+        if score >= 70 { return .warningYellow }
+        return .errorRed
+    }
+    
+    private var symmetryIcon: String {
+        let score = metrics.symmetryScore
+        if score >= 85 { return "checkmark.circle.fill" }
+        if score >= 70 { return "exclamationmark.circle.fill" }
+        return "xmark.circle.fill"
+    }
+}
+
+// MARK: - Enhanced Gait Cycle Dial (Single Leg)
+struct EnhancedGaitCycleDial: View {
+    let legCycle: LegGaitCycle
+    let size: CGFloat
+    let isLeftLeg: Bool
+    
+    var body: some View {
         ZStack {
-            // Background circle
+            // Outer glow ring
             Circle()
-                .stroke(Color.cardBorder, lineWidth: 2)
+                .stroke(
+                    LinearGradient(
+                        colors: [
+                            Color.primaryOrange.opacity(0.3),
+                            Color.primaryOrange.opacity(0.05)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 2
+                )
+                .frame(width: size + 10, height: size + 10)
+                .blur(radius: 3)
+            
+            // Background circle with gradient
+            Circle()
+                .fill(
+                    RadialGradient(
+                        colors: [
+                            Color.cardBackground.opacity(0.8),
+                            Color.backgroundBlack
+                        ],
+                        center: .center,
+                        startRadius: 0,
+                        endRadius: size / 2
+                    )
+                )
                 .frame(width: size, height: size)
             
-            // Gait cycle segments
-            GaitCycleSegments(metrics: metrics, size: size)
+            // Inner shadow circle
+            Circle()
+                .stroke(Color.black.opacity(0.5), lineWidth: 1)
+                .frame(width: size - 40, height: size - 40)
+            
+            // Gait cycle segments with enhanced styling
+            EnhancedGaitCycleSegments(legCycle: legCycle, size: size)
             
             // Center content
-            VStack(spacing: 4) {
-                Text("Gait Cycle")
-                    .font(.caption)
-                    .foregroundColor(.textSecondary)
+            VStack(spacing: 2) {
+                // Leg indicator icon
+                Image(systemName: isLeftLeg ? "l.circle.fill" : "r.circle.fill")
+                    .font(.system(size: 20))
+                    .foregroundColor(.primaryOrange.opacity(0.7))
                 
-                Text("\(metrics.cadence)")
-                    .font(.titleLarge)
+                // Contact percentage
+                Text(String(format: "%.0f%%", legCycle.contactPercentage))
+                    .font(.system(size: 24, weight: .bold))
                     .foregroundColor(.textPrimary)
                 
-                Text("SPM")
-                    .font(.caption)
+                Text("Contact")
+                    .font(.system(size: 10))
                     .foregroundColor(.textSecondary)
             }
         }
     }
 }
 
-// MARK: - Gait Cycle Segments
-struct GaitCycleSegments: View {
-    let metrics: GaitCycleMetrics
+// MARK: - Enhanced Gait Cycle Segments
+struct EnhancedGaitCycleSegments: View {
+    let legCycle: LegGaitCycle
     let size: CGFloat
+    
+    private let lineWidth: CGFloat = 14
+    private let spacing: CGFloat = 2  // Gap between segments
     
     var body: some View {
         ZStack {
-            // Landing segment (starts at top, goes clockwise)
-            SegmentShape(
+            // Landing segment
+            EnhancedSegmentShape(
                 startAngle: .degrees(-90),
-                endAngle: .degrees(-90 + (metrics.landing / 100 * 360))
+                endAngle: .degrees(-90 + (legCycle.landing / 100 * 360) - spacing),
+                phase: .landing
             )
-            .fill(GaitCyclePhase.landing.color)
+            .stroke(
+                AngularGradient(
+                    colors: [
+                        GaitCyclePhase.landing.color.opacity(0.7),
+                        GaitCyclePhase.landing.color,
+                        GaitCyclePhase.landing.color.opacity(0.7)
+                    ],
+                    center: .center,
+                    startAngle: .degrees(-90),
+                    endAngle: .degrees(-90 + (legCycle.landing / 100 * 360))
+                ),
+                style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+            )
             
             // Stabilizing segment
-            SegmentShape(
-                startAngle: .degrees(-90 + (metrics.landing / 100 * 360)),
-                endAngle: .degrees(-90 + ((metrics.landing + metrics.stabilizing) / 100 * 360))
+            EnhancedSegmentShape(
+                startAngle: .degrees(-90 + (legCycle.landing / 100 * 360)),
+                endAngle: .degrees(-90 + ((legCycle.landing + legCycle.stabilizing) / 100 * 360) - spacing),
+                phase: .stabilizing
             )
-            .fill(GaitCyclePhase.stabilizing.color)
+            .stroke(
+                AngularGradient(
+                    colors: [
+                        GaitCyclePhase.stabilizing.color.opacity(0.7),
+                        GaitCyclePhase.stabilizing.color,
+                        GaitCyclePhase.stabilizing.color.opacity(0.7)
+                    ],
+                    center: .center,
+                    startAngle: .degrees(-90 + (legCycle.landing / 100 * 360)),
+                    endAngle: .degrees(-90 + ((legCycle.landing + legCycle.stabilizing) / 100 * 360))
+                ),
+                style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+            )
             
             // Launching segment
-            SegmentShape(
-                startAngle: .degrees(-90 + ((metrics.landing + metrics.stabilizing) / 100 * 360)),
-                endAngle: .degrees(-90 + ((metrics.landing + metrics.stabilizing + metrics.launching) / 100 * 360))
+            EnhancedSegmentShape(
+                startAngle: .degrees(-90 + ((legCycle.landing + legCycle.stabilizing) / 100 * 360)),
+                endAngle: .degrees(-90 + ((legCycle.landing + legCycle.stabilizing + legCycle.launching) / 100 * 360) - spacing),
+                phase: .launching
             )
-            .fill(GaitCyclePhase.launching.color)
+            .stroke(
+                AngularGradient(
+                    colors: [
+                        GaitCyclePhase.launching.color.opacity(0.7),
+                        GaitCyclePhase.launching.color,
+                        GaitCyclePhase.launching.color.opacity(0.7)
+                    ],
+                    center: .center,
+                    startAngle: .degrees(-90 + ((legCycle.landing + legCycle.stabilizing) / 100 * 360)),
+                    endAngle: .degrees(-90 + ((legCycle.landing + legCycle.stabilizing + legCycle.launching) / 100 * 360))
+                ),
+                style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+            )
             
             // Flying segment
-            SegmentShape(
-                startAngle: .degrees(-90 + ((metrics.landing + metrics.stabilizing + metrics.launching) / 100 * 360)),
-                endAngle: .degrees(-90 + 360)
+            EnhancedSegmentShape(
+                startAngle: .degrees(-90 + ((legCycle.landing + legCycle.stabilizing + legCycle.launching) / 100 * 360)),
+                endAngle: .degrees(-90 + 360 - spacing),
+                phase: .flying
             )
-            .fill(GaitCyclePhase.flying.color)
+            .stroke(
+                AngularGradient(
+                    colors: [
+                        GaitCyclePhase.flying.color.opacity(0.7),
+                        GaitCyclePhase.flying.color,
+                        GaitCyclePhase.flying.color.opacity(0.7)
+                    ],
+                    center: .center,
+                    startAngle: .degrees(-90 + ((legCycle.landing + legCycle.stabilizing + legCycle.launching) / 100 * 360)),
+                    endAngle: .degrees(-90 + 360)
+                ),
+                style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+            )
+            
+            // Add subtle inner glow for each phase
+            ForEach(GaitCyclePhase.allCases) { phase in
+                let (start, end) = angleRangeForPhase(phase)
+                EnhancedSegmentShape(
+                    startAngle: start,
+                    endAngle: end,
+                    phase: phase
+                )
+                .stroke(
+                    phase.color.opacity(0.3),
+                    style: StrokeStyle(lineWidth: lineWidth - 4, lineCap: .round)
+                )
+            }
         }
         .frame(width: size, height: size)
     }
+    
+    private func angleRangeForPhase(_ phase: GaitCyclePhase) -> (Angle, Angle) {
+        let spacing = 2.0
+        switch phase {
+        case .landing:
+            return (
+                .degrees(-90),
+                .degrees(-90 + (legCycle.landing / 100 * 360) - spacing)
+            )
+        case .stabilizing:
+            return (
+                .degrees(-90 + (legCycle.landing / 100 * 360)),
+                .degrees(-90 + ((legCycle.landing + legCycle.stabilizing) / 100 * 360) - spacing)
+            )
+        case .launching:
+            return (
+                .degrees(-90 + ((legCycle.landing + legCycle.stabilizing) / 100 * 360)),
+                .degrees(-90 + ((legCycle.landing + legCycle.stabilizing + legCycle.launching) / 100 * 360) - spacing)
+            )
+        case .flying:
+            return (
+                .degrees(-90 + ((legCycle.landing + legCycle.stabilizing + legCycle.launching) / 100 * 360)),
+                .degrees(-90 + 360 - spacing)
+            )
+        }
+    }
 }
 
-// MARK: - Segment Shape
-struct SegmentShape: Shape {
+// MARK: - Enhanced Segment Shape
+struct EnhancedSegmentShape: Shape {
     let startAngle: Angle
     let endAngle: Angle
-    let lineWidth: CGFloat = 30
+    let phase: GaitCyclePhase
     
     func path(in rect: CGRect) -> Path {
         var path = Path()
@@ -98,18 +319,18 @@ struct SegmentShape: Shape {
         
         path.addArc(
             center: center,
-            radius: radius - lineWidth / 2,
+            radius: radius - 12,
             startAngle: startAngle,
             endAngle: endAngle,
             clockwise: false
         )
         
-        return path.strokedPath(.init(lineWidth: lineWidth, lineCap: .butt))
+        return path
     }
 }
 
-// MARK: - Gait Cycle Legend
-/// Shows the four phases with their colors and percentages
+// MARK: - Compact Gait Cycle Legend
+/// Updated legend showing left vs right comparison
 struct GaitCycleLegend: View {
     let metrics: GaitCycleMetrics
     
@@ -118,52 +339,103 @@ struct GaitCycleLegend: View {
             ForEach(GaitCyclePhase.allCases) { phase in
                 GaitCycleLegendRow(
                     phase: phase,
-                    percentage: percentageForPhase(phase)
+                    leftPercentage: percentageForPhase(phase, leg: .left),
+                    rightPercentage: percentageForPhase(phase, leg: .right)
                 )
             }
         }
     }
     
-    private func percentageForPhase(_ phase: GaitCyclePhase) -> Double {
+    private enum Leg {
+        case left, right
+    }
+    
+    private func percentageForPhase(_ phase: GaitCyclePhase, leg: Leg) -> Double {
+        let cycle = leg == .left ? metrics.leftLeg : metrics.rightLeg
         switch phase {
-        case .landing: return metrics.landing
-        case .stabilizing: return metrics.stabilizing
-        case .launching: return metrics.launching
-        case .flying: return metrics.flying
+        case .landing: return cycle.landing
+        case .stabilizing: return cycle.stabilizing
+        case .launching: return cycle.launching
+        case .flying: return cycle.flying
         }
     }
 }
 
-// MARK: - Legend Row
+// MARK: - Updated Legend Row with Left/Right Comparison
 struct GaitCycleLegendRow: View {
     let phase: GaitCyclePhase
-    let percentage: Double
+    let leftPercentage: Double
+    let rightPercentage: Double
     
     var body: some View {
         HStack(spacing: Spacing.m) {
-            // Color indicator
-            RoundedRectangle(cornerRadius: 4)
-                .fill(phase.color)
-                .frame(width: 4, height: 20)
+            // Color indicator with gradient
+            RoundedRectangle(cornerRadius: 6)
+                .fill(
+                    LinearGradient(
+                        colors: [phase.color, phase.color.opacity(0.7)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .frame(width: 6, height: 28)
+                .shadow(color: phase.color.opacity(0.5), radius: 3, x: 0, y: 0)
             
-            // Phase name
-            Text(phase.rawValue)
-                .font(.bodySmall)
-                .foregroundColor(.textPrimary)
+            // Phase name and icon
+            HStack(spacing: Spacing.xs) {
+                Image(phase.icon)
+                    .resizable()
+                    .frame(width: 34, height: 34)
+                    .font(.system(size: 12))
+                    .foregroundColor(phase.color)
+                
+                Text(phase.rawValue)
+                    .font(.bodySmall)
+                    .foregroundColor(.textPrimary)
+            }
+            .frame(width: 150, alignment: .leading)
             
             Spacer()
             
-            // Percentage
-            Text(String(format: "%.1f%%", percentage))
-                .font(.bodySmall)
-                .fontWeight(.semibold)
-                .foregroundColor(phase.color)
+            // Left leg percentage
+            VStack(spacing: 2) {
+                Text("L")
+                    .font(.system(size: 9))
+                    .foregroundColor(.textTertiary)
+                
+                Text(String(format: "%.1f%%", leftPercentage))
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundColor(phase.color)
+            }
+            .frame(width: 45)
+            
+            // Right leg percentage
+            VStack(spacing: 2) {
+                Text("R")
+                    .font(.system(size: 9))
+                    .foregroundColor(.textTertiary)
+                
+                Text(String(format: "%.1f%%", rightPercentage))
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundColor(phase.color)
+            }
+            .frame(width: 45)
+            
+            // Difference indicator
+            if abs(leftPercentage - rightPercentage) > 1.0 {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.system(size: 10))
+                    .foregroundColor(.warningYellow)
+            }
         }
+        .padding(.vertical, Spacing.xs)
+        .padding(.horizontal, Spacing.s)
+        .background(Color.cardBackground.opacity(0.5))
+        .cornerRadius(CornerRadius.small)
     }
 }
 
-// MARK: - Gait Cycle Timing Card
-/// Shows contact time, flight time, and cadence
+// MARK: - Gait Cycle Timing Card (Updated)
 struct GaitCycleTimingCard: View {
     let metrics: GaitCycleMetrics
     
@@ -223,9 +495,15 @@ struct TimingMetricItem: View {
     
     var body: some View {
         VStack(spacing: Spacing.xs) {
-            Image(systemName: icon)
-                .font(.system(size: 24))
-                .foregroundColor(color)
+            ZStack {
+                Circle()
+                    .fill(color.opacity(0.2))
+                    .frame(width: 40, height: 40)
+                
+                Image(systemName: icon)
+                    .font(.system(size: 20))
+                    .foregroundColor(color)
+            }
             
             HStack(alignment: .lastTextBaseline, spacing: 2) {
                 Text(value)
@@ -254,10 +532,7 @@ struct TimingMetricItem: View {
 
 #Preview {
     VStack(spacing: Spacing.xl) {
-        GaitCycleDial(
-            metrics: GaitCycleMetrics(),
-            size: 200
-        )
+        DualGaitCycleDial(metrics: GaitCycleMetrics())
         
         GaitCycleLegend(metrics: GaitCycleMetrics())
             .padding(.horizontal)

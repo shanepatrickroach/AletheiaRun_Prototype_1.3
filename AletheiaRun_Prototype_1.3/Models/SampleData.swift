@@ -8,10 +8,10 @@
 import Foundation
 
 struct SampleData {
-    
+
     static let runs: [Run] = generateRuns(count: 30)
 
-//    static let runs: [Run] = createSampleRuns()
+    //    static let runs: [Run] = createSampleRuns()
 
     //    static func createSampleRuns() -> [Run] {
     //        let calendar = Calendar.current
@@ -81,18 +81,20 @@ struct SampleData {
                 terrain: TerrainType.allCases.randomElement()!,
                 distance: distance,
                 duration: duration,
-                
+
                 metrics: RunMetrics(
                     efficiency: Int.random(in: 50...95),
-                    sway: Int.random(in: 50...95),
-                    endurance: Int.random(in: 50...95),
-                    warmup: Int.random(in: 50...95),
-                    impact: Int.random(in: 50...95),
                     braking: Int.random(in: 50...95),
-                    variation: Int.random(in: 50...95)
+                    impact: Int.random(in: 50...95),
+                    sway: Int.random(in: 50...95),
+                    variation: Int.random(in: 50...95),
+                    warmup: Int.random(in: 50...95),
+                    endurance: Int.random(in: 50...95)
                 ),
+                gaitCycleMetrics: randomGaitCycleMetrics(),
                 perspectives: perspectives,
-                isLiked: Bool.random() && Bool.random()  // ~25% chance
+                isLiked: Bool.random() && Bool.random()
+                
 
             )
 
@@ -106,6 +108,43 @@ struct SampleData {
         let viewModel = CalendarViewModel()
         viewModel.runs = generateRuns()
         return viewModel
+    }
+
+    
+    
+    
+    
+    static func randomGaitCycleMetrics() -> GaitCycleMetrics {
+        // Generate base percentages
+        let baseLanding = Double.random(in: 12...18)
+        let baseStabilizing = Double.random(in: 18...25)
+        let baseLaunching = Double.random(in: 12...18)
+        let baseFlying = 100 - baseLanding - baseStabilizing - baseLaunching
+        
+        // Add slight asymmetry between legs (realistic)
+        let asymmetryFactor = Double.random(in: -2...2)
+        
+        let leftLeg = LegGaitCycle(
+            landing: baseLanding + asymmetryFactor,
+            stabilizing: baseStabilizing - asymmetryFactor * 0.5,
+            launching: baseLaunching + asymmetryFactor * 0.3,
+            flying: baseFlying - asymmetryFactor * 0.8
+        )
+        
+        let rightLeg = LegGaitCycle(
+            landing: baseLanding - asymmetryFactor,
+            stabilizing: baseStabilizing + asymmetryFactor * 0.5,
+            launching: baseLaunching - asymmetryFactor * 0.3,
+            flying: baseFlying + asymmetryFactor * 0.8
+        )
+        
+        return GaitCycleMetrics(
+            leftLeg: leftLeg,
+            rightLeg: rightLeg,
+            contactTime: Double.random(in: 220...280),
+            flightTime: Double.random(in: 80...120),
+            cadence: Int.random(in: 160...185)
+        )
     }
 
 }

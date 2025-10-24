@@ -412,12 +412,12 @@ struct RunDetailPainPointButton: View {
                 duration: 2400,
                 metrics: RunMetrics(
                     efficiency: 85,
-                    sway: 78,
-                    endurance: 82,
-                    warmup: 75,
-                    impact: 88,
-                    braking: 80,
-                    variation: 77
+                    braking: 78,
+                    impact: 82,
+                    sway: 75,
+                    variation: 88,
+                    warmup: 80,
+                    endurance: 77
                 )
             ))
             .padding(Spacing.m)

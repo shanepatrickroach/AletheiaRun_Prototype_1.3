@@ -5,12 +5,20 @@
 //  Created by Shane Roach on 10/21/25.
 //
 
+
+//
+//  ForcePortraitThumbnail.swift
+//  AletheiaRun_Prototype_1.3
+//
+//  Created by Shane Roach on 10/21/25.
+//
+
 import SwiftUI
 
 // MARK: - Force Portrait Thumbnail
 /// Displays a small Force Portrait visualization with color-coded score
 /// Used in run cards, interval cards, and calendar views
-struct ForcePortraitThumbnail: View {
+struct GeneratedForcePortraitThumbnail: View {
     let score: Int
     let size: CGSize
     

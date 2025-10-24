@@ -5,6 +5,14 @@
 //  Created by Shane Roach on 10/21/25.
 //
 
+
+//
+//  Runner.swift
+//  AletheiaRun_Prototype_1.3
+//
+//  Created by Shane Roach on 10/21/25.
+//
+
 import Foundation
 
 // MARK: - Runner Model
@@ -99,28 +107,6 @@ struct Runner: Identifiable, Codable {
             totalDistance: 187.3,
             averageEfficiency: 88,
             currentStreak: 18
-        ),
-        Runner(
-            firstName: "James",
-            lastName: "Williams",
-            email: "jwilliams@email.com",
-            dateAdded: Date().addingTimeInterval(-1296000), // 15 days ago
-            notes: "New runner - building base mileage",
-            totalRuns: 15,
-            totalDistance: 52.4,
-            averageEfficiency: 68,
-            currentStreak: 3
-        ),
-        Runner(
-            firstName: "Lisa",
-            lastName: "Thompson",
-            email: "lisa.t@email.com",
-            dateAdded: Date().addingTimeInterval(-10368000), // 120 days ago
-            notes: "Ultra training - emphasis on endurance",
-            totalRuns: 78,
-            totalDistance: 412.6,
-            averageEfficiency: 79,
-            currentStreak: 21
         )
     ]
 }

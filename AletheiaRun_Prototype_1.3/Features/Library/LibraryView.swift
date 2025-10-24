@@ -719,12 +719,12 @@ struct SampleRunData {
                 duration: TimeInterval.random(in: 1200...3600),
                 metrics: RunMetrics(
                     efficiency: Int.random(in: 60...95),
-                    sway: Int.random(in: 60...95),
-                    endurance: Int.random(in: 60...95),
-                    warmup: Int.random(in: 60...95),
-                    impact: Int.random(in: 60...95),
                     braking: Int.random(in: 60...95),
-                    variation: Int.random(in: 60...95)
+                    impact: Int.random(in: 60...95),
+                    sway: Int.random(in: 60...95),
+                    variation: Int.random(in: 60...95),
+                    warmup: Int.random(in: 60...95),
+                    endurance: Int.random(in: 60...95)
                 )
             )
             

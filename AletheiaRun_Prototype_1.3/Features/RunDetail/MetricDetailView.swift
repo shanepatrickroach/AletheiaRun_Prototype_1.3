@@ -1,3 +1,10 @@
+//
+//  MetricDetailView.swift
+//  AletheiaRun_Prototype_1.3
+//
+//  Created by Shane Roach on 10/20/25.
+//
+
 // Features/RunDetail/MetricDetailView.swift
 
 import SwiftUI
@@ -8,35 +15,39 @@ struct MetricDetailView: View {
     let snapshots: [RunSnapshot]
     let averageValue: Int
     @Environment(\.dismiss) private var dismiss
-    
+
     private var metricInfo: MetricInfo {
         metricType.info
     }
-    
+
     var body: some View {
         ZStack {
             Color.backgroundBlack.ignoresSafeArea()
-            
+
             ScrollView {
                 VStack(spacing: Spacing.xl) {
+                    
+                    
+                    metricHeader
+                    
                     // Metric Overview Card
                     metricOverviewCard
-                    
+
                     // Metric Over Time Chart
                     metricProgressionChart
-                    
+
                     // Video Placeholder
                     videoPlaceholder
-                    
+
                     // What is this metric?
                     whatIsItSection
-                    
+
                     // Why it matters
                     whyItMattersSection
-                    
+
                     // How to optimize
                     howToOptimizeSection
-                    
+
                     // Related metrics
                     relatedMetricsSection
                 }
@@ -56,6 +67,15 @@ struct MetricDetailView: View {
         }
     }
     
+    private var metricHeader: some View {
+        HStack {
+            Text(metricInfo.name)
+                .font(.titleLarge)
+                .foregroundColor(.textPrimary)
+            
+        }.padding(Spacing.m)
+    }
+
     // MARK: - Metric Overview Card
     private var metricOverviewCard: some View {
         VStack(spacing: Spacing.m) {
@@ -65,42 +85,45 @@ struct MetricDetailView: View {
                     Circle()
                         .fill(metricInfo.color.opacity(0.2))
                         .frame(width: 80, height: 80)
-                    
+
                     Image(systemName: metricInfo.icon)
                         .font(.system(size: 36))
                         .foregroundColor(metricInfo.color)
                 }
-                
+
                 VStack(alignment: .leading, spacing: Spacing.xs) {
                     Text("Average")
                         .font(.caption)
                         .foregroundColor(.textSecondary)
-                    
+
                     HStack(alignment: .lastTextBaseline, spacing: 4) {
                         Text("\(averageValue)")
                             .font(.system(size: 42, weight: .bold))
-                            .foregroundColor(metricInfo.colorForValue(averageValue))
-                        
+                            .foregroundColor(
+                                metricInfo.colorForValue(averageValue))
+
                         Text("/100")
                             .font(.titleSmall)
                             .foregroundColor(.textSecondary)
                     }
-                    
+
                     Text(metricInfo.statusForValue(averageValue))
                         .font(.bodySmall)
                         .foregroundColor(metricInfo.colorForValue(averageValue))
                         .padding(.horizontal, Spacing.s)
                         .padding(.vertical, 4)
-                        .background(metricInfo.colorForValue(averageValue).opacity(0.15))
+                        .background(
+                            metricInfo.colorForValue(averageValue).opacity(0.15)
+                        )
                         .cornerRadius(CornerRadius.small)
                 }
-                
+
                 Spacer()
             }
-            
+
             Divider()
                 .background(Color.cardBorder)
-            
+
             // Stats grid
             HStack(spacing: Spacing.m) {
                 MetricStatItem(
@@ -109,14 +132,14 @@ struct MetricDetailView: View {
                     icon: "arrow.up.circle.fill",
                     color: .successGreen
                 )
-                
+
                 MetricStatItem(
                     label: "Lowest",
                     value: "\(lowestValue)",
                     icon: "arrow.down.circle.fill",
                     color: .errorRed
                 )
-                
+
                 MetricStatItem(
                     label: "Range",
                     value: "\(range)",
@@ -133,7 +156,7 @@ struct MetricDetailView: View {
                 .stroke(metricInfo.color.opacity(0.3), lineWidth: 1)
         )
     }
-    
+
     // MARK: - Metric Progression Chart
     private var metricProgressionChart: some View {
         VStack(alignment: .leading, spacing: Spacing.m) {
@@ -141,20 +164,20 @@ struct MetricDetailView: View {
                 Text("Progression Over Run")
                     .font(.headline)
                     .foregroundColor(.textPrimary)
-                
+
                 Spacer()
-                
+
                 Text("\(snapshots.count) snapshots")
                     .font(.caption)
                     .foregroundColor(.textSecondary)
             }
-            
+
             // Chart placeholder
             ZStack {
                 RoundedRectangle(cornerRadius: CornerRadius.medium)
                     .fill(Color.cardBackground)
                     .frame(height: 220)
-                
+
                 VStack(spacing: Spacing.m) {
                     // Simple line chart visualization
                     MetricLineChart(
@@ -164,15 +187,15 @@ struct MetricDetailView: View {
                     )
                     .frame(height: 160)
                     .padding(.horizontal, Spacing.s)
-                    
+
                     // X-axis label
                     HStack {
                         Text("Start")
                             .font(.caption)
                             .foregroundColor(.textTertiary)
-                        
+
                         Spacer()
-                        
+
                         Text("End")
                             .font(.caption)
                             .foregroundColor(.textTertiary)
@@ -185,13 +208,13 @@ struct MetricDetailView: View {
                 RoundedRectangle(cornerRadius: CornerRadius.medium)
                     .stroke(Color.cardBorder, lineWidth: 1)
             )
-            
+
             // Chart insights
             if let insight = chartInsight {
                 HStack(spacing: Spacing.s) {
                     Image(systemName: insight.icon)
                         .foregroundColor(insight.color)
-                    
+
                     Text(insight.message)
                         .font(.bodySmall)
                         .foregroundColor(.textSecondary)
@@ -202,14 +225,14 @@ struct MetricDetailView: View {
             }
         }
     }
-    
+
     // MARK: - Video Placeholder
     private var videoPlaceholder: some View {
         VStack(alignment: .leading, spacing: Spacing.m) {
             Text("Learn More")
                 .font(.headline)
                 .foregroundColor(.textPrimary)
-            
+
             ZStack {
                 // Background with gradient
                 RoundedRectangle(cornerRadius: CornerRadius.large)
@@ -217,36 +240,36 @@ struct MetricDetailView: View {
                         LinearGradient(
                             colors: [
                                 metricInfo.color.opacity(0.3),
-                                metricInfo.color.opacity(0.1)
+                                metricInfo.color.opacity(0.1),
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
                     )
                     .frame(height: 200)
-                
+
                 VStack(spacing: Spacing.m) {
                     // Play button
                     ZStack {
                         Circle()
                             .fill(Color.backgroundBlack.opacity(0.7))
                             .frame(width: 70, height: 70)
-                        
+
                         Circle()
                             .stroke(metricInfo.color, lineWidth: 2)
                             .frame(width: 70, height: 70)
-                        
+
                         Image(systemName: "play.fill")
                             .font(.system(size: 28))
                             .foregroundColor(metricInfo.color)
                     }
-                    
+
                     Text(metricInfo.videoPlaceholderTitle)
                         .font(.bodyLarge)
                         .fontWeight(.semibold)
                         .foregroundColor(.textPrimary)
                         .multilineTextAlignment(.center)
-                    
+
                     Text("Video Coming Soon")
                         .font(.bodySmall)
                         .foregroundColor(.textSecondary)
@@ -259,19 +282,19 @@ struct MetricDetailView: View {
             )
         }
     }
-    
+
     // MARK: - What Is It Section
     private var whatIsItSection: some View {
         VStack(alignment: .leading, spacing: Spacing.m) {
             HStack(spacing: Spacing.xs) {
                 Image(systemName: "questionmark.circle.fill")
                     .foregroundColor(metricInfo.color)
-                
+
                 Text("What is \(metricInfo.name)?")
                     .font(.headline)
                     .foregroundColor(.textPrimary)
             }
-            
+
             Text(metricInfo.description)
                 .font(.bodyMedium)
                 .foregroundColor(.textSecondary)
@@ -286,38 +309,40 @@ struct MetricDetailView: View {
                 .stroke(Color.cardBorder, lineWidth: 1)
         )
     }
-    
+
     // MARK: - Why It Matters Section
     private var whyItMattersSection: some View {
         VStack(alignment: .leading, spacing: Spacing.m) {
             HStack(spacing: Spacing.xs) {
                 Image(systemName: "exclamationmark.circle.fill")
                     .foregroundColor(metricInfo.color)
-                
+
                 Text("Why It Matters")
                     .font(.headline)
                     .foregroundColor(.textPrimary)
             }
-            
+
             VStack(alignment: .leading, spacing: Spacing.s) {
-                ForEach(Array(metricInfo.whyItMatters.enumerated()), id: \.offset) { index, reason in
+                ForEach(
+                    Array(metricInfo.whyItMatters.enumerated()), id: \.offset
+                ) { index, reason in
                     HStack(alignment: .top, spacing: Spacing.s) {
                         ZStack {
                             Circle()
                                 .fill(metricInfo.color.opacity(0.2))
                                 .frame(width: 24, height: 24)
-                            
+
                             Text("\(index + 1)")
                                 .font(.caption)
                                 .fontWeight(.bold)
                                 .foregroundColor(metricInfo.color)
                         }
-                        
+
                         Text(reason)
                             .font(.bodyMedium)
                             .foregroundColor(.textSecondary)
                             .fixedSize(horizontal: false, vertical: true)
-                        
+
                         Spacer()
                     }
                 }
@@ -331,31 +356,33 @@ struct MetricDetailView: View {
                 .stroke(Color.cardBorder, lineWidth: 1)
         )
     }
-    
+
     // MARK: - How to Optimize Section
     private var howToOptimizeSection: some View {
         VStack(alignment: .leading, spacing: Spacing.m) {
             HStack(spacing: Spacing.xs) {
                 Image(systemName: "chart.line.uptrend.xyaxis.circle.fill")
                     .foregroundColor(metricInfo.color)
-                
+
                 Text("How to Optimize")
                     .font(.headline)
                     .foregroundColor(.textPrimary)
             }
-            
+
             VStack(alignment: .leading, spacing: Spacing.s) {
-                ForEach(Array(metricInfo.howToOptimize.enumerated()), id: \.offset) { index, tip in
+                ForEach(
+                    Array(metricInfo.howToOptimize.enumerated()), id: \.offset
+                ) { index, tip in
                     HStack(alignment: .top, spacing: Spacing.s) {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundColor(metricInfo.color)
                             .font(.system(size: 18))
-                        
+
                         Text(tip)
                             .font(.bodyMedium)
                             .foregroundColor(.textSecondary)
                             .fixedSize(horizontal: false, vertical: true)
-                        
+
                         Spacer()
                     }
                     .padding(Spacing.s)
@@ -372,31 +399,32 @@ struct MetricDetailView: View {
                 .stroke(Color.cardBorder, lineWidth: 1)
         )
     }
-    
+
     // MARK: - Related Metrics Section
     private var relatedMetricsSection: some View {
         VStack(alignment: .leading, spacing: Spacing.m) {
             HStack(spacing: Spacing.xs) {
                 Image(systemName: "link.circle.fill")
                     .foregroundColor(metricInfo.color)
-                
+
                 Text("Related Metrics")
                     .font(.headline)
                     .foregroundColor(.textPrimary)
             }
-            
+
             VStack(spacing: Spacing.xs) {
-                ForEach(metricInfo.relatedMetrics, id: \.self) { relatedMetric in
+                ForEach(metricInfo.relatedMetrics, id: \.self) {
+                    relatedMetric in
                     HStack {
                         Image(systemName: "arrow.right.circle")
                             .foregroundColor(metricInfo.color)
-                        
+
                         Text(relatedMetric)
                             .font(.bodyMedium)
                             .foregroundColor(.textPrimary)
-                        
+
                         Spacer()
-                        
+
                         Image(systemName: "chevron.right")
                             .font(.caption)
                             .foregroundColor(.textTertiary)
@@ -415,32 +443,32 @@ struct MetricDetailView: View {
                 .stroke(Color.cardBorder, lineWidth: 1)
         )
     }
-    
+
     // MARK: - Helper Computed Properties
     private var highestValue: Int {
         snapshots.map { valueForMetric($0) }.max() ?? 0
     }
-    
+
     private var lowestValue: Int {
         snapshots.map { valueForMetric($0) }.min() ?? 0
     }
-    
+
     private var range: Int {
         highestValue - lowestValue
     }
-    
+
     private var chartInsight: (message: String, icon: String, color: Color)? {
         let values = snapshots.map { valueForMetric($0) }
         guard values.count > 2 else { return nil }
-        
+
         let firstHalf = values.prefix(values.count / 2)
         let secondHalf = values.suffix(values.count / 2)
-        
+
         let firstAvg = firstHalf.reduce(0, +) / firstHalf.count
         let secondAvg = secondHalf.reduce(0, +) / secondHalf.count
-        
+
         let difference = secondAvg - firstAvg
-        
+
         if difference > 5 {
             return (
                 "Great job! Your \(metricInfo.name.lowercased()) improved throughout the run.",
@@ -461,7 +489,7 @@ struct MetricDetailView: View {
             )
         }
     }
-    
+
     private func valueForMetric(_ snapshot: RunSnapshot) -> Int {
         switch metricType {
         case .efficiency: return snapshot.performanceMetrics.efficiency
@@ -471,6 +499,10 @@ struct MetricDetailView: View {
         case .impact: return snapshot.performanceMetrics.impact
         case .braking: return snapshot.performanceMetrics.braking
         case .variation: return snapshot.performanceMetrics.variation
+        case .hipMobility: return snapshot.injuryMetrics.hipMobility
+        case .hipStability: return snapshot.injuryMetrics.hipStability
+        case .portraitSymmetry: return snapshot.injuryMetrics.portraitSymmetry
+        case .overallScore: return snapshot.performanceMetrics.overallScore
         }
     }
 }
@@ -481,18 +513,18 @@ struct MetricStatItem: View {
     let value: String
     let icon: String
     let color: Color
-    
+
     var body: some View {
         VStack(spacing: Spacing.xs) {
             Image(systemName: icon)
                 .font(.system(size: 20))
                 .foregroundColor(color)
-            
+
             Text(value)
                 .font(.titleSmall)
                 .fontWeight(.bold)
                 .foregroundColor(.textPrimary)
-            
+
             Text(label)
                 .font(.caption)
                 .foregroundColor(.textSecondary)
@@ -509,7 +541,7 @@ struct MetricLineChart: View {
     let snapshots: [RunSnapshot]
     let metricType: MetricType
     let color: Color
-    
+
     var body: some View {
         GeometryReader { geometry in
             ZStack {
@@ -521,31 +553,31 @@ struct MetricLineChart: View {
                                 .font(.system(size: 10))
                                 .foregroundColor(.textTertiary)
                                 .frame(width: 30, alignment: .trailing)
-                            
+
                             Rectangle()
                                 .fill(Color.cardBorder.opacity(0.3))
                                 .frame(height: 1)
                         }
-                        
+
                         if i < 4 {
                             Spacer()
                         }
                     }
                 }
-                
+
                 // Line chart
                 Path { path in
                     let values = snapshots.map { Double(valueForMetric($0)) }
                     guard !values.isEmpty else { return }
-                    
+
                     let width = geometry.size.width - 40
                     let height = geometry.size.height
                     let stepX = width / CGFloat(max(values.count - 1, 1))
-                    
+
                     // Start path
                     let firstY = height - (CGFloat(values[0]) / 100.0 * height)
                     path.move(to: CGPoint(x: 40, y: firstY))
-                    
+
                     // Draw line
                     for (index, value) in values.enumerated() {
                         let x = 40 + CGFloat(index) * stepX
@@ -554,18 +586,19 @@ struct MetricLineChart: View {
                     }
                 }
                 .stroke(color, lineWidth: 3)
-                
+
                 // Data points
-                ForEach(Array(snapshots.enumerated()), id: \.offset) { index, snapshot in
+                ForEach(Array(snapshots.enumerated()), id: \.offset) {
+                    index, snapshot in
                     let values = snapshots.map { Double(valueForMetric($0)) }
                     let width = geometry.size.width - 40
                     let height = geometry.size.height
                     let stepX = width / CGFloat(max(values.count - 1, 1))
                     let value = Double(valueForMetric(snapshot))
-                    
+
                     let x = 40 + CGFloat(index) * stepX
                     let y = height - (CGFloat(value) / 100.0 * height)
-                    
+
                     Circle()
                         .fill(color)
                         .frame(width: 6, height: 6)
@@ -574,7 +607,7 @@ struct MetricLineChart: View {
             }
         }
     }
-    
+
     private func valueForMetric(_ snapshot: RunSnapshot) -> Int {
         switch metricType {
         case .efficiency: return snapshot.performanceMetrics.efficiency
@@ -584,6 +617,10 @@ struct MetricLineChart: View {
         case .impact: return snapshot.performanceMetrics.impact
         case .braking: return snapshot.performanceMetrics.braking
         case .variation: return snapshot.performanceMetrics.variation
+        case .hipMobility: return snapshot.injuryMetrics.hipMobility
+        case .hipStability: return snapshot.injuryMetrics.hipStability
+        case .portraitSymmetry: return snapshot.injuryMetrics.portraitSymmetry
+        case .overallScore: return snapshot.performanceMetrics.overallScore
         }
     }
 }
@@ -593,3 +630,8 @@ struct MetricLineChart: View {
     NavigationStack {
         MetricDetailView(
             metricType: .efficiency,
+            snapshots: RunSnapshot.generateSampleSnapshots(count: 10),
+            averageValue: 82
+        )
+    }
+}

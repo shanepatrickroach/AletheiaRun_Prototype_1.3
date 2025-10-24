@@ -1,128 +1,201 @@
-//
-//  RunInterval.swift
-//  AletheiaRun_Prototype_1.3
-//
-//  Created by Shane Roach on 10/15/25.
-//
-
+// Models/RunSnapshot.swift
 
 import Foundation
+import SwiftUI
 
-// MARK: - Run Interval Model
-/// Represents a segment of a run with its own Force Portrait and metrics
-/// Each run is broken into intervals (e.g., every 0.5 miles or 5 minutes)
-struct RunInterval: Identifiable {
+/// Represents a snapshot of running data at a specific moment during a run
+/// Previously called "RunInterval", now renamed for clarity
+struct RunSnapshot: Identifiable, Codable {
     let id: UUID
-    let intervalNumber: Int // 1, 2, 3, etc.
-    let distance: Double // Distance covered in this interval (miles)
-    let duration: TimeInterval // Time for this interval (seconds)
-    let timestamp: Date // When this interval occurred
-    
-    // Performance metrics for this interval
+    let snapshotNumber: Int  // Sequential number (1, 2, 3...)
+    let distance: Double  // Cumulative distance at this snapshot
+    let duration: TimeInterval  // Cumulative time at this snapshot
+    let timestamp: Date  // When this snapshot was captured
+
     let performanceMetrics: PerformanceMetrics
-    
-    // Injury diagnostic metrics for this interval
     let injuryMetrics: InjuryMetrics
-    
-    // Computed Properties
-    var pace: Double {
-        guard distance > 0 else { return 0 }
-        return (duration / 60) / distance // min/mile
+    let gaitCycleMetrics: GaitCycleMetrics  // NEW: Add gait cycle data
+
+    // Computed properties
+    var formattedDistance: String {
+        String(format: "%.2f mi", distance)
     }
-    
+
     var formattedPace: String {
+        guard distance > 0 else { return "0:00" }
+        let pace = (duration / 60) / distance
         let minutes = Int(pace)
         let seconds = Int((pace - Double(minutes)) * 60)
         return String(format: "%d:%02d", minutes, seconds)
     }
-    
-    var formattedDistance: String {
-        String(format: "%.2f mi", distance)
+
+    init(
+        id: UUID = UUID(),
+        snapshotNumber: Int,
+        distance: Double,
+        duration: TimeInterval,
+        timestamp: Date,
+        performanceMetrics: PerformanceMetrics,
+        injuryMetrics: InjuryMetrics,
+        gaitCycleMetrics: GaitCycleMetrics = GaitCycleMetrics()  // NEW
+    ) {
+        self.id = id
+        self.snapshotNumber = snapshotNumber
+        self.distance = distance
+        self.duration = duration
+        self.timestamp = timestamp
+        self.performanceMetrics = performanceMetrics
+        self.injuryMetrics = injuryMetrics
+        self.gaitCycleMetrics = gaitCycleMetrics
     }
 }
 
 // MARK: - Performance Metrics
-/// The 7 core performance metrics (0-100 scale)
 struct PerformanceMetrics: Codable {
-    let efficiency: Int      // Energy economy
-    let sway: Int           // Lateral movement
-    let braking: Int        // Deceleration forces
-    let endurance: Int      // Sustained performance
-    let warmup: Int         // Initial readiness
-    let impact: Int         // Ground contact force
-    let variation: Int      // Stride consistency
-    
-    /// Overall score is the average of all metrics
+    let efficiency: Int
+    let braking: Int
+    let impact: Int
+    let sway: Int
+    let variation: Int
+    let warmup: Int
+    let endurance: Int
+
     var overallScore: Int {
-        (efficiency + sway + braking + endurance + warmup + impact + variation) / 7
+        (efficiency + sway + braking + endurance + warmup + impact + variation)
+            / 7
     }
-    
-    /// Get all metrics as an array for easy iteration
+
     var allMetrics: [(name: String, value: Int, description: String)] {
         [
             ("Efficiency", efficiency, "Energy economy during running"),
-            ("Sway", sway, "Lateral movement control"),
-            ("Braking", braking, "Deceleration force management"),
-            ("Endurance", endurance, "Sustained performance ability"),
-            ("Warmup", warmup, "Initial movement readiness"),
+            ("Sway", sway, "Lateral movement and stability"),
+            ("Braking", braking, "Deceleration forces"),
+            ("Endurance", endurance, "Sustained performance capability"),
+            ("Warmup", warmup, "Initial readiness quality"),
             ("Impact", impact, "Ground contact force"),
-            ("Variation", variation, "Stride-to-stride consistency")
+            ("Variation", variation, "Stride consistency"),
         ]
     }
 }
 
 // MARK: - Injury Metrics
-/// Diagnostic metrics related to injury prevention
 struct InjuryMetrics: Codable {
-    let hipMobility: Int        // Hip range of motion (0-100)
-    let hipStability: Int       // Hip joint stability (0-100)
-    let portraitSymmetry: Int   // Left/right balance (0-100)
-    
-    /// Overall injury risk score (higher is better)
-    var overallScore: Int {
-        (hipMobility + hipStability + portraitSymmetry) / 3
+    let leftLeg: LegInjuryMetrics
+    let rightLeg: LegInjuryMetrics
+
+    // Overall averages across both legs
+    var hipMobility: Int {
+        (leftLeg.hipMobility + rightLeg.hipMobility) / 2
     }
-    
-    /// Risk level based on overall score
+
+    var hipStability: Int {
+        (leftLeg.hipStability + rightLeg.hipStability) / 2
+    }
+
+    var portraitSymmetry: Int {
+        // Calculate symmetry based on differences between legs
+        let mobilityDiff = abs(leftLeg.hipMobility - rightLeg.hipMobility)
+        let stabilityDiff = abs(leftLeg.hipStability - rightLeg.hipStability)
+
+        // Lower difference = higher symmetry score
+        let avgDifference = (mobilityDiff + stabilityDiff) / 2
+        return max(0, 100 - (avgDifference * 2))
+    }
+
     var riskLevel: RiskLevel {
-        let score = overallScore
-        if score >= 80 { return .low }
-        else if score >= 60 { return .moderate }
-        else { return .high }
+        let average = (hipMobility + hipStability + portraitSymmetry) / 3
+        if average >= 75 {
+            return .low
+        } else if average >= 50 {
+            return .moderate
+        } else {
+            return .high
+        }
     }
-    
-    /// Get all metrics as an array for easy iteration
+
     var allMetrics: [(name: String, value: Int, description: String)] {
         [
-            ("Hip Mobility", hipMobility, "Range of motion in hip joints"),
-            ("Hip Stability", hipStability, "Strength and control of hip joints"),
-            ("Portrait Symmetry", portraitSymmetry, "Balance between left and right sides")
+            ("Hip Mobility", hipMobility, "Range of motion in hip joint"),
+            ("Hip Stability", hipStability, "Ability to control hip movement"),
+            (
+                "Portrait Symmetry", portraitSymmetry,
+                "Balance between left and right sides"
+            ),
         ]
+    }
+
+    // New: Get metrics for specific leg
+    func metricsForLeg(_ leg: LegSide) -> [(
+        name: String, value: Int, description: String
+    )] {
+        let legMetrics = leg == .left ? leftLeg : rightLeg
+        return [
+            (
+                "Hip Mobility", legMetrics.hipMobility,
+                "Range of motion in hip joint"
+            ),
+            (
+                "Hip Stability", legMetrics.hipStability,
+                "Ability to control hip movement"
+            ),
+        ]
+    }
+
+    init(leftLeg: LegInjuryMetrics, rightLeg: LegInjuryMetrics) {
+        self.leftLeg = leftLeg
+        self.rightLeg = rightLeg
+    }
+
+    // Convenience init for backward compatibility
+    init(hipMobility: Int, hipStability: Int, portraitSymmetry: Int) {
+        // Split evenly between legs with slight variation
+        self.leftLeg = LegInjuryMetrics(
+            hipMobility: hipMobility,
+            hipStability: hipStability
+        )
+        self.rightLeg = LegInjuryMetrics(
+            hipMobility: hipMobility,
+            hipStability: hipStability
+        )
     }
 }
 
-// MARK: - Risk Level Enum
-enum RiskLevel {
-    case low
-    case moderate
-    case high
-    
-    var title: String {
+// MARK: - Leg Injury Metrics
+struct LegInjuryMetrics: Codable {
+    let hipMobility: Int  // 0-100
+    let hipStability: Int  // 0-100
+
+    var overallScore: Int {
+        (hipMobility + hipStability) / 2
+    }
+}
+
+// MARK: - Leg Side Enum
+enum LegSide: String, CaseIterable {
+    case left = "Left"
+    case right = "Right"
+
+    var icon: String {
         switch self {
-        case .low: return "Low Risk"
-        case .moderate: return "Moderate Risk"
-        case .high: return "High Risk"
+        case .left: return "l.square.fill"
+        case .right: return "r.square.fill"
         }
     }
-    
-    var color: String {
+
+    var color: Color {
         switch self {
-        case .low: return "successGreen"
-        case .moderate: return "warningYellow"
-        case .high: return "errorRed"
+        case .left: return .infoBlue
+        case .right: return .successGreen
         }
     }
-    
+}
+
+// MARK: - Risk Level
+enum RiskLevel: String, Codable {
+    case low = "Low Risk"
+    case moderate = "Moderate Risk"
+    case high = "High Risk"
+
     var icon: String {
         switch self {
         case .low: return "checkmark.shield.fill"
@@ -132,38 +205,70 @@ enum RiskLevel {
     }
 }
 
-// MARK: - Sample Data Extension
-extension RunInterval {
-    /// Generate sample intervals for testing
-    static func generateSampleIntervals(count: Int = 6) -> [RunInterval] {
-        var intervals: [RunInterval] = []
+// MARK: - Sample Data Generation
+extension RunSnapshot {
+    static func generateSampleSnapshots(count: Int) -> [RunSnapshot] {
+        var snapshots: [RunSnapshot] = []
         let baseDate = Date()
-        
+
         for i in 0..<count {
-            let interval = RunInterval(
-                id: UUID(),
-                intervalNumber: i + 1,
-                distance: 0.5, // Half mile intervals
-                duration: TimeInterval.random(in: 180...300), // 3-5 minutes
-                timestamp: baseDate.addingTimeInterval(TimeInterval(i * 300)),
+            let snapshot = RunSnapshot(
+                snapshotNumber: i + 1,
+                distance: Double(i + 1) * 0.5,
+                duration: Double(i + 1) * 240,
+                timestamp: baseDate.addingTimeInterval(Double(i) * 240),
                 performanceMetrics: PerformanceMetrics(
-                    efficiency: Int.random(in: 65...95),
-                    sway: Int.random(in: 65...95),
-                    braking: Int.random(in: 65...95),
-                    endurance: Int.random(in: 65...95),
-                    warmup: Int.random(in: 65...95),
-                    impact: Int.random(in: 65...95),
-                    variation: Int.random(in: 65...95)
+                    efficiency: Int.random(in: 70...90),
+                    braking: Int.random(in: 65...85),
+                    impact: Int.random(in: 70...88),
+                    sway: Int.random(in: 75...90),
+                    variation: Int.random(in: 70...85),
+                    warmup: Int.random(in: 65...90),
+                    endurance: Int.random(in: 68...85)
                 ),
                 injuryMetrics: InjuryMetrics(
-                    hipMobility: Int.random(in: 60...95),
-                    hipStability: Int.random(in: 60...95),
-                    portraitSymmetry: Int.random(in: 60...95)
+                    leftLeg: LegInjuryMetrics(
+                        hipMobility: Int.random(in: 60...90),
+                        hipStability: Int.random(in: 65...90)
+                    ),
+                    rightLeg: LegInjuryMetrics(
+                        hipMobility: Int.random(in: 60...90),
+                        hipStability: Int.random(in: 65...90)
+                    )
+                ),
+                gaitCycleMetrics: SampleData.randomGaitCycleMetrics()
+            )
+            snapshots.append(snapshot)
+        }
+
+        return snapshots
+    }
+
+    static var sample: RunSnapshot {
+        RunSnapshot(
+            snapshotNumber: 1,
+            distance: 0.5,
+            duration: 240,
+            timestamp: Date(),
+            performanceMetrics: PerformanceMetrics(
+                efficiency: 85,
+                braking: 55,
+                impact: 72,
+                sway: 78,
+                variation: 80,
+                warmup: 45,
+                endurance: 68
+            ),
+            injuryMetrics: InjuryMetrics(
+                leftLeg: LegInjuryMetrics(
+                    hipMobility: 75,
+                    hipStability: 82
+                ),
+                rightLeg: LegInjuryMetrics(
+                    hipMobility: 70,
+                    hipStability: 78
                 )
             )
-            intervals.append(interval)
-        }
-        
-        return intervals
+        )
     }
 }

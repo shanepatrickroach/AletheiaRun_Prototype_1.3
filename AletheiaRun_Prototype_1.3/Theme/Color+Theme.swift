@@ -27,6 +27,15 @@ extension Color {
     static let errorRed = Color(hex: "F87171")
     static let infoBlue = Color(hex: "60A5FA")
     
+    //Metric Assosiated Colors
+    static let efficiencyColor = Color(hex: "D53D36")
+    static let brakingColor = Color(hex: "9BC355")
+    static let impactColor = Color(hex: "FBDC4F")
+    static let swayColor = Color(hex: "51A8DD")
+    static let variationColor = Color(hex: "EA973F")
+    static let warmupColor = Color(hex: "982688")
+    static let enduranceColor = Color(hex: "794FAD")
+    
     // MARK: - Helper to create Color from hex
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)

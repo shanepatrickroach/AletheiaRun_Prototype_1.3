@@ -5,7 +5,6 @@
 //  Created by Shane Roach on 10/6/25.
 //
 
-
 import SwiftUI
 
 struct ProfileView: View {
@@ -20,24 +19,129 @@ struct ProfileView: View {
     @State private var showingHelp = false
     @State private var showingContact = false
     @State private var showingUnits = false
-    
+
     var user: User? {
         authManager.currentUser
     }
-    
+
     var body: some View {
         NavigationStack {
             ZStack {
                 Color.backgroundBlack.ignoresSafeArea()
-                
+
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: Spacing.xl) {
                         // Profile header
                         ProfileHeader(user: user)
-                        
+
                         // Stats overview
                         StatsOverviewSection(stats: user?.stats)
+
+                        // Add this to your ProfileView somewhere in the settings sections
+
+                        // MARK: - Add to Settings Section (around line with Account, App, Support sections)
+
+                        VStack(spacing: Spacing.xs) {
+
+                            // Running History Button
+                            NavigationLink(destination: RunningHistoryView()) {
+                                HStack(spacing: Spacing.m) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(
+                                                Color.primaryOrange.opacity(0.2)
+                                            )
+                                            .frame(width: 36, height: 36)
+
+                                        Image(systemName: "chart.xyaxis.line")
+                                            .foregroundColor(.primaryOrange)
+                                    }
+
+                                    Text("Running History")
+                                        .font(.bodyMedium)
+                                        .foregroundColor(.textPrimary)
+
+                                    Spacer()
+
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption)
+                                        .foregroundColor(.textTertiary)
+                                }
+                                .padding(Spacing.m)
+                                .background(Color.cardBackground)
+                                .cornerRadius(CornerRadius.medium)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+
+                            // Personal Records
+                            NavigationLink(
+                                destination: Text("Personal Records")
+                            ) {
+                                HStack(spacing: Spacing.m) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(
+                                                Color.successGreen.opacity(0.2)
+                                            )
+                                            .frame(width: 36, height: 36)
+
+                                        Image(systemName: "trophy.fill")
+                                            .foregroundColor(.successGreen)
+                                    }
+
+                                    Text("Personal Records")
+                                        .font(.bodyMedium)
+                                        .foregroundColor(.textPrimary)
+
+                                    Spacer()
+
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption)
+                                        .foregroundColor(.textTertiary)
+                                }
+                                .padding(Spacing.m)
+                                .background(Color.cardBackground)
+                                .cornerRadius(CornerRadius.medium)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            
+                            
+                            // Personal Records
+                            NavigationLink(
+                                destination: CoachModeView()
+                            ) {
+                                HStack(spacing: Spacing.m) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(
+                                                Color.infoBlue.opacity(0.2)
+                                            )
+                                            .frame(width: 36, height: 36)
+
+                                        Image(systemName: "person.2.fill")
+                                            .foregroundColor(.infoBlue)
+                                    }
+
+                                    Text("Coach Mode")
+                                        .font(.bodyMedium)
+                                        .foregroundColor(.textPrimary)
+
+                                    Spacer()
+
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption)
+                                        .foregroundColor(.textTertiary)
+                                }
+                                .padding(Spacing.m)
+                                .background(Color.cardBackground)
+                                .cornerRadius(CornerRadius.medium)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                        .padding(.horizontal, Spacing.m)
                         
+                        
+
                         // Settings sections
                         SettingsSection(title: "Account") {
                             SettingsRow(
@@ -46,14 +150,14 @@ struct ProfileView: View {
                             ) {
                                 showingEditProfile = true
                             }
-                            
+
                             SettingsRow(
                                 icon: "bell.fill",
                                 title: "Notifications"
                             ) {
                                 showingNotifications = true
                             }
-                            
+
                             SettingsRow(
                                 icon: "lock.fill",
                                 title: "Privacy"
@@ -67,7 +171,7 @@ struct ProfileView: View {
                                 showingSubscription = true
                             }
                         }
-                        
+
                         SettingsSection(title: "App") {
                             SettingsRow(
                                 icon: "sensor",
@@ -81,7 +185,7 @@ struct ProfileView: View {
                             ) {
                                 showingUnits = true
                             }
-                            
+
                             SettingsRow(
                                 icon: "info.circle.fill",
                                 title: "About"
@@ -89,7 +193,7 @@ struct ProfileView: View {
                                 showingAbout = true
                             }
                         }
-                        
+
                         SettingsSection(title: "Support") {
                             SettingsRow(
                                 icon: "questionmark.circle.fill",
@@ -97,14 +201,14 @@ struct ProfileView: View {
                             ) {
                                 showingHelp = true
                             }
-                            
+
                             SettingsRow(
                                 icon: "envelope.fill",
                                 title: "Contact Us"
                             ) {
                                 showingContact = true
                             }
-                            
+
                             SettingsRow(
                                 icon: "star.fill",
                                 title: "Rate App"
@@ -112,15 +216,18 @@ struct ProfileView: View {
                                 rateApp()
                             }
                         }
-                        
+
                         // Sign out button
                         Button(action: {
                             showingSignOutAlert = true
                         }) {
                             HStack {
-                                Image(systemName: "rectangle.portrait.and.arrow.right")
-                                    .font(.system(size: 20))
-                                
+                                Image(
+                                    systemName:
+                                        "rectangle.portrait.and.arrow.right"
+                                )
+                                .font(.system(size: 20))
+
                                 Text("Sign Out")
                                     .font(Font.bodyLarge)
                                     .fontWeight(.semibold)
@@ -132,7 +239,7 @@ struct ProfileView: View {
                             .cornerRadius(CornerRadius.medium)
                         }
                         .padding(.horizontal, Spacing.l)
-                        
+
                         // Version info
                         Text("Version 1.0.0")
                             .font(Font.caption)
@@ -145,7 +252,7 @@ struct ProfileView: View {
             }
             .navigationTitle("Profile")
             .navigationBarTitleDisplayMode(.large)
-             // Navigation destinations
+            // Navigation destinations
             .navigationDestination(isPresented: $showingEditProfile) {
                 EditProfileView()
             }
@@ -158,7 +265,7 @@ struct ProfileView: View {
             .navigationDestination(isPresented: $showingSubscription) {
                 SubscriptionView()
             }
-            
+
             .navigationDestination(isPresented: $showingSensorSettings) {
                 SensorSettingsView()
             }
@@ -175,7 +282,7 @@ struct ProfileView: View {
                 ContactUsView()
             }
             .alert("Sign Out", isPresented: $showingSignOutAlert) {
-                Button("Cancel", role: .cancel) { }
+                Button("Cancel", role: .cancel) {}
                 Button("Sign Out", role: .destructive) {
                     authManager.signOut()
                 }
@@ -184,11 +291,14 @@ struct ProfileView: View {
             }
         }
     }
-    
+
     // MARK: - Rate App
     private func rateApp() {
         // Open App Store rating
-        if let url = URL(string: "https://apps.apple.com/app/idYOUR_APP_ID?action=write-review") {
+        if let url = URL(
+            string:
+                "https://apps.apple.com/app/idYOUR_APP_ID?action=write-review")
+        {
             UIApplication.shared.open(url)
         }
     }
@@ -196,7 +306,7 @@ struct ProfileView: View {
 // MARK: - Profile Header (UPDATED)
 struct ProfileHeader: View {
     let user: User?
-    
+
     var body: some View {
         VStack(spacing: Spacing.m) {
             // Profile image
@@ -210,7 +320,7 @@ struct ProfileHeader: View {
                         )
                     )
                     .frame(width: 100, height: 100)
-                
+
                 if let profileImage = user?.profileImage {
                     // In real app, load actual image
                     Image(systemName: "person.fill")
@@ -222,62 +332,62 @@ struct ProfileHeader: View {
                         .foregroundColor(.black)
                 }
             }
-            
+
             VStack(spacing: 4) {
                 Text(user?.fullName ?? "User")
                     .font(.titleMedium)
                     .fontWeight(.bold)
                     .foregroundColor(.textPrimary)
-                
+
                 Text(user?.email ?? "user@example.com")
                     .font(.bodySmall)
                     .foregroundColor(.textSecondary)
             }
-            
+
             // User details
             HStack(spacing: Spacing.l) {
                 ProfileDetailBadge(
                     icon: "calendar",
                     text: "\(user?.age ?? 0) years"
                 )
-                
+
                 ProfileDetailBadge(
                     icon: "figure.run",
                     text: user?.averageMileage.rawValue ?? ""
                 )
             }
-            
+
             HStack(spacing: Spacing.l) {
                 ProfileDetailBadge(
                     icon: "ruler",
                     text: user?.height.displayString ?? ""
                 )
-                
+
                 ProfileDetailBadge(
                     icon: "scalemass",
                     text: user?.weight.displayString ?? ""
                 )
             }
-            
+
             // Running goals
             if let goals = user?.runningGoals, !goals.isEmpty {
                 VStack(alignment: .leading, spacing: Spacing.xs) {
                     Text("Goals")
                         .font(.caption)
                         .foregroundColor(.textSecondary)
-                    
+
                     FlowLayout(spacing: Spacing.xs) {
                         ForEach(Array(goals), id: \.self) { goal in
                             HStack(spacing: Spacing.xs) {
                                 Image(systemName: goal.icon)
                                     .font(.system(size: 12))
-                                
+
                                 Text(goal.rawValue)
                                     .font(.caption)
                             }
                             .foregroundColor(.primaryOrange)
                             .padding(.horizontal, Spacing.s)
-                            
+
                             .background(Color.primaryOrange.opacity(0.2))
                             .cornerRadius(CornerRadius.small)
                         }
@@ -293,13 +403,13 @@ struct ProfileHeader: View {
 struct ProfileDetailBadge: View {
     let icon: String
     let text: String
-    
+
     var body: some View {
         HStack(spacing: Spacing.xs) {
             Image(systemName: icon)
                 .font(.system(size: 12))
                 .foregroundColor(.textSecondary)
-            
+
             Text(text)
                 .font(.caption)
                 .foregroundColor(.textSecondary)
@@ -313,32 +423,32 @@ struct ProfileDetailBadge: View {
 // MARK: - Enhanced Stats Overview Section (UPDATED)
 struct StatsOverviewSection: View {
     let stats: UserStats?
-    
+
     var body: some View {
         VStack(spacing: Spacing.m) {
             HStack {
                 Text("Your Stats")
                     .font(.headline)
                     .foregroundColor(.textPrimary)
-                
+
                 Spacer()
-                
-//                Button(action: {
-//                    // View all stats
-//                }) {
-//                    HStack(spacing: 4) {
-//                        Text("View All")
-//                            .font(.caption)
-//                            .foregroundColor(.primaryOrange)
-//                        
-//                        Image(systemName: "chevron.right")
-//                            .font(.system(size: 10))
-//                            .foregroundColor(.primaryOrange)
-//                    }
-//                }
+
+                //                Button(action: {
+                //                    // View all stats
+                //                }) {
+                //                    HStack(spacing: 4) {
+                //                        Text("View All")
+                //                            .font(.caption)
+                //                            .foregroundColor(.primaryOrange)
+                //
+                //                        Image(systemName: "chevron.right")
+                //                            .font(.system(size: 10))
+                //                            .foregroundColor(.primaryOrange)
+                //                    }
+                //                }
             }
             .padding(.horizontal, Spacing.l)
-            
+
             // First row
             HStack(spacing: Spacing.m) {
                 StatCard(
@@ -347,7 +457,7 @@ struct StatsOverviewSection: View {
                     label: "Total Runs",
                     color: .primaryOrange
                 )
-                
+
                 StatCard(
                     icon: "flame.fill",
                     value: "\(stats?.currentStreak ?? 0)",
@@ -356,7 +466,7 @@ struct StatsOverviewSection: View {
                 )
             }
             .padding(.horizontal, Spacing.l)
-            
+
             // Second row
             HStack(spacing: Spacing.m) {
                 StatCard(
@@ -365,7 +475,7 @@ struct StatsOverviewSection: View {
                     label: "Total Miles",
                     color: .infoBlue
                 )
-                
+
                 StatCard(
                     icon: "clock.fill",
                     value: stats?.averagePace ?? "0:00",
@@ -374,7 +484,7 @@ struct StatsOverviewSection: View {
                 )
             }
             .padding(.horizontal, Spacing.l)
-            
+
             // Third row
             HStack(spacing: Spacing.m) {
                 StatCard(
@@ -383,7 +493,7 @@ struct StatsOverviewSection: View {
                     label: "Achievements",
                     color: Color(hex: "FFD700")
                 )
-                
+
                 StatCard(
                     icon: "flame.circle.fill",
                     value: "\(stats?.longestStreak ?? 0)",
@@ -400,18 +510,18 @@ struct StatCard: View {
     let value: String
     let label: String
     let color: Color
-    
+
     var body: some View {
         VStack(spacing: Spacing.s) {
             Image(systemName: icon)
                 .font(.system(size: 24))
                 .foregroundColor(color)
-            
+
             Text(value)
                 .font(.titleSmall)
                 .fontWeight(.bold)
                 .foregroundColor(.textPrimary)
-            
+
             Text(label)
                 .font(.caption)
                 .foregroundColor(.textSecondary)
@@ -431,14 +541,14 @@ struct StatCard: View {
 struct SettingsSection<Content: View>: View {
     let title: String
     @ViewBuilder let content: Content
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.m) {
             Text(title)
                 .font(.headline)
                 .foregroundColor(.textPrimary)
                 .padding(.horizontal, Spacing.l)
-            
+
             VStack(spacing: 0) {
                 content
             }
@@ -453,7 +563,7 @@ struct SettingsRow: View {
     let icon: String
     let title: String
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             HStack(spacing: Spacing.m) {
@@ -461,13 +571,13 @@ struct SettingsRow: View {
                     .font(.system(size: 20))
                     .foregroundColor(.primaryOrange)
                     .frame(width: 32)
-                
+
                 Text(title)
                     .font(.bodyMedium)
                     .foregroundColor(.textPrimary)
-                
+
                 Spacer()
-                
+
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14))
                     .foregroundColor(.textTertiary)
@@ -476,7 +586,7 @@ struct SettingsRow: View {
             .padding(.vertical, Spacing.s)
         }
         .buttonStyle(PlainButtonStyle())
-        
+
         Divider()
             .background(Color.cardBorder)
             .padding(.leading, 44)

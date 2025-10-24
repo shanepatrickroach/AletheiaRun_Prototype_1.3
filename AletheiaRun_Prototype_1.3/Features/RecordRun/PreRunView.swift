@@ -157,10 +157,13 @@ struct PreRunView: View {
                 GridItem(.flexible())
             ], spacing: Spacing.s) {
                 ForEach(RunMode.allCases, id: \.self) { mode in
+                    
+                    
                     SelectionCard(
                         icon: mode.icon,
                         title: mode.rawValue,
                         description: mode.description,
+                        isBetaFeature: mode.isBetaFeature,
                         isSelected: selectedMode == mode
                     ) {
                         selectedMode = mode
@@ -186,6 +189,7 @@ struct PreRunView: View {
                         icon: terrain.icon,
                         title: terrain.rawValue,
                         description: terrain.description,
+                        isBetaFeature: false,
                         isSelected: selectedTerrain == terrain
                     ) {
                         selectedTerrain = terrain
@@ -323,6 +327,7 @@ struct SelectionCard: View {
     let icon: String
     let title: String
     let description: String
+    let isBetaFeature: Bool?
     let isSelected: Bool
     let action: () -> Void
     
@@ -343,6 +348,10 @@ struct SelectionCard: View {
                     .foregroundColor(.textSecondary)
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
+                
+                if isBetaFeature ?? false {
+                    InfoBadge()
+                }
             }
             .padding(Spacing.m)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -355,6 +364,29 @@ struct SelectionCard: View {
         }
     }
 }
+
+
+// MARK: - Stat Badge
+struct InfoBadge: View {
+    
+    var body: some View {
+        HStack(spacing: 4) {
+//            Image(systemName: "clock")
+//                .font(.system(size: 12))
+//            
+            Text("Beta Feature")
+                .font(.caption)
+                .fontWeight(.medium)
+        }
+        .foregroundColor(.warningYellow)
+        .padding(.horizontal, Spacing.xs)
+        .padding(.vertical, 4)
+        .background(Color.warningYellow.opacity(0.15))
+        .cornerRadius(CornerRadius.small)
+    }
+    
+}
+
 
 #Preview {
     PreRunView()

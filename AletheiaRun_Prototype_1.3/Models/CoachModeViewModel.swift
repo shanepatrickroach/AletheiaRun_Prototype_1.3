@@ -5,6 +5,14 @@
 //  Created by Shane Roach on 10/21/25.
 //
 
+
+//
+//  CoachModeViewModel.swift
+//  AletheiaRun_Prototype_1.3
+//
+//  Created by Shane Roach on 10/21/25.
+//
+
 import Foundation
 import Combine
 
@@ -14,7 +22,7 @@ class CoachModeViewModel: ObservableObject {
     @Published var runners: [Runner] = []
     @Published var selectedRunner: Runner?
     @Published var searchText: String = ""
-    @Published var sortOption: SortOption = .dateAdded
+    @Published var sortOption: CoachModeSortOption = .dateAdded
     @Published var isAddingRunner: Bool = false
     
     // Run data for each runner (in real app, this would come from API/database)
@@ -99,7 +107,7 @@ class CoachModeViewModel: ObservableObject {
 }
 
 // MARK: - Sort Options
-enum SortOption: String, CaseIterable, Identifiable {
+enum CoachModeSortOption: String, CaseIterable, Identifiable {
     case dateAdded = "Date Added"
     case name = "Name"
     case totalRuns = "Total Runs"

@@ -13,7 +13,6 @@ struct HomeView: View {
 
     // Sample data - replace with actual data from your app
     let latestRun = SampleData.runs.first
-
     let weeklyTip = WeeklyTip.currentTip
 
     enum ForcePortraitViewType: String, CaseIterable {
@@ -36,8 +35,8 @@ struct HomeView: View {
                 Color.backgroundBlack.ignoresSafeArea()
 
                 ScrollView(showsIndicators: false) {
-                    VStack(spacing: Spacing.xl) {
-                        SubscriptionBanner()
+                    VStack(spacing: Spacing.xxl) {
+                        //SubscriptionBanner()
 
                         // MARK: - Header with Greeting
                         headerSection
@@ -46,9 +45,11 @@ struct HomeView: View {
                         // MARK: - Latest Force Portrait (3 Views)
                         forcePortraitSection
                         
-                        // Quick Coach Summary
+                                                
+                        trainingPlanSection
                         
-                        CoachHomeCard(latestRun: latestRun)
+                        // MARK: - Coach Mode Feature Card (NEW)
+                        coachModeFeatureCard
                      
 
                         // Recent Achievements (NEW)
@@ -112,21 +113,15 @@ struct HomeView: View {
                             }
                         }
 
-                        
-
-                        
-                        // MARK: - Quick Actions
-                        //                        quickActionsSection()
-
+                
                         // MARK: - Tip of the Week
                         tipOfTheWeekSection
                     }
-
-                    .padding(.bottom, 100)  // Extra space for tab bar
+                    .padding(.top, 40)
+                    .padding(.bottom, 120) // Extra space for tab bar
                 }
             }
-            .navigationTitle("Home")
-            .navigationBarTitleDisplayMode(.large)
+            
         }
     }
 
@@ -292,7 +287,7 @@ struct HomeView: View {
         HStack(spacing: Spacing.m) {
             // Distance
             RunStatCard(
-                icon: "road.lanes",
+                icon: "ruler",
                 value: String(format: "%.2f", run.distance),
                 unit: "mi",
                 label: "Distance"
@@ -417,95 +412,117 @@ struct HomeView: View {
         .padding(.horizontal, Spacing.m)
     }
 
-    // MARK: - Recommended Exercises Section
-    private var recommendedExercisesSection: some View {
-        VStack(alignment: .leading, spacing: Spacing.m) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Pocket Coach")
-                        .font(.headline)
-                        .foregroundColor(.textPrimary)
 
-                    Text("Personalized for your form")
-                        .font(.caption)
-                        .foregroundColor(.textSecondary)
-                }
-
-                Spacer()
-
-                Button(action: {
-                    // Navigate to all exercises
-                }) {
-                    HStack(spacing: 4) {
-                        Text("See All")
-                            .font(.bodySmall)
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 12))
+        
+    // MARK: - Coach Mode Feature Card (UPDATED)
+    private var coachModeFeatureCard: some View {
+        NavigationLink(destination: CoachModeView()) {
+            ZStack(alignment: .leading) {
+                // Background Image with Overlay
+                GeometryReader { geometry in
+                    // Placeholder for background image
+                    // Replace "coach_background" with your actual image asset name
+                    if let _ = UIImage(named: "coach_background") {
+                        Image("coach_background")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: geometry.size.width, height: geometry.size.height)
+                            .clipped()
+                    } else {
+                        // Fallback gradient background
+                        LinearGradient(
+                            colors: [
+                                Color.primaryOrange.opacity(0.6),
+                                Color.primaryDark.opacity(0.8)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
                     }
-                    .foregroundColor(.primaryOrange)
+                    
+                    // Dark overlay for text readability
+                    LinearGradient(
+                        colors: [
+                            Color.black.opacity(0.7),
+                            Color.black.opacity(0.5)
+                        ],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
                 }
+                
+                // Content
+                VStack(alignment: .leading, spacing: Spacing.m) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: Spacing.xs) {
+                            HStack(spacing: 6) {
+                                Text("Coach Mode")
+                                    .font(.titleMedium)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                
+                                // "New" badge
+                                Text("NEW")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundColor(.black)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 3)
+                                    .background(Color.primaryOrange)
+                                    .cornerRadius(6)
+                            }
+                            
+                            Text("Help other runners improve")
+                                .font(.bodyLarge)
+                                .foregroundColor(.white.opacity(0.9))
+                        }
+                        
+                        Spacer()
+                        
+                        // Arrow in circle
+                        ZStack {
+                            Circle()
+                                .fill(Color.white.opacity(0.2))
+                                .frame(width: 40, height: 40)
+                            
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(.white)
+                        }
+                    }.padding(10)
+                    
+                    // Feature highlights with icons
+                    HStack(spacing: Spacing.l) {
+                        CoachModeFeatureHighlight(
+                            icon: "person.2.fill",
+                            text: "Multiple Athletes"
+                        )
+                        
+                        CoachModeFeatureHighlight(
+                            icon: "chart.line.uptrend.xyaxis",
+                            text: "Track Progress"
+                        )
+                        
+                        CoachModeFeatureHighlight(
+                            icon: "message.fill",
+                            text: "Real-time Feedback"
+                        )
+                    }
+                    .padding(.top, Spacing.xs)
+                }
+                .padding(Spacing.l)
             }
-            .padding(.horizontal, Spacing.m)
-
-//            ScrollView(.horizontal, showsIndicators: false) {
-//                HStack(spacing: Spacing.m) {
-//                    ForEach(Array(recommendedExercises)) { exercise in
-//                        ExerciseCard(exercise: exercise)
-//                    }
-//                }
-//                .padding(.horizontal, Spacing.m)
-//            }
+            .frame(height: 260)
+            .cornerRadius(CornerRadius.large)
+            .overlay(
+                RoundedRectangle(cornerRadius: CornerRadius.large)
+                    .stroke(Color.primaryOrange.opacity(0.6), lineWidth: 2)
+            )
+            .shadow(color: Color.primaryOrange.opacity(0.3), radius: 10, x: 0, y: 5)
         }
+        .buttonStyle(PlainButtonStyle())
+        .padding(.horizontal, Spacing.m)
     }
-
-    //    // MARK: - Quick Actions Section
-    //    private var quickActionsSection: some View {
-    //        VStack(alignment: .leading, spacing: Spacing.m) {
-    //            Text("Quick Actions")
-    //                .font(.headline)
-    //                .foregroundColor(.textPrimary)
-    //                .padding(.horizontal, Spacing.m)
-    //
-    //            LazyVGrid(columns: [
-    //                GridItem(.flexible()),
-    //                GridItem(.flexible())
-    //            ], spacing: Spacing.m) {
-    //                QuickActionButton(
-    //                    icon: "calendar",
-    //                    title: "Calendar",
-    //                    color: .infoBlue,
-    //                    action: onCalendarTap
-    //                )
-    //
-    //                QuickActionButton(
-    //                    icon: "chart.bar.fill",
-    //                    title: "Progress",
-    //                    color: .successGreen,
-    //                    action: onProgressTap
-    //                )
-    //
-    //                QuickActionButton(
-    //                    icon: "chart.xyaxis.line",
-    //                    title: "Stats",
-    //                    color: .warningYellow,
-    //                    action: {
-    //                        // Navigate to stats
-    //                    }
-    //                )
-    //
-    //                QuickActionButton(
-    //                    icon: "person.badge.shield.checkmark",
-    //                    title: "Coach Mode",
-    //                    color: .primaryOrange,
-    //                    action: {
-    //                        // Navigate to coach mode
-    //                    }
-    //                )
-    //            }
-    //            .padding(.horizontal, Spacing.m)
-    //        }
-    //    }
-    //
+    
     // MARK: - Tip of the Week Section
     private var tipOfTheWeekSection: some View {
         VStack(alignment: .leading, spacing: Spacing.m) {
@@ -528,6 +545,296 @@ struct HomeView: View {
         }
     }
 }
+// MARK: - Coach Mode Feature Highlight (UPDATED)
+struct CoachModeFeatureHighlight: View {
+    let icon: String
+    let text: String
+    
+    var body: some View {
+        VStack(spacing: Spacing.xs) {
+            ZStack {
+                Circle()
+                    .fill(Color.white.opacity(0.15))
+                    .frame(width: 36, height: 36)
+                
+                Image(systemName: icon)
+                    .font(.system(size: 16))
+                    .foregroundColor(.white)
+            }
+            
+            Text(text)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundColor(.white.opacity(0.95))
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
+
+// MARK: - Training Plan Section
+private var trainingPlanSection: some View {
+    VStack(alignment: .leading, spacing: Spacing.m) {
+        HStack {
+            Text("Training Plan")
+                .font(.headline)
+                .foregroundColor(.textPrimary)
+            
+            Spacer()
+            
+            NavigationLink(destination: TrainingPlanView()) {
+                Text("View")
+                    .font(.bodySmall)
+                    .foregroundColor(.primaryOrange)
+            }
+        }
+        .padding(.horizontal, Spacing.m)
+        
+        TrainingPlanHomeCard()
+            .padding(.horizontal, Spacing.m)
+    }
+}
+
+
+
+// MARK: - Training Plan Home Card
+struct TrainingPlanHomeCard: View {
+    @StateObject private var viewModel = TrainingPlanViewModel()
+    
+    var body: some View {
+        NavigationLink(destination: TrainingPlanView()) {
+            Group {
+                if let plan = viewModel.currentPlan {
+                    // Has Plan - Show Progress
+                    activePlanCard(plan: plan)
+                } else {
+                    // No Plan - Prompt to Generate
+                    emptyPlanCard
+                }
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+    
+    // MARK: - Active Plan Card
+    private func activePlanCard(plan: TrainingPlan) -> some View {
+        VStack(spacing: Spacing.m) {
+            HStack {
+                // Icon
+                ZStack {
+                    Circle()
+                        .fill(Color.primaryOrange.opacity(0.2))
+                        .frame(width: 50, height: 50)
+                    
+                    Image(systemName: "figure.strengthtraining.traditional")
+                        .font(.system(size: 24))
+                        .foregroundColor(.primaryOrange)
+                }
+                
+                // Info
+                VStack(alignment: .leading, spacing: Spacing.xxs) {
+                    Text("Your Training Plan")
+                        .font(.bodyLarge)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.textPrimary)
+                    
+                    Text("\(plan.completedExercises) of \(plan.totalExercises) exercises completed")
+                        .font(.bodySmall)
+                        .foregroundColor(.textSecondary)
+                }
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.textTertiary)
+            }
+            
+            // Progress Bar
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(Color.cardBorder)
+                        .frame(height: 8)
+                    
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.primaryOrange, Color.primaryLight],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .frame(
+                            width: geometry.size.width * plan.completionRate,
+                            height: 8
+                        )
+                }
+            }
+            .frame(height: 8)
+            
+            // Quick Stats
+            HStack(spacing: Spacing.xl) {
+                PlanStatBadge(
+                    icon: "target",
+                    value: "\(plan.targetedMetrics.count)",
+                    label: "Metrics"
+                )
+                
+                PlanStatBadge(
+                    icon: "calendar",
+                    value: "Updated \(relativeDateString(plan.generatedDate))",
+                    label: ""
+                )
+                
+                PlanStatBadge(
+                    icon: "percent",
+                    value: String(format: "%.0f%%", plan.completionRate * 100),
+                    label: "Complete"
+                )
+            }
+        }
+        .padding(Spacing.m)
+        .background(Color.cardBackground)
+        .cornerRadius(CornerRadius.large)
+        .overlay(
+            RoundedRectangle(cornerRadius: CornerRadius.large)
+                .stroke(Color.primaryOrange.opacity(0.3), lineWidth: 1)
+        )
+    }
+    
+    // MARK: - Empty Plan Card
+    private var emptyPlanCard: some View {
+        VStack(spacing: Spacing.m) {
+            HStack(spacing: Spacing.m) {
+                // Icon
+                ZStack {
+                    Circle()
+                        .fill(Color.primaryOrange.opacity(0.2))
+                        .frame(width: 50, height: 50)
+                    
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 24))
+                        .foregroundColor(.primaryOrange)
+                }
+                
+                // Info
+                VStack(alignment: .leading, spacing: Spacing.xxs) {
+                    Text("Get Your Training Plan")
+                        .font(.bodyLarge)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.textPrimary)
+                    
+                    Text("Personalized exercises based on your metrics")
+                        .font(.bodySmall)
+                        .foregroundColor(.textSecondary)
+                }
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.textTertiary)
+            }
+            
+            // Feature Highlights
+            HStack(spacing: Spacing.m) {
+                EmptyPlanFeature(
+                    icon: "chart.line.uptrend.xyaxis",
+                    text: "Metric-Based"
+                )
+                
+                EmptyPlanFeature(
+                    icon: "arrow.triangle.2.circlepath",
+                    text: "Dynamic"
+                )
+                
+                EmptyPlanFeature(
+                    icon: "bandage.fill",
+                    text: "Pain Focus"
+                )
+            }
+        }
+        .padding(Spacing.m)
+        .background(Color.cardBackground)
+        .cornerRadius(CornerRadius.large)
+        .overlay(
+            RoundedRectangle(cornerRadius: CornerRadius.large)
+                .stroke(Color.cardBorder, lineWidth: 1)
+        )
+    }
+    
+    // MARK: - Helper Functions
+    private func relativeDateString(_ date: Date) -> String {
+        let calendar = Calendar.current
+        let now = Date()
+        
+        if calendar.isDateInToday(date) {
+            return "today"
+        } else if calendar.isDateInYesterday(date) {
+            return "yesterday"
+        } else {
+            let days = calendar.dateComponents([.day], from: date, to: now).day ?? 0
+            if days < 7 {
+                return "\(days)d ago"
+            } else {
+                return date.formatted(date: .abbreviated, time: .omitted)
+            }
+        }
+    }
+}
+
+// MARK: - Plan Stat Badge
+struct PlanStatBadge: View {
+    let icon: String
+    let value: String
+    let label: String
+    
+    var body: some View {
+        HStack(spacing: Spacing.xs) {
+            Image(systemName: icon)
+                .font(.caption)
+                .foregroundColor(.primaryOrange)
+            
+            VStack(alignment: .leading, spacing: 0) {
+                Text(value)
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.textPrimary)
+                
+                if !label.isEmpty {
+                    Text(label)
+                        .font(.system(size: 9))
+                        .foregroundColor(.textSecondary)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+// MARK: - Empty Plan Feature
+struct EmptyPlanFeature: View {
+    let icon: String
+    let text: String
+    
+    var body: some View {
+        HStack(spacing: Spacing.xs) {
+            Image(systemName: icon)
+                .font(.system(size: 12))
+                .foregroundColor(.primaryOrange)
+            
+            Text(text)
+                .font(.caption)
+                .foregroundColor(.textSecondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, Spacing.xs)
+        .background(Color.backgroundBlack)
+        .cornerRadius(CornerRadius.small)
+    }
+}
+
 
 // MARK: - Quick Metric Card
 struct QuickMetricCard: View {
@@ -598,8 +905,9 @@ struct TipCard: View {
         .cornerRadius(CornerRadius.large)
         .overlay(
             RoundedRectangle(cornerRadius: CornerRadius.large)
-                .stroke(tipColor.opacity(0.3), lineWidth: 1)
+                .stroke(tipColor.opacity(0.8), lineWidth: 1)
         )
+        
     }
 
     private var tipColor: Color {
@@ -767,68 +1075,6 @@ struct ForcePortraitSection: View {
     }
 }
 
-// MARK: - Quick Actions Section
-struct quickActionsSection: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.m) {
-            Text("Quick Actions")
-                .font(.headline)
-                .foregroundColor(.textPrimary)
-
-            HStack(spacing: Spacing.m) {
-                QuickActionButton(
-                    icon: "books.vertical.fill",
-                    title: "Library",
-                    color: .infoBlue
-                )
-
-                QuickActionButton(
-                    icon: "calendar",
-                    title: "Calendar",
-                    color: .successGreen
-                )
-
-                QuickActionButton(
-                    icon: "chart.line.uptrend.xyaxis",
-                    title: "Progress",
-                    color: .primaryOrange
-                )
-            }
-        }
-    }
-}
-
-struct QuickActionButton: View {
-    let icon: String
-    let title: String
-    let color: Color
-
-    var body: some View {
-        Button(action: {
-            // Navigate to respective view
-        }) {
-            VStack(spacing: Spacing.s) {
-                ZStack {
-                    Circle()
-                        .fill(color.opacity(0.2))
-                        .frame(width: 50, height: 50)
-
-                    Image(systemName: icon)
-                        .font(.system(size: 22))
-                        .foregroundColor(color)
-                }
-
-                Text(title)
-                    .font(.caption)
-                    .foregroundColor(.textPrimary)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, Spacing.m)
-            .background(Color.cardBackground)
-            .cornerRadius(CornerRadius.medium)
-        }
-    }
-}
 
 #Preview {
     HomeView(
@@ -840,3 +1086,9 @@ struct QuickActionButton: View {
     .environmentObject(GamificationManager())
     .environmentObject(AuthenticationManager())
 }
+
+
+
+
+
+

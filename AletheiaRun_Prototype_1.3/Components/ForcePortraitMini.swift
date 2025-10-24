@@ -53,12 +53,12 @@ struct ForcePortraitMini: View {
             duration: 1800,
             metrics: RunMetrics(
                 efficiency: 85,
-                sway: 72,
-                endurance: 80,
-                warmup: 75,
-                impact: 65,
-                braking: 70,
-                variation: 78
+                braking: 72,
+                impact: 80,
+                sway: 75,
+                variation: 65,
+                warmup: 70,
+                endurance: 78
             )
         ))
         .frame(width: 100, height: 80)

@@ -1,3 +1,11 @@
+//
+//  PainPointDetailSheet.swift
+//  AletheiaRun_Prototype_1.3
+//
+//  Created by Shane Roach on 10/21/25.
+//
+
+
 // Features/Run/PainPointDetailSheet.swift
 
 import SwiftUI
@@ -21,10 +29,10 @@ struct PainPointDetailSheet: View {
                     causesSection
                     
                     // Treatments
-                    treatmentsSection
+                    //treatmentsSection
                     
                     // Related metrics
-                    relatedMetricsSection
+                    //relatedMetricsSection
                 }
                 .padding(Spacing.m)
                 .padding(.bottom, Spacing.xxl)

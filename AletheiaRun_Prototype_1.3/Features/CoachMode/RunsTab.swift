@@ -5,6 +5,14 @@
 //  Created by Shane Roach on 10/21/25.
 //
 
+
+//
+//  RunsTab.swift
+//  AletheiaRun_Prototype_1.3
+//
+//  Created by Shane Roach on 10/21/25.
+//
+
 import SwiftUI
 
 // MARK: - Runs Tab
@@ -99,7 +107,7 @@ struct RunsTab: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: Spacing.xs) {
                 // All filter
-                FilterChip(
+                RunsFilterChip(
                     title: "All",
                     isSelected: filterMode == nil,
                     action: { filterMode = nil }
@@ -107,7 +115,7 @@ struct RunsTab: View {
                 
                 // Mode filters
                 ForEach(RunMode.allCases, id: \.self) { mode in
-                    FilterChip(
+                    RunsFilterChip(
                         title: mode.rawValue,
                         icon: mode.icon,
                         isSelected: filterMode == mode,
@@ -178,7 +186,7 @@ struct RunsTab: View {
 }
 
 // MARK: - Filter Chip
-struct FilterChip: View {
+struct RunsFilterChip: View {
     let title: String
     var icon: String? = nil
     let isSelected: Bool

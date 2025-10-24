@@ -1,21 +1,14 @@
-//
-//  RunDetailView.swift
-//  AletheiaRun_Prototype_1.3
-//
-//  Created by Shane Roach on 10/15/25.
-//
+// Features/RunDetail/RunDetailView.swift
 
 import SwiftUI
 
 // MARK: - Run Detail View
-/// Main container for displaying detailed information about a specific run
-/// Shows intervals, metrics, diagnostics, and additional features
 struct RunDetailView: View {
     // MARK: - Properties
     let run: Run
     @Environment(\.dismiss) private var dismiss
-    @State private var selectedTab: DetailTab = .intervals
-    @State private var intervals: [RunInterval] = []
+    @State private var selectedTab: DetailTab = .snapshots  
+    @State private var snapshots: [RunSnapshot] = [] 
 
     // MARK: - Body
     var body: some View {
@@ -37,14 +30,16 @@ struct RunDetailView: View {
 
                         // Tab Content
                         switch selectedTab {
-                        case .intervals:
-                            IntervalsContentView(intervals: intervals)
+                        case .snapshots:  // CHANGED from .intervals
+                            SnapshotsContentView(snapshots: snapshots)
+                        case .gaitCycle:
+                            GaitCycleDetailView(
+                                snapshots: snapshots
+                            )
                         case .tech:
                             TechModeView()
-                        case .metrics:
-                            MetricsOverTimeView()
-                        case .coach:
-                            PocketCoachView(interval: intervals.first ?? .sample)
+                        case .trainingPlan:
+                            TrainingPlanLinkView()
                         case .notes:
                             PostRunNotesView(run: run)
                         case .map:
@@ -58,15 +53,13 @@ struct RunDetailView: View {
         }
         .navigationBarHidden(true)
         .onAppear {
-            // Load intervals when view appears
-            loadIntervals()
+            loadSnapshots()  // CHANGED from loadIntervals
         }
     }
 
     // MARK: - Navigation Header
     private var navigationHeader: some View {
         HStack {
-            // Back button
             Button(action: { dismiss() }) {
                 HStack(spacing: Spacing.xs) {
                     Image(systemName: "chevron.left")
@@ -77,7 +70,6 @@ struct RunDetailView: View {
 
             Spacer()
 
-            // Share button (placeholder)
             Button(action: {}) {
                 Image(systemName: "square.and.arrow.up")
                     .foregroundColor(.primaryOrange)
@@ -110,24 +102,33 @@ struct RunDetailView: View {
     // MARK: - Run Summary Card
     private var runSummaryCard: some View {
         VStack(alignment: .leading, spacing: Spacing.m) {
-            // Date and Mode
             HStack {
                 VStack(alignment: .leading, spacing: Spacing.xs) {
                     Text(run.date.formatted(date: .long, time: .shortened))
                         .font(.headline)
                         .foregroundColor(.textPrimary)
 
-                    HStack(spacing: Spacing.xs) {
-                        Image(systemName: run.mode.icon)
-                        Text(run.mode.rawValue)
+                    
+                    HStack(spacing: Spacing.m) {
+                        HStack(spacing: Spacing.xs) {
+                            Image(systemName: run.mode.icon)
+                            Text(run.mode.rawValue)
+                        }
+                        .font(.bodySmall)
+                        .foregroundColor(.textSecondary)
+                        
+                        HStack(spacing: Spacing.xs) {
+                            Image(systemName: run.terrain.icon)
+                            Text(run.terrain.rawValue)
+                        }
+                        .font(.bodySmall)
+                        .foregroundColor(.textSecondary)
                     }
-                    .font(.bodySmall)
-                    .foregroundColor(.textSecondary)
+                    
                 }
 
                 Spacer()
 
-                // Overall Score
                 VStack(spacing: Spacing.xxs) {
                     Text("\(run.metrics.overallScore)")
                         .font(.titleLarge)
@@ -138,6 +139,25 @@ struct RunDetailView: View {
                         .foregroundColor(.textSecondary)
                 }
             }
+            
+            // Progress Bar
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    // Background
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(Color.cardBorder)
+                        .frame(height: 4)
+
+                    // Progress
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(scoreColor(run.metrics.overallScore))
+                        .frame(
+                            width: geometry.size.width * CGFloat(run.metrics.overallScore) / 100,
+                            height: 4)
+                }
+            }
+            .frame(height: 4)
+
 
             Divider()
                 .background(Color.cardBorder)
@@ -162,11 +182,6 @@ struct RunDetailView: View {
                     label: "Pace"
                 )
 
-                RunDetailStatItem(
-                    icon: run.terrain.icon,
-                    value: run.terrain.rawValue,
-                    label: "Terrain"
-                )
             }
         }
         .padding(Spacing.m)
@@ -179,9 +194,9 @@ struct RunDetailView: View {
     }
 
     // MARK: - Helper Functions
-    private func loadIntervals() {
+    private func loadSnapshots() {  // CHANGED from loadIntervals
         // In a real app, this would load from the database
-        intervals = RunInterval.generateSampleIntervals(
+        snapshots = RunSnapshot.generateSampleSnapshots(
             count: Int(run.distance * 2))
     }
 
@@ -217,26 +232,24 @@ struct RunDetailView: View {
     }
 }
 
-// MARK: - Detail Tab Enum
-/// Defines the different tabs available in the run detail view
+// MARK: - Detail Tab Enum (UPDATED)
 enum DetailTab: String, CaseIterable, Identifiable {
-    case intervals = "Intervals"
+    case snapshots = "Snapshots"  // CHANGED from intervals
+    case gaitCycle = "Gait Cycle"  // NEW
     case tech = "Tech View"
-    case metrics = "Metrics"
-    case coach = "Coach"
+    case trainingPlan = "Training Plan"
     case notes = "Notes"
     case map = "Map"
 
     var id: String { rawValue }
-
     var title: String { rawValue }
 
     var icon: String {
         switch self {
-        case .intervals: return "chart.bar.fill"
+        case .snapshots: return "chart.bar.fill"  // Changed from intervals
+        case .gaitCycle: return "circle.dotted.and.circle"  // NEW
         case .tech: return "cpu"
-        case .metrics: return "chart.line.uptrend.xyaxis"
-        case .coach: return "person.fill.checkmark"
+        case .trainingPlan: return "person.fill.checkmark"
         case .notes: return "note.text"
         case .map: return "map.fill"
         }
@@ -294,37 +307,40 @@ struct RunDetailStatItem: View {
     }
 }
 
-// MARK: - Intervals Content View
-/// Shows all intervals with their Force Portraits and metrics
-struct IntervalsContentView: View {
-    let intervals: [RunInterval]
+// MARK: - Snapshots Content View (UPDATED)
+struct SnapshotsContentView: View {
+    let snapshots: [RunSnapshot]
 
     var body: some View {
         VStack(spacing: Spacing.m) {
             // Section Header
             HStack {
-                Text("Run Intervals")
+                Text("Run Snapshots")
                     .font(.headline)
                     .foregroundColor(.textPrimary)
 
                 Spacer()
 
-                Text("\(intervals.count) intervals")
+                Text("\(snapshots.count) snapshots")
                     .font(.bodySmall)
                     .foregroundColor(.textSecondary)
             }
 
-            // Intervals List
-            ForEach(intervals) { interval in
-                IntervalCard(interval: interval)
+            // Snapshots List (UPDATED)
+            ForEach(snapshots) { snapshot in
+                SnapshotCard(
+                    snapshot: snapshot,
+                    allSnapshots: snapshots  // Pass all snapshots
+                )
             }
         }
     }
 }
 
-// MARK: - Interval Card Component
-struct IntervalCard: View {
-    let interval: RunInterval
+// MARK: - Snapshot Card Component (UPDATED)
+struct SnapshotCard: View {
+    let snapshot: RunSnapshot
+    let allSnapshots: [RunSnapshot]  // NEW: Add all snapshots
     @State private var isExpanded = false
 
     var body: some View {
@@ -332,8 +348,8 @@ struct IntervalCard: View {
             // Header - Always Visible
             Button(action: { withAnimation { isExpanded.toggle() } }) {
                 HStack(spacing: Spacing.m) {
-                    // Interval Number Badge
-                    Text("\(interval.intervalNumber)")
+                    // Snapshot Number Badge
+                    Text("\(snapshot.snapshotNumber)")
                         .font(.headline)
                         .foregroundColor(.backgroundBlack)
                         .frame(width: 40, height: 40)
@@ -342,17 +358,17 @@ struct IntervalCard: View {
 
                     // Force Portrait Thumbnail
                     ForcePortraitThumbnail(
-                        score: interval.performanceMetrics.overallScore
+                        score: snapshot.performanceMetrics.overallScore
                     )
                     .frame(width: 60, height: 50)
 
                     // Quick Stats
                     VStack(alignment: .leading, spacing: Spacing.xxs) {
-                        Text(interval.formattedDistance)
+                        Text(snapshot.formattedDistance)
                             .font(.bodyMedium)
                             .foregroundColor(.textPrimary)
 
-                        Text("\(interval.formattedPace) pace")
+                        Text("\(snapshot.formattedPace) pace")
                             .font(.bodySmall)
                             .foregroundColor(.textSecondary)
                     }
@@ -361,11 +377,11 @@ struct IntervalCard: View {
 
                     // Overall Score
                     VStack(spacing: 2) {
-                        Text("\(interval.performanceMetrics.overallScore)")
+                        Text("\(snapshot.performanceMetrics.overallScore)")
                             .font(.headline)
                             .foregroundColor(
                                 scoreColor(
-                                    interval.performanceMetrics.overallScore))
+                                    snapshot.performanceMetrics.overallScore))
 
                         Image(
                             systemName: isExpanded
@@ -384,15 +400,24 @@ struct IntervalCard: View {
                     Divider()
                         .background(Color.cardBorder)
 
-                    // Performance Metrics
+                    // Performance Metrics (UPDATED with snapshots)
                     PerformanceMetricsSection(
-                        metrics: interval.performanceMetrics)
+                        metrics: snapshot.performanceMetrics,
+                        snapshots: allSnapshots
+                    )
 
                     Divider()
                         .background(Color.cardBorder)
 
                     // Injury Diagnostics
-                    InjuryDiagnosticsSection(metrics: interval.injuryMetrics)
+//                    InjuryDiagnosticsSection(metrics: snapshot.injuryMetrics)
+                    InjuryDiagnosticsDetailSection(metrics: snapshot.injuryMetrics)
+
+                    Divider()
+                        .background(Color.cardBorder)
+
+//                    // Gait Cycle Mini View
+//                    GaitCycleSnapshotSection(metrics: snapshot.gaitCycleMetrics)
                 }
                 .padding(.horizontal, Spacing.m)
                 .padding(.bottom, Spacing.m)
@@ -416,10 +441,10 @@ struct IntervalCard: View {
         }
     }
 }
-
-// MARK: - Performance Metrics Section
+// MARK: - Performance Metrics Section (UPDATED)
 struct PerformanceMetricsSection: View {
     let metrics: PerformanceMetrics
+    let snapshots: [RunSnapshot]  // NEW: Add snapshots parameter
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.s) {
@@ -428,17 +453,63 @@ struct PerformanceMetricsSection: View {
                 .foregroundColor(.textPrimary)
                 .fontWeight(.semibold)
 
-            ForEach(metrics.allMetrics, id: \.name) { metric in
-                MetricRow(
-                    name: metric.name,
-                    value: metric.value,
-                    description: metric.description
-                )
-            }
+            MetricRow(
+                name: "Efficiency",
+                value: metrics.efficiency,
+                description: "Energy economy during running",
+                metricType: .efficiency,
+                snapshots: snapshots
+            )
+
+            MetricRow(
+                name: "Braking",
+                value: metrics.braking,
+                description: "Deceleration forces",
+                metricType: .braking,
+                snapshots: snapshots
+            )
+
+            MetricRow(
+                name: "Impact",
+                value: metrics.impact,
+                description: "Ground contact force",
+                metricType: .impact,
+                snapshots: snapshots
+            )
+            
+            MetricRow(
+                name: "Sway",
+                value: metrics.sway,
+                description: "Lateral movement and stability",
+                metricType: .sway,
+                snapshots: snapshots
+            )
+
+            MetricRow(
+                name: "Variation",
+                value: metrics.variation,
+                description: "Stride consistency",
+                metricType: .variation,
+                snapshots: snapshots
+            )
+            
+            MetricRow(
+                name: "Warmup",
+                value: metrics.warmup,
+                description: "Initial readiness quality",
+                metricType: .warmup,
+                snapshots: snapshots
+            )
+            MetricRow(
+                name: "Endurance",
+                value: metrics.endurance,
+                description: "Sustained performance capability",
+                metricType: .endurance,
+                snapshots: snapshots
+            )
         }
     }
 }
-
 // MARK: - Injury Diagnostics Section
 struct InjuryDiagnosticsSection: View {
     let metrics: InjuryMetrics
@@ -456,7 +527,7 @@ struct InjuryDiagnosticsSection: View {
                 // Risk Level Badge
                 HStack(spacing: Spacing.xxs) {
                     Image(systemName: metrics.riskLevel.icon)
-                    Text(metrics.riskLevel.title)
+                    Text("High Risk")
                         .font(.caption)
                 }
                 .foregroundColor(riskColor(metrics.riskLevel))
@@ -470,7 +541,9 @@ struct InjuryDiagnosticsSection: View {
                 MetricRow(
                     name: metric.name,
                     value: metric.value,
-                    description: metric.description
+                    description: metric.description,
+                    metricType: nil,  // No detail view for injury metrics yet
+                    snapshots: []
                 )
             }
         }
@@ -485,36 +558,46 @@ struct InjuryDiagnosticsSection: View {
     }
 }
 
-// MARK: - Metric Row Component
+// MARK: - Metric Row Component (UPDATED for Sheet)
 struct MetricRow: View {
     let name: String
     let value: Int
     let description: String
+    let metricType: MetricType?
+    let snapshots: [RunSnapshot]
     @State private var showDescription = false
+    @State private var showMetricDetail = false  // NEW: Sheet state
 
     var body: some View {
         VStack(spacing: Spacing.xs) {
-            HStack {
-                // Metric Name
-                Text(name)
-                    .font(.bodySmall)
-                    .foregroundColor(.textPrimary)
+            Button(action: {
+                if metricType != nil {
+                    showMetricDetail = true
+                }
+            }) {
+                HStack {
+                    // Metric Name
+                    Text(name)
+                        .font(.bodySmall)
+                        .foregroundColor(.textPrimary)
 
-                Spacer()
+                    Spacer()
 
-                // Value
-                Text("\(value)")
-                    .font(.bodySmall)
-                    .foregroundColor(scoreColor(value))
-                    .fontWeight(.medium)
+                    // Value
+                    Text("\(value)")
+                        .font(.bodySmall)
+                        .foregroundColor(scoreColor(value))
+                        .fontWeight(.medium)
 
-                // Info button
-                Button(action: { showDescription.toggle() }) {
-                    Image(systemName: "info.circle")
-                        .font(.caption)
-                        .foregroundColor(.textTertiary)
+                    // Tap indicator
+                    if metricType != nil {
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundColor(.textTertiary)
+                    }
                 }
             }
+            .buttonStyle(PlainButtonStyle())
 
             // Progress Bar
             GeometryReader { geometry in
@@ -533,14 +616,16 @@ struct MetricRow: View {
                 }
             }
             .frame(height: 4)
-
-            // Description (if shown)
-            if showDescription {
-                Text(description)
-                    .font(.caption)
-                    .foregroundColor(.textSecondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.top, Spacing.xxs)
+            
+            
+        }
+        .sheet(isPresented: $showMetricDetail) {
+            if let metricType = metricType {
+                MetricDetailView(
+                    metricType: metricType,
+                    snapshots: snapshots,
+                    averageValue: value
+                )
             }
         }
     }
@@ -556,34 +641,6 @@ struct MetricRow: View {
     }
 }
 
-
-extension RunInterval {
-    static var sample: RunInterval {
-        RunInterval(
-            id: UUID(),
-            intervalNumber: 1,
-            distance: 0.5,
-            duration: 240,
-            timestamp: Date(),
-            performanceMetrics: PerformanceMetrics(
-                efficiency: 85,
-                sway: 55,
-                braking: 72, endurance: 78,
-                warmup: 80,
-                impact: 45,
-                variation: 68
-            ),
-            injuryMetrics: InjuryMetrics(
-                hipMobility: 65,
-                hipStability: 75,
-                portraitSymmetry: 82
-            )
-        )
-    }
-}
-
-
-
 // MARK: - Preview
 #Preview {
     let sampleRun = Run(
@@ -594,13 +651,14 @@ extension RunInterval {
         duration: 2400,
         metrics: RunMetrics(
             efficiency: 85,
-            sway: 78,
-            endurance: 82,
-            warmup: 75,
-            impact: 88,
-            braking: 80,
-            variation: 77
-        )
+            braking: 78,
+            impact: 82,
+            sway: 75,
+            variation: 88,
+            warmup: 80,
+            endurance: 77
+        ),
+        gaitCycleMetrics: GaitCycleMetrics()
     )
 
     RunDetailView(run: sampleRun)

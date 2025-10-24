@@ -8,24 +8,7 @@
 
 import SwiftUI
 
-// MARK: - Tech Mode View (Placeholder)
-/// Technical details view - shows advanced sensor data and diagnostics
-struct TechModeView: View {
-    var body: some View {
-        VStack(spacing: Spacing.m) {
-            PlaceholderCard(
-                icon: "cpu",
-                title: "Tech View Mode",
-                description: "Advanced technical details about sensor data, calibration, and raw metrics",
-                features: [
-                    "left and right gait cycle differentiation",
-                    "interactive force portrait"
-                    
-                ]
-            )
-        }
-    }
-}
+
 
 // MARK: - Metrics Over Time View (Placeholder)
 /// Shows trend analysis of metrics across multiple runs
@@ -89,30 +72,31 @@ struct MetricsOverTimeView: View {
     }
 }
 
-//// MARK: - Pocket Coach View (Placeholder)
-///// Personalized exercise recommendations based on Force Portrait analysis
-//struct PocketCoachView: View {
-//    var body: some View {
-//        VStack(spacing: Spacing.m) {
-//            PlaceholderCard(
-//                icon: "person.fill.checkmark",
-//                title: "Pocket Coach",
-//                description: "Get personalized exercise recommendations based on your Force Portrait analysis",
-//                features: [
-//                    "AI-generated exercise plans",
-//                    "Target specific weaknesses",
-//                    "Video demonstrations",
-//                    "Progress tracking",
-//                    "Difficulty levels",
-//                    "Integration with calendar"
-//                ]
-//            )
-//            
-//            // Sample exercise card
-//            ExerciseSampleCard()
-//        }
-//    }
-//}
+
+// MARK: - Pocket Coach View (Placeholder)
+/// Personalized exercise recommendations based on Force Portrait analysis
+struct PocketCoachView: View {
+    var body: some View {
+        VStack(spacing: Spacing.m) {
+            PlaceholderCard(
+                icon: "person.fill.checkmark",
+                title: "Pocket Coach",
+                description: "Get personalized exercise recommendations based on your Force Portrait analysis",
+                features: [
+                    "AI-generated exercise plans",
+                    "Target specific weaknesses",
+                    "Video demonstrations",
+                    "Progress tracking",
+                    "Difficulty levels",
+                    "Integration with calendar"
+                ]
+            )
+            
+            // Sample exercise card
+            ExerciseSampleCard()
+        }
+    }
+}
 
 // MARK: - Route Map View (Placeholder)
 /// Shows the GPS route of the run on a map

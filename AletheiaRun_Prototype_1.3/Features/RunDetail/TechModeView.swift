@@ -5,6 +5,14 @@
 //  Created by Shane Roach on 10/21/25.
 //
 
+
+//
+//  TechModeView.swift
+//  AletheiaRun_Prototype_1.3
+//
+//  Created by Shane Roach on 10/21/25.
+//
+
 import SwiftUI
 
 // MARK: - Tech Mode View
@@ -55,7 +63,7 @@ struct TechModeView: View {
             filterControls
             
             // Info Card
-            infoCard
+            //infoCard
         }
         .onAppear {
             loadSnapshots()
@@ -108,7 +116,9 @@ struct TechModeView: View {
                 // Force Portrait Image (placeholder for now)
                 VStack(spacing: Spacing.m) {
                     // Placeholder image - will be replaced with actual API image
-                    Image(systemName: "waveform.path.ecg")
+                    Image("ForcePortrait")
+                        .resizable()
+                        .frame(width: 180, height: 180)
                         .font(.system(size: 120))
                         .foregroundColor(.primaryOrange)
                     
@@ -206,7 +216,7 @@ struct TechModeView: View {
             ) {
                 HStack(spacing: Spacing.xs) {
                     ForEach(PerspectiveType.allCases) { perspective in
-                        FilterButton(
+                        TechViewFilterButton(
                             title: perspective.rawValue,
                             icon: perspective.icon,
                             isSelected: selectedPerspective == perspective,
@@ -224,7 +234,7 @@ struct TechModeView: View {
                 VStack(spacing: Spacing.xs) {
                     HStack(spacing: Spacing.xs) {
                         ForEach(Array(GaitPhase.allCases.prefix(2))) { phase in
-                            FilterButton(
+                            TechViewFilterButton(
                                 title: phase.rawValue,
                                 icon: phase.icon,
                                 isSelected: selectedPhase == phase,
@@ -234,7 +244,7 @@ struct TechModeView: View {
                     }
                     HStack(spacing: Spacing.xs) {
                         ForEach(Array(GaitPhase.allCases.suffix(2))) { phase in
-                            FilterButton(
+                            TechViewFilterButton(
                                 title: phase.rawValue,
                                 icon: phase.icon,
                                 isSelected: selectedPhase == phase,
@@ -252,7 +262,7 @@ struct TechModeView: View {
             ) {
                 HStack(spacing: Spacing.xs) {
                     ForEach(LegSelection.allCases) { leg in
-                        FilterButton(
+                        TechViewFilterButton(
                             title: leg.rawValue,
                             icon: leg.icon,
                             isSelected: selectedLeg == leg,
@@ -367,7 +377,7 @@ struct FilterSection<Content: View>: View {
 
 // MARK: - Filter Button Component
 /// Individual button for selecting filter options
-struct FilterButton: View {
+struct TechViewFilterButton: View {
     let title: String
     let icon: String
     let isSelected: Bool

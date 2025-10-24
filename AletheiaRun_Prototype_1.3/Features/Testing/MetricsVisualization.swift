@@ -10,7 +10,7 @@ import SwiftUI
 // MARK: - Visualization Concepts Container
 /// Shows 5 different ways to visualize interval metrics
 struct MetricsVisualizationShowcase: View {
-    let interval: RunInterval
+    let interval: RunSnapshot
     @State private var selectedConcept = 0
     
     let concepts = [
@@ -56,7 +56,7 @@ struct MetricsVisualizationShowcase: View {
 // MARK: - Concept 1: Radar Chart
 /// Spider/radar chart showing all metrics in a circular layout
 struct Concept1_RadarChart: View {
-    let interval: RunInterval
+    let interval: RunSnapshot
     
     var body: some View {
         ScrollView {
@@ -131,7 +131,7 @@ struct Concept1_RadarChart: View {
 // MARK: - Concept 2: Horizontal Progress Bars
 /// Clean, scannable list with color-coded bars
 struct Concept2_ProgressBars: View {
-    let interval: RunInterval
+    let interval: RunSnapshot
     
     var body: some View {
         ScrollView {
@@ -198,7 +198,7 @@ struct Concept2_ProgressBars: View {
 // MARK: - Concept 3: Gauge Cluster
 /// Dashboard-style circular gauges
 struct Concept3_GaugeCluster: View {
-    let interval: RunInterval
+    let interval: RunSnapshot
     
     var body: some View {
         ScrollView {
@@ -273,7 +273,7 @@ struct Concept3_GaugeCluster: View {
 // MARK: - Concept 4: Score Cards
 /// Card-based layout with grades/scores
 struct Concept4_ScoreCards: View {
-    let interval: RunInterval
+    let interval: RunSnapshot
     
     var body: some View {
         ScrollView {
@@ -358,7 +358,7 @@ struct Concept4_ScoreCards: View {
 // MARK: - Concept 5: Heat Map
 /// Color-coded grid/matrix view
 struct Concept5_HeatMap: View {
-    let interval: RunInterval
+    let interval: RunSnapshot
     
     var body: some View {
         ScrollView {
@@ -842,5 +842,5 @@ func getGradeColor(_ score: Int) -> Color {
 // MARK: - Preview
 
 #Preview {
-    MetricsVisualizationShowcase(interval: RunInterval.sample)
+    MetricsVisualizationShowcase(interval: RunSnapshot.sample)
 }

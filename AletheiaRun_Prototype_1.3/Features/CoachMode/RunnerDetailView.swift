@@ -5,6 +5,14 @@
 //  Created by Shane Roach on 10/21/25.
 //
 
+
+//
+//  RunnerDetailView.swift
+//  AletheiaRun_Prototype_1.3
+//
+//  Created by Shane Roach on 10/21/25.
+//
+
 import SwiftUI
 
 // MARK: - Runner Detail View
@@ -139,7 +147,7 @@ struct RunnerDetailView: View {
                 )
                 
                 QuickStat(
-                    icon: "map",
+                    icon: "ruler",
                     value: runner.formattedTotalDistance,
                     label: "Distance"
                 )
