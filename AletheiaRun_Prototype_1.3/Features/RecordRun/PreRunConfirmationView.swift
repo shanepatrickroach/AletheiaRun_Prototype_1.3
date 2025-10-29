@@ -180,7 +180,7 @@ struct PreRunConfirmationView: View {
                 VStack(alignment: .leading, spacing: Spacing.s) {
                     InstructionRow(
                         number: 1,
-                        text: "Place sensor on your lower back (sacrum)"
+                        text: "Place sensor on your sacrum"
                     )
                     
                     InstructionRow(
@@ -249,7 +249,7 @@ struct PreRunConfirmationView: View {
             
             VStack(alignment: .leading, spacing: Spacing.s) {
                 TipRow(text: "Your screen can turn off - data is still recording")
-                TipRow(text: "Keep the sensor placed in the same position throughout recording.")
+                TipRow(text: "Keep the sensor placed in the same position throughout recording")
             }
             .padding(Spacing.m)
             .background(Color.cardBackground)

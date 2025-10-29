@@ -30,11 +30,9 @@ struct InjuryDiagnosticsDetailSection: View {
             //riskLevelBanner
             
             // Leg Comparison or Individual View
-            if let leg = selectedLeg {
-                individualLegView(leg: leg)
-            } else {
-                comparisonView
-            }
+            
+            comparisonView
+            
             
             // Symmetry Analysis
             symmetryAnalysis
@@ -54,25 +52,6 @@ struct InjuryDiagnosticsDetailSection: View {
                     .fontWeight(.semibold)
                 
                 Spacer()
-            }
-            
-            // Leg Selector Pills
-            HStack(spacing: Spacing.xs) {
-                LegSelectorPill(
-                    title: "Both Legs",
-                    isSelected: selectedLeg == nil,
-                    action: { selectedLeg = nil }
-                )
-                
-                ForEach(LegSide.allCases, id: \.self) { leg in
-                    LegSelectorPill(
-                        title: leg.rawValue,
-                        icon: leg.icon,
-                        color: leg.color,
-                        isSelected: selectedLeg == leg,
-                        action: { selectedLeg = leg }
-                    )
-                }
             }
         }
     }
@@ -145,23 +124,11 @@ struct InjuryDiagnosticsDetailSection: View {
                 icon: "figure.stand"
             )
             
+        
+            
             Divider()
                 .background(Color.cardBorder)
             
-//            // Overall Averages
-//            HStack(spacing: Spacing.xl) {
-//                OverallMetricBadge(
-//                    label: "Hip Mobility",
-//                    value: metrics.hipMobility,
-//                    icon: "figure.walk.motion"
-//                )
-//                
-//                OverallMetricBadge(
-//                    label: "Hip Stability",
-//                    value: metrics.hipStability,
-//                    icon: "figure.stand"
-//                )
-//            }
         }
         .padding(Spacing.m)
         .background(Color.cardBackground)
@@ -172,56 +139,7 @@ struct InjuryDiagnosticsDetailSection: View {
         )
     }
     
-    // MARK: - Individual Leg View
-    private func individualLegView(leg: LegSide) -> some View {
-        let legMetrics = leg == .left ? metrics.leftLeg : metrics.rightLeg
-        
-        return VStack(spacing: Spacing.m) {
-            // Leg Badge
-            HStack {
-                HStack(spacing: Spacing.xs) {
-                    Image(systemName: leg.icon)
-                        .foregroundColor(leg.color)
-                    Text("\(leg.rawValue) Leg Analysis")
-                        .font(.bodyMedium)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.textPrimary)
-                }
-                
-                Spacer()
-                
-                Text("\(legMetrics.overallScore)")
-                    .font(.titleSmall)
-                    .fontWeight(.bold)
-                    .foregroundColor(scoreColor(legMetrics.overallScore))
-            }
-            .padding(Spacing.s)
-            .background(leg.color.opacity(0.1))
-            .cornerRadius(CornerRadius.small)
-            
-            // Metrics
-            IndividualMetricRow(
-                name: "Hip Mobility",
-                value: legMetrics.hipMobility,
-                icon: "figure.walk.motion",
-                description: "Range of motion in hip joint"
-            )
-            
-            IndividualMetricRow(
-                name: "Hip Stability",
-                value: legMetrics.hipStability,
-                icon: "figure.stand",
-                description: "Ability to control hip movement"
-            )
-        }
-        .padding(Spacing.m)
-        .background(Color.cardBackground)
-        .cornerRadius(CornerRadius.large)
-        .overlay(
-            RoundedRectangle(cornerRadius: CornerRadius.large)
-                .stroke(leg.color.opacity(0.3), lineWidth: 1)
-        )
-    }
+
     
     // MARK: - Symmetry Analysis
     private var symmetryAnalysis: some View {
@@ -329,36 +247,6 @@ struct InjuryDiagnosticsDetailSection: View {
     }
 }
 
-// MARK: - Leg Selector Pill
-struct LegSelectorPill: View {
-    let title: String
-    var icon: String? = nil
-    var color: Color = .primaryOrange
-    let isSelected: Bool
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: Spacing.xxs) {
-                if let icon = icon {
-                    Image(systemName: icon)
-                        .font(.caption)
-                }
-                Text(title)
-                    .font(.bodySmall)
-            }
-            .foregroundColor(isSelected ? .backgroundBlack : .textSecondary)
-            .padding(.horizontal, Spacing.m)
-            .padding(.vertical, Spacing.xs)
-            .background(isSelected ? color : Color.cardBackground)
-            .cornerRadius(CornerRadius.large)
-            .overlay(
-                RoundedRectangle(cornerRadius: CornerRadius.large)
-                    .stroke(isSelected ? color : Color.cardBorder, lineWidth: 1)
-            )
-        }
-    }
-}
 
 // MARK: - Leg Comparison Row
 struct LegComparisonRow: View {
@@ -377,13 +265,21 @@ struct LegComparisonRow: View {
         return nil
     }
     
+    private func scoreColor(_ score: Int) -> Color {
+        if score >= 80 {
+            return .successGreen
+        } else if score >= 60 {
+            return .warningYellow
+        } else {
+            return .errorRed
+        }
+    }
+    
     var body: some View {
         VStack(spacing: Spacing.s) {
             // Header
             HStack {
-                Image(systemName: icon)
-                    .foregroundColor(.primaryOrange)
-                    .font(.bodySmall)
+               
                 
                 Text(metricName)
                     .font(.bodyMedium)
@@ -409,7 +305,7 @@ struct LegComparisonRow: View {
                     HStack {
                         Image(systemName: LegSide.left.icon)
                             .font(.caption)
-                            .foregroundColor(LegSide.left.color)
+                            .foregroundColor(Color.infoBlue)
                         Text("Left")
                             .font(.caption)
                             .foregroundColor(.textSecondary)
@@ -422,18 +318,22 @@ struct LegComparisonRow: View {
                             .foregroundColor(.textPrimary)
                     }
                     
+
+                    
+                    // Progress Bar
                     GeometryReader { geometry in
                         ZStack(alignment: .leading) {
-                            RoundedRectangle(cornerRadius: 4)
+                            // Background
+                            RoundedRectangle(cornerRadius: 2)
                                 .fill(Color.cardBorder)
                                 .frame(height: 8)
-                            
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(LegSide.left.color)
+
+                            // Progress
+                            RoundedRectangle(cornerRadius: 2)
+                                .fill(scoreColor(leftValue))
                                 .frame(
                                     width: geometry.size.width * CGFloat(leftValue) / 100,
-                                    height: 8
-                                )
+                                    height: 8)
                         }
                     }
                     .frame(height: 8)
@@ -444,7 +344,7 @@ struct LegComparisonRow: View {
                     HStack {
                         Image(systemName: LegSide.right.icon)
                             .font(.caption)
-                            .foregroundColor(LegSide.right.color)
+                            .foregroundColor(Color.infoBlue)
                         Text("Right")
                             .font(.caption)
                             .foregroundColor(.textSecondary)
@@ -457,18 +357,37 @@ struct LegComparisonRow: View {
                             .foregroundColor(.textPrimary)
                     }
                     
+//                    GeometryReader { geometry in
+//                        ZStack(alignment: .leading) {
+//                            RoundedRectangle(cornerRadius: 4)
+//                                .fill(Color.cardBorder)
+//                                .frame(height: 8)
+//                            
+//                            RoundedRectangle(cornerRadius: 4)
+//                                .fill(LegSide.right.color)
+//                                .frame(
+//                                    width: geometry.size.width * CGFloat(rightValue) / 100,
+//                                    height: 8
+//                                )
+//                        }
+//                    }
+//                    .frame(height: 8)
+                    
+                    
+                    // Progress Bar
                     GeometryReader { geometry in
                         ZStack(alignment: .leading) {
-                            RoundedRectangle(cornerRadius: 4)
+                            // Background
+                            RoundedRectangle(cornerRadius: 2)
                                 .fill(Color.cardBorder)
                                 .frame(height: 8)
-                            
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(LegSide.right.color)
+
+                            // Progress
+                            RoundedRectangle(cornerRadius: 2)
+                                .fill(scoreColor(rightValue))
                                 .frame(
                                     width: geometry.size.width * CGFloat(rightValue) / 100,
-                                    height: 8
-                                )
+                                    height: 8)
                         }
                     }
                     .frame(height: 8)

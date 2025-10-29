@@ -66,7 +66,7 @@ struct TrainingPlanLinkView: View {
             )
             
             // Link to full Training Plan
-            NavigationLink(destination: TrainingPlanView()) {
+            NavigationLink(destination: TrainingPlanView(isEmbedded: true)) {
                 HStack {
                     Text("View Full Training Plan")
                         .font(.bodyLarge)

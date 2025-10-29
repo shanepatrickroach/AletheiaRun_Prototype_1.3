@@ -87,7 +87,7 @@ struct OverviewTab: View {
                 )
 
                 PerformanceMetricItem(
-                    label: "Efficiency",
+                    label: "Overall Score",
                     value: "\(runner.averageEfficiency)",
                     icon: "chart.line.uptrend.xyaxis",
                     color: efficiencyColor(runner.averageEfficiency)

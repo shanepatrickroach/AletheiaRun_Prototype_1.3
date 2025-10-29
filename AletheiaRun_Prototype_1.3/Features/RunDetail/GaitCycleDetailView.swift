@@ -43,11 +43,11 @@ struct GaitCycleDetailView: View {
             // Timing Metrics
             GaitCycleTimingCard(metrics: currentGaitMetrics)
             
-            // Symmetry Insights
-            SymmetryInsightCard(metrics: currentGaitMetrics)
-            
-            // Phase Details (expandable)
-            phaseDetailsSection
+//            // Symmetry Insights
+//            SymmetryInsightCard(metrics: currentGaitMetrics)
+//            
+//            // Phase Details (expandable)
+//            phaseDetailsSection
             
 //            // Gait Cycle Over Time (if multiple snapshots)
 //            if snapshots.count > 1 {
@@ -188,7 +188,7 @@ struct GaitCycleDetailView: View {
         VStack(alignment: .leading, spacing: Spacing.m) {
             // Section header with snapshot info
             HStack {
-                Text("Dual Gait Cycle View")
+                Text("Gait Cycle View")
                     .font(.headline)
                     .foregroundColor(.textPrimary)
                 

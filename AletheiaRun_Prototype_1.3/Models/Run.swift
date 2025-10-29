@@ -228,16 +228,8 @@ struct RunMetrics: Codable {
         ]
         return scores.reduce(0, +) / scores.count
     }
-    
-    
 }
-
-//
-//enum LegSide: String {
-//    case right = "right"
-//    case left = "left"
-//}
-
+    
 // MARK: - Perspective Type (NEW)
 enum PerspectiveType: String, Codable, CaseIterable, Identifiable {
     case top = "Top"

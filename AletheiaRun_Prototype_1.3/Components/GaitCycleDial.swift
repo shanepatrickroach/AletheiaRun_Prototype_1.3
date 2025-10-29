@@ -184,8 +184,8 @@ struct EnhancedGaitCycleSegments: View {
         ZStack {
             // Landing segment
             EnhancedSegmentShape(
-                startAngle: .degrees(-90),
-                endAngle: .degrees(-90 + (legCycle.landing / 100 * 360) - spacing),
+                startAngle: .degrees(-180),
+                endAngle: .degrees(-180 + (legCycle.landing / 100 * 360) - spacing),
                 phase: .landing
             )
             .stroke(
@@ -196,16 +196,16 @@ struct EnhancedGaitCycleSegments: View {
                         GaitCyclePhase.landing.color.opacity(0.7)
                     ],
                     center: .center,
-                    startAngle: .degrees(-90),
-                    endAngle: .degrees(-90 + (legCycle.landing / 100 * 360))
+                    startAngle: .degrees(-180),
+                    endAngle: .degrees(-180 + (legCycle.landing / 100 * 360))
                 ),
                 style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
             )
             
             // Stabilizing segment
             EnhancedSegmentShape(
-                startAngle: .degrees(-90 + (legCycle.landing / 100 * 360)),
-                endAngle: .degrees(-90 + ((legCycle.landing + legCycle.stabilizing) / 100 * 360) - spacing),
+                startAngle: .degrees(-180 + (legCycle.landing / 100 * 360)),
+                endAngle: .degrees(-180 + ((legCycle.landing + legCycle.stabilizing) / 100 * 360) - spacing),
                 phase: .stabilizing
             )
             .stroke(
@@ -216,16 +216,16 @@ struct EnhancedGaitCycleSegments: View {
                         GaitCyclePhase.stabilizing.color.opacity(0.7)
                     ],
                     center: .center,
-                    startAngle: .degrees(-90 + (legCycle.landing / 100 * 360)),
-                    endAngle: .degrees(-90 + ((legCycle.landing + legCycle.stabilizing) / 100 * 360))
+                    startAngle: .degrees(-180 + (legCycle.landing / 100 * 360)),
+                    endAngle: .degrees(-180 + ((legCycle.landing + legCycle.stabilizing) / 100 * 360))
                 ),
                 style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
             )
             
             // Launching segment
             EnhancedSegmentShape(
-                startAngle: .degrees(-90 + ((legCycle.landing + legCycle.stabilizing) / 100 * 360)),
-                endAngle: .degrees(-90 + ((legCycle.landing + legCycle.stabilizing + legCycle.launching) / 100 * 360) - spacing),
+                startAngle: .degrees(-180 + ((legCycle.landing + legCycle.stabilizing) / 100 * 360)),
+                endAngle: .degrees(-180 + ((legCycle.landing + legCycle.stabilizing + legCycle.launching) / 100 * 360) - spacing),
                 phase: .launching
             )
             .stroke(
@@ -236,16 +236,16 @@ struct EnhancedGaitCycleSegments: View {
                         GaitCyclePhase.launching.color.opacity(0.7)
                     ],
                     center: .center,
-                    startAngle: .degrees(-90 + ((legCycle.landing + legCycle.stabilizing) / 100 * 360)),
-                    endAngle: .degrees(-90 + ((legCycle.landing + legCycle.stabilizing + legCycle.launching) / 100 * 360))
+                    startAngle: .degrees(-180 + ((legCycle.landing + legCycle.stabilizing) / 100 * 360)),
+                    endAngle: .degrees(-180 + ((legCycle.landing + legCycle.stabilizing + legCycle.launching) / 100 * 360))
                 ),
                 style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
             )
             
             // Flying segment
             EnhancedSegmentShape(
-                startAngle: .degrees(-90 + ((legCycle.landing + legCycle.stabilizing + legCycle.launching) / 100 * 360)),
-                endAngle: .degrees(-90 + 360 - spacing),
+                startAngle: .degrees(-180 + ((legCycle.landing + legCycle.stabilizing + legCycle.launching) / 100 * 360)),
+                endAngle: .degrees(-180 + 360 - spacing),
                 phase: .flying
             )
             .stroke(
@@ -256,8 +256,8 @@ struct EnhancedGaitCycleSegments: View {
                         GaitCyclePhase.flying.color.opacity(0.7)
                     ],
                     center: .center,
-                    startAngle: .degrees(-90 + ((legCycle.landing + legCycle.stabilizing + legCycle.launching) / 100 * 360)),
-                    endAngle: .degrees(-90 + 360)
+                    startAngle: .degrees(-180 + ((legCycle.landing + legCycle.stabilizing + legCycle.launching) / 100 * 360)),
+                    endAngle: .degrees(-180 + 360)
                 ),
                 style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
             )
@@ -284,23 +284,23 @@ struct EnhancedGaitCycleSegments: View {
         switch phase {
         case .landing:
             return (
-                .degrees(-90),
-                .degrees(-90 + (legCycle.landing / 100 * 360) - spacing)
+                .degrees(-180),
+                .degrees(-180 + (legCycle.landing / 100 * 360) - spacing)
             )
         case .stabilizing:
             return (
-                .degrees(-90 + (legCycle.landing / 100 * 360)),
-                .degrees(-90 + ((legCycle.landing + legCycle.stabilizing) / 100 * 360) - spacing)
+                .degrees(-180 + (legCycle.landing / 100 * 360)),
+                .degrees(-180 + ((legCycle.landing + legCycle.stabilizing) / 100 * 360) - spacing)
             )
         case .launching:
             return (
-                .degrees(-90 + ((legCycle.landing + legCycle.stabilizing) / 100 * 360)),
-                .degrees(-90 + ((legCycle.landing + legCycle.stabilizing + legCycle.launching) / 100 * 360) - spacing)
+                .degrees(-180 + ((legCycle.landing + legCycle.stabilizing) / 100 * 360)),
+                .degrees(-180 + ((legCycle.landing + legCycle.stabilizing + legCycle.launching) / 100 * 360) - spacing)
             )
         case .flying:
             return (
-                .degrees(-90 + ((legCycle.landing + legCycle.stabilizing + legCycle.launching) / 100 * 360)),
-                .degrees(-90 + 360 - spacing)
+                .degrees(-180 + ((legCycle.landing + legCycle.stabilizing + legCycle.launching) / 100 * 360)),
+                .degrees(-180 + 360 - spacing)
             )
         }
     }
@@ -463,6 +463,15 @@ struct GaitCycleTimingCard: View {
                     value: String(format: "%.0f", metrics.flightTime),
                     unit: "ms",
                     color: .infoBlue
+                )
+                
+                // Cadence
+                TimingMetricItem(
+                    icon: "metronome.fill",
+                    label: "Cadence",
+                    value: "\(metrics.cadence)",
+                    unit: "SPM",
+                    color: .primaryOrange
                 )
                 
                 // Cadence

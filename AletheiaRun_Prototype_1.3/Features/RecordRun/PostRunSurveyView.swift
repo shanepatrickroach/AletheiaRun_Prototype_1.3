@@ -462,22 +462,14 @@ struct PostRunSurveyView: View {
 
     // MARK: - Submit Survey (UPDATED)
     private func submitSurvey() {
-        // Convert PainPointSelection to legacy PainPoint for compatibility
-        let legacyPainPoints = convertToLegacyPainPoints(selectedPainPoints)
+        
 
         // Create detailed pain description with sides
         let detailedPainDescription = createDetailedPainDescription()
 
-        let survey = PostRunSurvey(
-            painPoints: legacyPainPoints,
-            painPointDetails: detailedPainDescription,
-            energyLevel: energyLevel,
-            perceivedEffort: perceivedEffort,
-            notes: notes,
-            wouldRecommendSettings: true
-        )
+        
 
-        runSession.completeSurvey(survey)
+        
         showingCompletion = true
     }
 
@@ -501,33 +493,7 @@ struct PostRunSurveyView: View {
         return fullDescription
     }
 
-    // Helper to convert new pain point types to old format
-    private func convertToLegacyPainPoints(
-        _ selections: Set<PainPointSelection>
-    ) -> Set<PainPoint> {
-        var legacyPoints = Set<PainPoint>()
-
-        for selection in selections {
-            switch selection.type {
-            case .patelloFemoral, .itBand:
-                legacyPoints.insert(.knee)
-            case .hipBursitis:
-                legacyPoints.insert(.hip)
-            case .lowBack:
-                legacyPoints.insert(.back)
-            case .achilles:
-                legacyPoints.insert(.ankle)
-            case .plantarFasciitis:
-                legacyPoints.insert(.foot)
-            case .anteriorShinSplints, .posteriorShinSplints:
-                legacyPoints.insert(.shin)
-            case .stressFracture, .hamstring:
-                legacyPoints.insert(.other)
-            }
-        }
-
-        return legacyPoints
-    }
+    
 }
 
 // MARK: - Pain Point Grid Cell (UPDATED to show sides)

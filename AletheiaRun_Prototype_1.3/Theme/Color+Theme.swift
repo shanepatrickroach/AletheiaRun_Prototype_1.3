@@ -35,6 +35,10 @@ extension Color {
     static let variationColor = Color(hex: "EA973F")
     static let warmupColor = Color(hex: "982688")
     static let enduranceColor = Color(hex: "794FAD")
+    static let hipMobilityColor = Color(hex:"06C900")
+    static let hipStabilityColor = Color(hex:"0033FF")
+    static let timeColor = Color(hex: "92400E")
+    
     
     // MARK: - Helper to create Color from hex
     init(hex: String) {

@@ -2,368 +2,256 @@
 //  TechModeView.swift
 //  AletheiaRun_Prototype_1.3
 //
-//  Created by Shane Roach on 10/21/25.
-//
-
-
-//
-//  TechModeView.swift
-//  AletheiaRun_Prototype_1.3
-//
-//  Created by Shane Roach on 10/21/25.
+//  Created by Shane Roach on 10/20/25.
 //
 
 import SwiftUI
 
 // MARK: - Tech Mode View
-/// Advanced technical view showing Force Portrait snapshots with filtering
-/// Allows users to view different perspectives, phases, and leg selections
+/// Technical view for detailed Force Portrait analysis with multiple perspectives and views
 struct TechModeView: View {
-    // MARK: - State Properties
-    @State private var selectedPerspective: PerspectiveType = .side
-    @State private var selectedPhase: GaitPhase = .landing
+    let snapshots: [RunSnapshot]  // NEW: Accept snapshots
+
+    // Selection States
+    @State private var selectedPerspective: ForcePerspective = .rear
+    @State private var selectedView: ForceView = .aesthetic
     @State private var selectedLeg: LegSelection = .both
-    @State private var snapshots: [TechViewSnapshot] = []
-    @State private var currentSnapshotIndex: Int = 0
-    
-    // MARK: - Computed Properties
-    /// Filters snapshots based on current selections
-    private var filteredSnapshots: [TechViewSnapshot] {
-        snapshots.filter { snapshot in
-            snapshot.perspective == selectedPerspective &&
-            snapshot.phase == selectedPhase &&
-            snapshot.leg == selectedLeg
-        }
-    }
-    
-    /// Current snapshot being displayed
-    private var currentSnapshot: TechViewSnapshot? {
-        guard !filteredSnapshots.isEmpty,
-              currentSnapshotIndex < filteredSnapshots.count else {
+    @State private var currentSnapshotIndex: Int = 0  // NEW: Track current snapshot
+
+    // Current snapshot
+    private var currentSnapshot: RunSnapshot? {
+        guard !snapshots.isEmpty, currentSnapshotIndex < snapshots.count else {
             return nil
         }
-        return filteredSnapshots[currentSnapshotIndex]
+        return snapshots[currentSnapshotIndex]
     }
-    
-    // MARK: - Body
+
     var body: some View {
         VStack(spacing: Spacing.m) {
-            // Section Header
+            // Header
             sectionHeader
-            
-            // Main Force Portrait Display
-            forcePortraitDisplay
-            
-            // Snapshot Navigation
-            if filteredSnapshots.count > 1 {
-                snapshotNavigation
+
+            // Snapshot Navigation (NEW)
+            if snapshots.count > 1 {
+                snapshotNavigator
             }
             
-            // Filter Controls
-            filterControls
-            
-            // Info Card
-            //infoCard
+            // Force Portrait Display
+            forcePortraitDisplay
+
+
+            // Perspective Selector
+            perspectiveSelector
+
+            // View Type Selector
+            viewTypeSelector
+
+            // Leg Selector (disabled for Aesthetic view)
+            legSelector
+
+           
+            // Legend/Info based on selected view
+            viewInfoSection
         }
-        .onAppear {
-            loadSnapshots()
-        }
-        .onChange(of: selectedPerspective) { _ in resetSnapshotIndex() }
-        .onChange(of: selectedPhase) { _ in resetSnapshotIndex() }
-        .onChange(of: selectedLeg) { _ in resetSnapshotIndex() }
     }
-    
+
     // MARK: - Section Header
     private var sectionHeader: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: Spacing.xxs) {
-                Text("Technical View")
-                    .font(.headline)
-                    .foregroundColor(.textPrimary)
-                
-                Text("Detailed Force Portrait Analysis")
+        VStack(alignment: .leading, spacing: Spacing.s) {
+            Text("Force Portrait Analysis")
+                .font(.headline)
+                .foregroundColor(.textPrimary)
+
+            if let snapshot = currentSnapshot {
+                Text(
+                    "Snapshot \(snapshot.snapshotNumber) • \(snapshot.formattedDistance)"
+                )
+                .font(.bodySmall)
+                .foregroundColor(.textSecondary)
+            } else {
+                Text("Explore different perspectives and analysis views")
                     .font(.bodySmall)
                     .foregroundColor(.textSecondary)
             }
-            
-            Spacer()
-            
-            // Snapshot counter
-            if !filteredSnapshots.isEmpty {
-                Text("\(currentSnapshotIndex + 1) of \(filteredSnapshots.count)")
-                    .font(.caption)
-                    .foregroundColor(.textTertiary)
-                    .padding(.horizontal, Spacing.s)
-                    .padding(.vertical, Spacing.xxs)
-                    .background(Color.cardBorder)
-                    .cornerRadius(CornerRadius.small)
-            }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
-    
-    // MARK: - Force Portrait Display
-    private var forcePortraitDisplay: some View {
-        ZStack {
-            // Background
-            RoundedRectangle(cornerRadius: CornerRadius.large)
-                .fill(Color.backgroundBlack)
-                .overlay(
-                    RoundedRectangle(cornerRadius: CornerRadius.large)
-                        .stroke(Color.primaryOrange.opacity(0.3), lineWidth: 2)
-                )
-            
-            if let snapshot = currentSnapshot {
-                // Force Portrait Image (placeholder for now)
-                VStack(spacing: Spacing.m) {
-                    // Placeholder image - will be replaced with actual API image
-                    Image("ForcePortrait")
-                        .resizable()
-                        .frame(width: 180, height: 180)
-                        .font(.system(size: 120))
-                        .foregroundColor(.primaryOrange)
-                    
-                    // Snapshot info
-                    VStack(spacing: Spacing.xxs) {
-                        Text("Interval \(snapshot.intervalNumber)")
-                            .font(.bodyMedium)
-                            .foregroundColor(.textPrimary)
-                        
-                        Text("Time: \(formatTimestamp(snapshot.timestamp))")
-                            .font(.caption)
-                            .foregroundColor(.textSecondary)
-                    }
-                }
-            } else {
-                // No snapshots available
-                VStack(spacing: Spacing.s) {
-                    Image(systemName: "photo.on.rectangle.angled")
-                        .font(.system(size: 60))
-                        .foregroundColor(.textTertiary)
-                    
-                    Text("No snapshots available")
-                        .font(.bodyMedium)
-                        .foregroundColor(.textSecondary)
-                    
-                    Text("for this combination")
-                        .font(.bodySmall)
-                        .foregroundColor(.textTertiary)
-                }
-            }
-        }
-        .frame(height: 300)
-        .frame(maxWidth: .infinity)
-    }
-    
-    // MARK: - Snapshot Navigation
-    private var snapshotNavigation: some View {
-        HStack(spacing: Spacing.m) {
-            // Previous button
-            Button(action: previousSnapshot) {
-                Image(systemName: "chevron.left")
-                    .font(.headline)
-                    .foregroundColor(currentSnapshotIndex > 0 ? .primaryOrange : .textTertiary)
-                    .frame(width: 44, height: 44)
-                    .background(Color.cardBackground)
-                    .cornerRadius(CornerRadius.small)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: CornerRadius.small)
-                            .stroke(Color.cardBorder, lineWidth: 1)
-                    )
-            }
-            .disabled(currentSnapshotIndex == 0)
-            
-            // Progress dots
-            HStack(spacing: Spacing.xxs) {
-                ForEach(0..<min(filteredSnapshots.count, 10), id: \.self) { index in
-                    Circle()
-                        .fill(index == currentSnapshotIndex ? Color.primaryOrange : Color.cardBorder)
-                        .frame(width: 8, height: 8)
-                }
-                
-                if filteredSnapshots.count > 10 {
-                    Text("...")
-                        .font(.caption)
-                        .foregroundColor(.textTertiary)
-                }
-            }
-            .frame(maxWidth: .infinity)
-            
-            // Next button
-            Button(action: nextSnapshot) {
-                Image(systemName: "chevron.right")
-                    .font(.headline)
-                    .foregroundColor(currentSnapshotIndex < filteredSnapshots.count - 1 ? .primaryOrange : .textTertiary)
-                    .frame(width: 44, height: 44)
-                    .background(Color.cardBackground)
-                    .cornerRadius(CornerRadius.small)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: CornerRadius.small)
-                            .stroke(Color.cardBorder, lineWidth: 1)
-                    )
-            }
-            .disabled(currentSnapshotIndex >= filteredSnapshots.count - 1)
-        }
-        .padding(.horizontal, Spacing.m)
-    }
-    
-    // MARK: - Filter Controls
-    private var filterControls: some View {
+
+    // MARK: - Snapshot Navigator (NEW)
+    private var snapshotNavigator: some View {
         VStack(spacing: Spacing.m) {
-            // Perspective Selector
-            FilterSection(
-                title: "Perspective",
-                icon: "perspective"
-            ) {
-                HStack(spacing: Spacing.xs) {
-                    ForEach(PerspectiveType.allCases) { perspective in
-                        TechViewFilterButton(
-                            title: perspective.rawValue,
-                            icon: perspective.icon,
-                            isSelected: selectedPerspective == perspective,
-                            action: { selectedPerspective = perspective }
-                        )
-                    }
-                }
-            }
-            
-            // Phase Selector
-            FilterSection(
-                title: "Gait Phase",
-                icon: "figure.run"
-            ) {
-                VStack(spacing: Spacing.xs) {
-                    HStack(spacing: Spacing.xs) {
-                        ForEach(Array(GaitPhase.allCases.prefix(2))) { phase in
-                            TechViewFilterButton(
-                                title: phase.rawValue,
-                                icon: phase.icon,
-                                isSelected: selectedPhase == phase,
-                                action: { selectedPhase = phase }
-                            )
-                        }
-                    }
-                    HStack(spacing: Spacing.xs) {
-                        ForEach(Array(GaitPhase.allCases.suffix(2))) { phase in
-                            TechViewFilterButton(
-                                title: phase.rawValue,
-                                icon: phase.icon,
-                                isSelected: selectedPhase == phase,
-                                action: { selectedPhase = phase }
-                            )
+            // Snapshot info and counter
+            HStack {
+                VStack(alignment: .leading, spacing: Spacing.xxs) {
+                    Text("Snapshot Navigation")
+                        .font(.bodyMedium)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.textPrimary)
+
+                    if let snapshot = currentSnapshot {
+                        HStack(spacing: Spacing.xs) {
+                            Text(formatTimestamp(snapshot.duration))
+                                .font(.caption)
+                                .foregroundColor(.textSecondary)
+
+                            Text("•")
+                                .foregroundColor(.textTertiary)
+
+                            Text(snapshot.formattedPace)
+                                .font(.caption)
+                                .foregroundColor(.textSecondary)
                         }
                     }
                 }
-            }
-            
-            // Leg Selector
-            FilterSection(
-                title: "Leg Selection",
-                icon: "figure.walk"
-            ) {
-                HStack(spacing: Spacing.xs) {
-                    ForEach(LegSelection.allCases) { leg in
-                        TechViewFilterButton(
-                            title: leg.rawValue,
-                            icon: leg.icon,
-                            isSelected: selectedLeg == leg,
-                            action: { selectedLeg = leg }
-                        )
-                    }
-                }
-            }
-        }
-    }
-    
-    // MARK: - Info Card
-    private var infoCard: some View {
-        VStack(alignment: .leading, spacing: Spacing.s) {
-            HStack(spacing: Spacing.xs) {
-                Image(systemName: "info.circle.fill")
-                    .foregroundColor(.infoBlue)
-                
-                Text("Current Selection")
-                    .font(.bodyMedium)
+
+                Spacer()
+
+                // Snapshot counter
+                Text("\(currentSnapshotIndex + 1) of \(snapshots.count)")
+                    .font(.bodySmall)
                     .foregroundColor(.textPrimary)
-                    .fontWeight(.semibold)
+                    .padding(.horizontal, Spacing.s)
+                    .padding(.vertical, 4)
+                    .background(Color.primaryOrange.opacity(0.2))
+                    .cornerRadius(CornerRadius.small)
             }
-            
-            VStack(alignment: .leading, spacing: Spacing.xs) {
-                InfoRow(label: "Perspective", value: selectedPerspective.rawValue)
-                InfoRow(label: "Phase", value: selectedPhase.rawValue)
-                InfoRow(label: "Leg", value: selectedLeg.rawValue)
-                
-                if let snapshot = currentSnapshot {
-                    InfoRow(label: "Interval", value: "#\(snapshot.intervalNumber)")
-                    InfoRow(label: "Timestamp", value: formatTimestamp(snapshot.timestamp))
+
+            // Navigation controls
+            HStack(spacing: Spacing.m) {
+                // Previous button
+                Button(action: previousSnapshot) {
+                    HStack(spacing: Spacing.xs) {
+                        Image(systemName: "chevron.left")
+                        Text("Previous")
+                            .font(.bodySmall)
+                    }
+                    .foregroundColor(
+                        currentSnapshotIndex > 0
+                            ? .primaryOrange : .textTertiary
+                    )
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, Spacing.s)
+                    .background(Color.backgroundBlack)
+                    .cornerRadius(CornerRadius.small)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: CornerRadius.small)
+                            .stroke(Color.cardBorder, lineWidth: 1)
+                    )
                 }
+                .disabled(currentSnapshotIndex == 0)
+
+                // Timeline dots
+                snapshotTimeline
+
+                // Next button
+                Button(action: nextSnapshot) {
+                    HStack(spacing: Spacing.xs) {
+                        Text("Next")
+                            .font(.bodySmall)
+                        Image(systemName: "chevron.right")
+                    }
+                    .foregroundColor(
+                        currentSnapshotIndex < snapshots.count - 1
+                            ? .primaryOrange : .textTertiary
+                    )
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, Spacing.s)
+                    .background(Color.backgroundBlack)
+                    .cornerRadius(CornerRadius.small)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: CornerRadius.small)
+                            .stroke(Color.cardBorder, lineWidth: 1)
+                    )
+                }
+                .disabled(currentSnapshotIndex >= snapshots.count - 1)
             }
-            
-            Text(selectedPhase.description)
-                .font(.bodySmall)
-                .foregroundColor(.textSecondary)
-                .padding(.top, Spacing.xs)
+
+            // Quick snapshot preview strip (NEW)
+            //snapshotPreviewStrip
         }
         .padding(Spacing.m)
         .background(Color.cardBackground)
         .cornerRadius(CornerRadius.medium)
         .overlay(
             RoundedRectangle(cornerRadius: CornerRadius.medium)
-                .stroke(Color.infoBlue.opacity(0.3), lineWidth: 1)
+                .stroke(Color.primaryOrange.opacity(0.3), lineWidth: 1)
         )
     }
-    
-    // MARK: - Helper Functions
-    private func loadSnapshots() {
-        // In a real app, this would load from API based on the run
-        // For now, generate sample snapshots for 6 intervals
-        snapshots = TechViewSnapshot.generateSampleSnapshots(intervalCount: 6)
-    }
-    
-    private func resetSnapshotIndex() {
-        currentSnapshotIndex = 0
-    }
-    
-    private func previousSnapshot() {
-        if currentSnapshotIndex > 0 {
-            currentSnapshotIndex -= 1
-        }
-    }
-    
-    private func nextSnapshot() {
-        if currentSnapshotIndex < filteredSnapshots.count - 1 {
-            currentSnapshotIndex += 1
-        }
-    }
-    
-    private func formatTimestamp(_ timestamp: TimeInterval) -> String {
-        let minutes = Int(timestamp) / 60
-        let seconds = Int(timestamp) % 60
-        let milliseconds = Int((timestamp.truncatingRemainder(dividingBy: 1)) * 100)
-        return String(format: "%d:%02d.%02d", minutes, seconds, milliseconds)
-    }
-}
 
-// MARK: - Filter Section Component
-/// Reusable section container for filter controls
-struct FilterSection<Content: View>: View {
-    let title: String
-    let icon: String
-    @ViewBuilder let content: Content
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.s) {
-            HStack(spacing: Spacing.xs) {
-                Image(systemName: icon)
-                    .foregroundColor(.primaryOrange)
-                    .font(.bodySmall)
-                
-                Text(title)
-                    .font(.bodyMedium)
-                    .foregroundColor(.textPrimary)
-                    .fontWeight(.semibold)
+    // MARK: - Snapshot Timeline (NEW)
+    private var snapshotTimeline: some View {
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 4) {
+                    ForEach(0..<snapshots.count, id: \.self) { index in
+                        Button(action: {
+                            withAnimation {
+                                currentSnapshotIndex = index
+                            }
+                        }) {
+                            Circle()
+                                .fill(
+                                    index == currentSnapshotIndex
+                                        ? Color.primaryOrange : Color.cardBorder
+                                )
+                                .frame(width: 8, height: 8)
+                                .id(index)
+                        }
+                    }
+                }
+                .padding(.horizontal, Spacing.xs)
             }
-            
-            content
+            .frame(maxWidth: 120)
+            .onChange(of: currentSnapshotIndex) { newIndex in
+                withAnimation {
+                    proxy.scrollTo(newIndex, anchor: .center)
+                }
+            }
+        }
+    }
+
+    // MARK: - Snapshot Preview Strip (NEW)
+    private var snapshotPreviewStrip: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: Spacing.s) {
+                ForEach(Array(snapshots.enumerated()), id: \.offset) {
+                    index, snapshot in
+                    SnapshotPreviewThumbnail(
+                        snapshot: snapshot,
+                        index: index,
+                        isSelected: index == currentSnapshotIndex,
+                        action: {
+                            withAnimation {
+                                currentSnapshotIndex = index
+                            }
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    // MARK: - Perspective Selector
+    private var perspectiveSelector: some View {
+        VStack(alignment: .leading, spacing: Spacing.s) {
+            Text("Perspective")
+                .font(.bodyMedium)
+                .fontWeight(.semibold)
+                .foregroundColor(.textPrimary)
+
+            HStack(spacing: Spacing.s) {
+                ForEach(ForcePerspective.allCases, id: \.self) { perspective in
+                    PerspectiveButton(
+                        perspective: perspective,
+                        isSelected: selectedPerspective == perspective,
+                        action: {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                selectedPerspective = perspective
+                            }
+                        }
+                    )
+                }
+            }
         }
         .padding(Spacing.m)
         .background(Color.cardBackground)
@@ -373,73 +261,686 @@ struct FilterSection<Content: View>: View {
                 .stroke(Color.cardBorder, lineWidth: 1)
         )
     }
+
+    // MARK: - View Type Selector
+    private var viewTypeSelector: some View {
+        VStack(alignment: .leading, spacing: Spacing.s) {
+            Text("View Type")
+                .font(.bodyMedium)
+                .fontWeight(.semibold)
+                .foregroundColor(.textPrimary)
+
+            VStack(spacing: Spacing.xs) {
+                ForEach(ForceView.allCases, id: \.self) { view in
+                    ViewTypeButton(
+                        view: view,
+                        isSelected: selectedView == view,
+                        action: {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                selectedView = view
+                                // Reset to "both" when switching to aesthetic
+                                if view == .aesthetic {
+                                    selectedLeg = .both
+                                }
+                            }
+                        }
+                    )
+                }
+            }
+        }
+        .padding(Spacing.m)
+        .background(Color.cardBackground)
+        .cornerRadius(CornerRadius.medium)
+        .overlay(
+            RoundedRectangle(cornerRadius: CornerRadius.medium)
+                .stroke(Color.cardBorder, lineWidth: 1)
+        )
+    }
+
+    // MARK: - Leg Selector
+    private var legSelector: some View {
+        VStack(alignment: .leading, spacing: Spacing.s) {
+            HStack {
+                Text("Leg Selection")
+                    .font(.bodyMedium)
+                    .fontWeight(.semibold)
+                    .foregroundColor(
+                        isLegSelectorEnabled ? .textPrimary : .textTertiary)
+
+                if !isLegSelectorEnabled {
+                    Text("(Disabled for Aesthetic)")
+                        .font(.caption)
+                        .foregroundColor(.textTertiary)
+                }
+            }
+
+            HStack(spacing: Spacing.s) {
+                ForEach(LegSelection.allCases, id: \.self) { leg in
+                    LegButton(
+                        leg: leg,
+                        isSelected: selectedLeg == leg,
+                        isEnabled: isLegSelectorEnabled,
+                        action: {
+                            if isLegSelectorEnabled {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    selectedLeg = leg
+                                }
+                            }
+                        }
+                    )
+                }
+            }
+        }
+        .padding(Spacing.m)
+        .background(Color.cardBackground)
+        .cornerRadius(CornerRadius.medium)
+        .overlay(
+            RoundedRectangle(cornerRadius: CornerRadius.medium)
+                .stroke(Color.cardBorder, lineWidth: 1)
+        )
+        .opacity(isLegSelectorEnabled ? 1.0 : 0.5)
+    }
+
+    private var isLegSelectorEnabled: Bool {
+        selectedView != .aesthetic
+    }
+
+    // MARK: - Force Portrait Display
+    private var forcePortraitDisplay: some View {
+        VStack(spacing: Spacing.s) {
+            // Current Selection Info
+            HStack(spacing: Spacing.m) {
+                // Perspective Badge
+                SelectionBadge(
+                    icon: selectedPerspective.icon,
+                    label: selectedPerspective.rawValue,
+                    color: .primaryOrange
+                )
+
+                // View Badge
+                SelectionBadge(
+                    icon: selectedView.icon,
+                    label: selectedView.rawValue,
+                    color: .infoBlue
+                )
+
+                // Leg Badge (if applicable)
+                if isLegSelectorEnabled {
+                    SelectionBadge(
+                        icon: selectedLeg.icon,
+                        label: selectedLeg.rawValue,
+                        color: selectedLeg.color
+                    )
+                }
+            }
+
+            // Force Portrait Image
+            ZStack {
+                RoundedRectangle(cornerRadius: CornerRadius.large)
+                    .fill(Color.backgroundBlack)
+
+                // Image based on selection
+                forcePortraitImage
+                    .transition(.opacity)
+                    .id(
+                        "\(currentSnapshotIndex)-\(selectedPerspective.rawValue)-\(selectedView.rawValue)-\(selectedLeg.rawValue)"
+                    )  // NEW: Force refresh on changes
+            }
+            .frame(height: 400)
+            .overlay(
+                RoundedRectangle(cornerRadius: CornerRadius.large)
+                    .stroke(
+                        LinearGradient(
+                            colors: [
+                                Color.primaryOrange.opacity(0.3),
+                                Color.primaryOrange.opacity(0.1),
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 2
+                    )
+            )
+
+            // NEW: Snapshot metrics preview
+            if let snapshot = currentSnapshot {
+                snapshotMetricsPreview(snapshot)
+            }
+        }
+        .padding(Spacing.m)
+        .background(Color.cardBackground)
+        .cornerRadius(CornerRadius.large)
+        .overlay(
+            RoundedRectangle(cornerRadius: CornerRadius.large)
+                .stroke(Color.cardBorder, lineWidth: 1)
+        )
+    }
+
+    // MARK: - Snapshot Metrics Preview (NEW)
+    private func snapshotMetricsPreview(_ snapshot: RunSnapshot) -> some View {
+        HStack(spacing: Spacing.m) {
+            MetricPreviewBadge(
+                label: "Efficiency",
+                value: snapshot.performanceMetrics.efficiency
+            )
+
+            MetricPreviewBadge(
+                label: "Symmetry",
+                value: snapshot.injuryMetrics.portraitSymmetry
+            )
+
+            MetricPreviewBadge(
+                label: "Cadence",
+                value: snapshot.gaitCycleMetrics.cadence
+            )
+        }
+    }
+
+    // MARK: - Force Portrait Image
+    private var forcePortraitImage: some View {
+        let imageName = constructImageName()
+
+        return Group {
+            if let uiImage = UIImage(named: imageName) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFit()
+                    .padding(Spacing.m)
+            } else {
+                // Fallback placeholder
+                VStack(spacing: Spacing.m) {
+                    Image(systemName: "photo")
+                        .font(.system(size: 60))
+                        .foregroundColor(.textTertiary)
+
+                    Text("Force Portrait")
+                        .font(.headline)
+                        .foregroundColor(.textPrimary)
+
+                    if let snapshot = currentSnapshot {
+                        Text("Snapshot #\(snapshot.snapshotNumber)")
+                            .font(.bodySmall)
+                            .foregroundColor(.primaryOrange)
+                    }
+
+                    Text(imageName)
+                        .font(.caption)
+                        .foregroundColor(.textTertiary)
+                        .multilineTextAlignment(.center)
+
+                    Text("Image will be loaded here")
+                        .font(.bodySmall)
+                        .foregroundColor(.textSecondary)
+                }
+                .padding(Spacing.xl)
+            }
+        }
+    }
+
+    // MARK: - Construct Image Name
+    private func constructImageName() -> String {
+        // Format: ForcePortrait_{Perspective}_{View}_{Leg}
+        // Example: ForcePortrait_Rear_Aesthetic_Both
+
+        var components = ["ForcePortrait"]
+        components.append(selectedPerspective.rawValue)
+        components.append(selectedView.rawValue)
+
+        // Only add leg suffix if not aesthetic view
+        if selectedView != .aesthetic {
+            components.append(selectedLeg.rawValue)
+        } else {
+            components.append("Both")  // Always use "Both" for aesthetic
+        }
+
+        return components.joined(separator: "_")
+    }
+
+    // MARK: - View Info Section
+    private var viewInfoSection: some View {
+        VStack(alignment: .leading, spacing: Spacing.m) {
+            HStack {
+                Image(systemName: "info.circle.fill")
+                    .foregroundColor(.infoBlue)
+
+                Text(selectedView.infoTitle)
+                    .font(.bodyMedium)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.textPrimary)
+            }
+
+            Text(selectedView.description)
+                .font(.bodySmall)
+                .foregroundColor(.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            // View-specific legend
+            if let legend = selectedView.legend {
+                Divider()
+                    .background(Color.cardBorder)
+
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    ForEach(legend, id: \.label) { item in
+                        HStack(spacing: Spacing.s) {
+                            Circle()
+                                .fill(item.color)
+                                .frame(width: 12, height: 12)
+
+                            Text(item.label)
+                                .font(.caption)
+                                .foregroundColor(.textPrimary)
+
+                            Spacer()
+                        }
+                    }
+                }
+            }
+        }
+        .padding(Spacing.m)
+        .background(Color.infoBlue.opacity(0.1))
+        .cornerRadius(CornerRadius.medium)
+        .overlay(
+            RoundedRectangle(cornerRadius: CornerRadius.medium)
+                .stroke(Color.infoBlue.opacity(0.3), lineWidth: 1)
+        )
+    }
+
+    // MARK: - Helper Methods (NEW)
+    private func previousSnapshot() {
+        guard currentSnapshotIndex > 0 else { return }
+        withAnimation {
+            currentSnapshotIndex -= 1
+        }
+    }
+
+    private func nextSnapshot() {
+        guard currentSnapshotIndex < snapshots.count - 1 else { return }
+        withAnimation {
+            currentSnapshotIndex += 1
+        }
+    }
+
+    private func formatTimestamp(_ duration: TimeInterval) -> String {
+        let minutes = Int(duration) / 60
+        let seconds = Int(duration) % 60
+        return String(format: "%d:%02d", minutes, seconds)
+    }
 }
 
-// MARK: - Filter Button Component
-/// Individual button for selecting filter options
-struct TechViewFilterButton: View {
-    let title: String
-    let icon: String
+// MARK: - Snapshot Preview Thumbnail (NEW)
+struct SnapshotPreviewThumbnail: View {
+    let snapshot: RunSnapshot
+    let index: Int
     let isSelected: Bool
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
-            VStack(spacing: Spacing.xxs) {
-                Image(systemName: icon)
-                    .font(.bodyMedium)
-                
-                Text(title)
+            VStack(spacing: Spacing.xs) {
+                // Snapshot number
+                Text("#\(snapshot.snapshotNumber)")
                     .font(.caption)
+                    .fontWeight(isSelected ? .bold : .medium)
+                    .foregroundColor(
+                        isSelected ? .primaryOrange : .textSecondary)
+
+                // Mini force portrait thumbnail
+                ZStack {
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(Color.backgroundBlack)
+
+                    Image(systemName: "waveform.path.ecg")
+                        .font(.system(size: 20))
+                        .foregroundColor(
+                            isSelected ? .primaryOrange : .textTertiary)
+                }
+                .frame(width: 50, height: 40)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(
+                            isSelected ? Color.primaryOrange : Color.cardBorder,
+                            lineWidth: isSelected ? 2 : 1
+                        )
+                )
+
+                // Distance
+                Text(snapshot.formattedDistance)
+                    .font(.system(size: 9))
+                    .foregroundColor(.textTertiary)
             }
-            .foregroundColor(isSelected ? .backgroundBlack : .textSecondary)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, Spacing.s)
+            .padding(Spacing.xs)
             .background(
-                isSelected ? Color.primaryOrange : Color.backgroundBlack
+                isSelected
+                    ? Color.primaryOrange.opacity(0.1) : Color.backgroundBlack
             )
             .cornerRadius(CornerRadius.small)
             .overlay(
                 RoundedRectangle(cornerRadius: CornerRadius.small)
                     .stroke(
                         isSelected ? Color.primaryOrange : Color.cardBorder,
-                        lineWidth: 1
+                        lineWidth: isSelected ? 2 : 1
                     )
             )
         }
     }
 }
 
-// MARK: - Info Row Component
-/// Simple row for displaying label-value pairs
-struct InfoRow: View {
+// MARK: - Metric Preview Badge (NEW)
+struct MetricPreviewBadge: View {
     let label: String
-    let value: String
-    
+    let value: Int
+
+    private var color: Color {
+        if value >= 80 { return .successGreen }
+        if value >= 60 { return .warningYellow }
+        return .errorRed
+    }
+
     var body: some View {
-        HStack {
+        VStack(spacing: 2) {
+            Text("\(value)")
+                .font(.bodyMedium)
+                .fontWeight(.bold)
+                .foregroundColor(color)
+
             Text(label)
-                .font(.bodySmall)
+                .font(.system(size: 10))
                 .foregroundColor(.textSecondary)
-            
-            Spacer()
-            
-            Text(value)
-                .font(.bodySmall)
-                .foregroundColor(.textPrimary)
-                .fontWeight(.medium)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, Spacing.xs)
+        .background(Color.backgroundBlack)
+        .cornerRadius(CornerRadius.small)
+    }
+}
+
+// MARK: - Force Perspective Enum
+enum ForcePerspective: String, CaseIterable {
+    case top = "Top"
+    case bottom = "Bottom"
+    case rear = "Rear"
+
+    var icon: String {
+        switch self {
+        case .top: return "arrow.down.circle"
+        case .bottom: return "arrow.up.circle"
+        case .rear: return "figure.stand"
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .top: return "View from above showing lateral movement"
+        case .bottom: return "View from below showing ground contact"
+        case .rear: return "View from behind showing body alignment"
         }
     }
 }
+
+// MARK: - Force View Enum
+enum ForceView: String, CaseIterable {
+    case aesthetic = "Aesthetic"
+    case leftRight = "Left/Right"
+    case gaitCycle = "Gait Cycle"
+
+    var icon: String {
+        switch self {
+        case .aesthetic: return "paintbrush.fill"
+        case .leftRight: return "arrow.left.and.right"
+        case .gaitCycle: return "circle.dotted.and.circle"
+        }
+    }
+
+    var infoTitle: String {
+        switch self {
+        case .aesthetic: return "Aesthetic View"
+        case .leftRight: return "Left/Right Comparison"
+        case .gaitCycle: return "Gait Cycle Phases"
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .aesthetic:
+            return
+                "Overall force distribution visualization showing biomechanical efficiency and form quality."
+        case .leftRight:
+            return
+                "Side-by-side comparison of left and right leg forces to identify asymmetries and imbalances."
+        case .gaitCycle:
+            return
+                "Force distribution across different gait cycle phases: landing, stabilizing, launching, and flying."
+        }
+    }
+
+    var legend: [LegendItem]? {
+        switch self {
+        case .aesthetic:
+            return [
+                LegendItem(
+                    color: .successGreen, label: "Optimal force distribution"),
+                LegendItem(color: .warningYellow, label: "Moderate force"),
+                LegendItem(color: .errorRed, label: "High force concentration"),
+            ]
+        case .leftRight:
+            return [
+                LegendItem(color: .infoBlue, label: "Left leg forces"),
+                LegendItem(color: .successGreen, label: "Right leg forces"),
+            ]
+        case .gaitCycle:
+            return [
+                LegendItem(color: Color(hex: "FF6B6B"), label: "Landing phase"),
+                LegendItem(
+                    color: Color(hex: "4ECDC4"), label: "Stabilizing phase"),
+                LegendItem(
+                    color: Color(hex: "45B7D1"), label: "Launching phase"),
+                LegendItem(color: Color(hex: "FFA07A"), label: "Flying phase"),
+            ]
+        }
+    }
+}
+
+// MARK: - Leg Selection Enum
+enum LegSelection: String, CaseIterable {
+    case both = "Both"
+    case left = "Left"
+    case right = "Right"
+
+    var icon: String {
+        switch self {
+        case .both: return "figure.stand"
+        case .left: return "l.square.fill"
+        case .right: return "r.square.fill"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .both: return .primaryOrange
+        case .left: return .infoBlue
+        case .right: return .successGreen
+        }
+    }
+}
+
+// MARK: - Legend Item
+struct LegendItem {
+    let color: Color
+    let label: String
+}
+
+// MARK: - Perspective Button
+struct PerspectiveButton: View {
+    let perspective: ForcePerspective
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: Spacing.xs) {
+                Image(systemName: perspective.icon)
+                    .font(.system(size: 24))
+                    .foregroundColor(
+                        isSelected ? .backgroundBlack : .primaryOrange)
+
+                Text(perspective.rawValue)
+                    .font(.bodySmall)
+                    .foregroundColor(
+                        isSelected ? .backgroundBlack : .textPrimary)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, Spacing.m)
+            .background(
+                isSelected ? Color.primaryOrange : Color.backgroundBlack
+            )
+            .cornerRadius(CornerRadius.medium)
+            .overlay(
+                RoundedRectangle(cornerRadius: CornerRadius.medium)
+                    .stroke(
+                        isSelected ? Color.primaryOrange : Color.cardBorder,
+                        lineWidth: isSelected ? 2 : 1
+                    )
+            )
+        }
+    }
+}
+
+// MARK: - View Type Button
+struct ViewTypeButton: View {
+    let view: ForceView
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: Spacing.m) {
+                Image(systemName: view.icon)
+                    .font(.system(size: 20))
+                    .foregroundColor(isSelected ? .backgroundBlack : .infoBlue)
+                    .frame(width: 30)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(view.rawValue)
+                        .font(.bodyMedium)
+                        .fontWeight(.semibold)
+                        .foregroundColor(
+                            isSelected ? .backgroundBlack : .textPrimary)
+
+                    if !isSelected {
+                        Text(view.description)
+                            .font(.caption)
+                            .foregroundColor(.textSecondary)
+                            .lineLimit(1)
+                    }
+                }
+
+                Spacer()
+
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(.backgroundBlack)
+                }
+            }
+            .padding(Spacing.m)
+            .background(isSelected ? Color.infoBlue : Color.backgroundBlack)
+            .cornerRadius(CornerRadius.small)
+            .overlay(
+                RoundedRectangle(cornerRadius: CornerRadius.small)
+                    .stroke(
+                        isSelected ? Color.infoBlue : Color.cardBorder,
+                        lineWidth: isSelected ? 2 : 1
+                    )
+            )
+        }
+    }
+}
+
+// MARK: - Leg Button
+struct LegButton: View {
+    let leg: LegSelection
+    let isSelected: Bool
+    let isEnabled: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: Spacing.xs) {
+                Image(systemName: leg.icon)
+                    .font(.system(size: 24))
+                    .foregroundColor(buttonForegroundColor)
+
+                Text(leg.rawValue)
+                    .font(.bodySmall)
+                    .foregroundColor(buttonForegroundColor)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, Spacing.m)
+            .background(buttonBackgroundColor)
+            .cornerRadius(CornerRadius.medium)
+            .overlay(
+                RoundedRectangle(cornerRadius: CornerRadius.medium)
+                    .stroke(buttonBorderColor, lineWidth: isSelected ? 2 : 1)
+            )
+        }
+        .disabled(!isEnabled)
+    }
+
+    private var buttonForegroundColor: Color {
+        if !isEnabled {
+            return .textTertiary
+        }
+        return isSelected ? .backgroundBlack : leg.color
+    }
+
+    private var buttonBackgroundColor: Color {
+        if !isEnabled {
+            return Color.cardBorder.opacity(0.3)
+        }
+        return isSelected ? leg.color : Color.backgroundBlack
+    }
+
+    private var buttonBorderColor: Color {
+        if !isEnabled {
+            return Color.cardBorder
+        }
+        return isSelected ? leg.color : Color.cardBorder
+    }
+}
+
+// MARK: - Selection Badge
+struct SelectionBadge: View {
+    let icon: String
+    let label: String
+    let color: Color
+
+    var body: some View {
+        HStack(spacing: Spacing.xs) {
+            Image(systemName: icon)
+                .font(.caption)
+
+            Text(label)
+                .font(.caption)
+                .fontWeight(.semibold)
+        }
+        .foregroundColor(color)
+        .padding(.horizontal, Spacing.s)
+        .padding(.vertical, 4)
+        .background(color.opacity(0.15))
+        .cornerRadius(CornerRadius.small)
+    }
+}
+
 
 // MARK: - Preview
 #Preview {
     ZStack {
         Color.backgroundBlack.ignoresSafeArea()
-        
+
         ScrollView {
-            TechModeView()
-                .padding()
+            TechModeView(
+                snapshots: RunSnapshot.generateSampleSnapshots(count: 10)
+            )
+            .padding()
         }
     }
 }

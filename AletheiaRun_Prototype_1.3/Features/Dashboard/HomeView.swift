@@ -41,16 +41,13 @@ struct HomeView: View {
                         // MARK: - Header with Greeting
                         headerSection
 
-                        
                         // MARK: - Latest Force Portrait (3 Views)
                         forcePortraitSection
-                        
-                                                
+
                         trainingPlanSection
-                        
+
                         // MARK: - Coach Mode Feature Card (NEW)
                         coachModeFeatureCard
-                     
 
                         // Recent Achievements (NEW)
                         if !gamificationManager.unlockedAchievements.isEmpty {
@@ -80,9 +77,10 @@ struct HomeView: View {
                                         ) { achievement in
                                             MiniAchievementCard(
                                                 achievement: achievement)
-                                        }
+                                        }.frame(maxWidth: .infinity, maxHeight: .infinity) // expand equally
                                     }
                                     .padding(.horizontal, Spacing.l)
+                                    .frame(maxWidth: .infinity, alignment: .top)
                                 }
                             }
                         }
@@ -113,15 +111,14 @@ struct HomeView: View {
                             }
                         }
 
-                
                         // MARK: - Tip of the Week
                         tipOfTheWeekSection
                     }
                     .padding(.top, 40)
-                    .padding(.bottom, 120) // Extra space for tab bar
+                    .padding(.bottom, 120)  // Extra space for tab bar
                 }
             }
-            
+
         }
     }
 
@@ -168,17 +165,17 @@ struct HomeView: View {
 
                 Spacer()
 
-//                if let run = latestRun {
-//                    HStack(spacing: 4) {
-//                        Circle()
-//                            .fill(efficiencyColor(run.metrics.efficiency))
-//                            .frame(width: 8, height: 8)
-//
-//                        Text("\(run.metrics.efficiency)")
-//                            .font(.bodySmall)
-//                            .foregroundColor(.textSecondary)
-//                    }
-//                }
+                //                if let run = latestRun {
+                //                    HStack(spacing: 4) {
+                //                        Circle()
+                //                            .fill(efficiencyColor(run.metrics.efficiency))
+                //                            .frame(width: 8, height: 8)
+                //
+                //                        Text("\(run.metrics.efficiency)")
+                //                            .font(.bodySmall)
+                //                            .foregroundColor(.textSecondary)
+                //                    }
+                //                }
             }
             .padding(.horizontal, Spacing.m)
 
@@ -189,6 +186,17 @@ struct HomeView: View {
 
                     // Run Stats (Distance, Time, Pace)
                     runStatsRow(for: run)
+                }
+                .padding(.vertical, Spacing.m)
+                .background(Color.cardBackground)
+                .cornerRadius(CornerRadius.large)
+                .overlay(
+                    RoundedRectangle(cornerRadius: CornerRadius.large)
+                        .stroke(Color.primaryOrange.opacity(0.3), lineWidth: 1)
+                )
+                .padding(.horizontal, Spacing.m)
+                .onTapGesture {
+                    // Navigate to detailed Force Portrait view
                 }
             } else {
                 // Empty State
@@ -238,17 +246,7 @@ struct HomeView: View {
                 .font(.caption)
                 .foregroundColor(.textTertiary)
         }
-        .padding(.vertical, Spacing.m)
-        .background(Color.cardBackground)
-        .cornerRadius(CornerRadius.large)
-        .overlay(
-            RoundedRectangle(cornerRadius: CornerRadius.large)
-                .stroke(Color.primaryOrange.opacity(0.3), lineWidth: 1)
-        )
-        .padding(.horizontal, Spacing.m)
-        .onTapGesture {
-            // Navigate to detailed Force Portrait view
-        }
+
     }
 
     // MARK: - Individual Force Portrait Image View
@@ -324,7 +322,7 @@ struct HomeView: View {
                 Image(systemName: icon)
                     .font(.system(size: 18))
                     .foregroundColor(.primaryOrange)
-
+                    .frame(width: 40, height: 40)
                 HStack(alignment: .lastTextBaseline, spacing: 2) {
                     Text(value)
                         .font(.headline)
@@ -342,6 +340,7 @@ struct HomeView: View {
                     .foregroundColor(.textSecondary)
             }
             .frame(maxWidth: .infinity)
+
             .padding(.vertical, Spacing.m)
             .background(Color.cardBackground)
             .cornerRadius(CornerRadius.medium)
@@ -412,8 +411,6 @@ struct HomeView: View {
         .padding(.horizontal, Spacing.m)
     }
 
-
-        
     // MARK: - Coach Mode Feature Card (UPDATED)
     private var coachModeFeatureCard: some View {
         NavigationLink(destination: CoachModeView()) {
@@ -422,35 +419,38 @@ struct HomeView: View {
                 GeometryReader { geometry in
                     // Placeholder for background image
                     // Replace "coach_background" with your actual image asset name
-                    if let _ = UIImage(named: "coach_background") {
+                    if UIImage(named: "coach_background") != nil {
                         Image("coach_background")
                             .resizable()
                             .aspectRatio(contentMode: .fill)
-                            .frame(width: geometry.size.width, height: geometry.size.height)
+                            .frame(
+                                width: geometry.size.width,
+                                height: geometry.size.height
+                            )
                             .clipped()
                     } else {
                         // Fallback gradient background
                         LinearGradient(
                             colors: [
                                 Color.primaryOrange.opacity(0.6),
-                                Color.primaryDark.opacity(0.8)
+                                Color.primaryDark.opacity(0.8),
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
                     }
-                    
+
                     // Dark overlay for text readability
                     LinearGradient(
                         colors: [
                             Color.black.opacity(0.7),
-                            Color.black.opacity(0.5)
+                            Color.black.opacity(0.5),
                         ],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
                 }
-                
+
                 // Content
                 VStack(alignment: .leading, spacing: Spacing.m) {
                     HStack {
@@ -460,7 +460,7 @@ struct HomeView: View {
                                     .font(.titleMedium)
                                     .fontWeight(.bold)
                                     .foregroundColor(.white)
-                                
+
                                 // "New" badge
                                 Text("NEW")
                                     .font(.system(size: 10, weight: .bold))
@@ -470,59 +470,61 @@ struct HomeView: View {
                                     .background(Color.primaryOrange)
                                     .cornerRadius(6)
                             }
-                            
+
                             Text("Help other runners improve")
                                 .font(.bodyLarge)
                                 .foregroundColor(.white.opacity(0.9))
                         }
-                        
+
                         Spacer()
-                        
+
                         // Arrow in circle
                         ZStack {
                             Circle()
                                 .fill(Color.white.opacity(0.2))
                                 .frame(width: 40, height: 40)
-                            
+
                             Image(systemName: "arrow.right")
                                 .font(.system(size: 18, weight: .semibold))
                                 .foregroundColor(.white)
                         }
                     }.padding(10)
-                    
+
                     // Feature highlights with icons
                     HStack(spacing: Spacing.l) {
                         CoachModeFeatureHighlight(
                             icon: "person.2.fill",
                             text: "Multiple Athletes"
                         )
-                        
+
                         CoachModeFeatureHighlight(
                             icon: "chart.line.uptrend.xyaxis",
                             text: "Track Progress"
                         )
-                        
+
                         CoachModeFeatureHighlight(
                             icon: "message.fill",
                             text: "Real-time Feedback"
                         )
                     }
                     .padding(.top, Spacing.xs)
+                    .padding(.bottom, Spacing.xs)
                 }
                 .padding(Spacing.l)
             }
-            .frame(height: 260)
+            
             .cornerRadius(CornerRadius.large)
             .overlay(
                 RoundedRectangle(cornerRadius: CornerRadius.large)
                     .stroke(Color.primaryOrange.opacity(0.6), lineWidth: 2)
             )
-            .shadow(color: Color.primaryOrange.opacity(0.3), radius: 10, x: 0, y: 5)
+            .shadow(
+                color: Color.primaryOrange.opacity(0.3), radius: 10, x: 0, y: 5)
         }
         .buttonStyle(PlainButtonStyle())
         .padding(.horizontal, Spacing.m)
     }
-    
+
     // MARK: - Tip of the Week Section
     private var tipOfTheWeekSection: some View {
         VStack(alignment: .leading, spacing: Spacing.m) {
@@ -549,19 +551,19 @@ struct HomeView: View {
 struct CoachModeFeatureHighlight: View {
     let icon: String
     let text: String
-    
+
     var body: some View {
         VStack(spacing: Spacing.xs) {
             ZStack {
                 Circle()
                     .fill(Color.white.opacity(0.15))
                     .frame(width: 36, height: 36)
-                
+
                 Image(systemName: icon)
                     .font(.system(size: 16))
                     .foregroundColor(.white)
             }
-            
+
             Text(text)
                 .font(.system(size: 11, weight: .medium))
                 .foregroundColor(.white.opacity(0.95))
@@ -569,10 +571,9 @@ struct CoachModeFeatureHighlight: View {
                 .lineLimit(2)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxHeight: .infinity, alignment: .top)
     }
 }
-
 
 // MARK: - Training Plan Section
 private var trainingPlanSection: some View {
@@ -581,9 +582,9 @@ private var trainingPlanSection: some View {
             Text("Training Plan")
                 .font(.headline)
                 .foregroundColor(.textPrimary)
-            
+
             Spacer()
-            
+
             NavigationLink(destination: TrainingPlanView()) {
                 Text("View")
                     .font(.bodySmall)
@@ -591,18 +592,16 @@ private var trainingPlanSection: some View {
             }
         }
         .padding(.horizontal, Spacing.m)
-        
+
         TrainingPlanHomeCard()
             .padding(.horizontal, Spacing.m)
     }
 }
 
-
-
 // MARK: - Training Plan Home Card
 struct TrainingPlanHomeCard: View {
     @StateObject private var viewModel = TrainingPlanViewModel()
-    
+
     var body: some View {
         NavigationLink(destination: TrainingPlanView()) {
             Group {
@@ -617,7 +616,7 @@ struct TrainingPlanHomeCard: View {
         }
         .buttonStyle(PlainButtonStyle())
     }
-    
+
     // MARK: - Active Plan Card
     private func activePlanCard(plan: TrainingPlan) -> some View {
         VStack(spacing: Spacing.m) {
@@ -627,41 +626,45 @@ struct TrainingPlanHomeCard: View {
                     Circle()
                         .fill(Color.primaryOrange.opacity(0.2))
                         .frame(width: 50, height: 50)
-                    
+
                     Image(systemName: "figure.strengthtraining.traditional")
                         .font(.system(size: 24))
                         .foregroundColor(.primaryOrange)
                 }
-                
+
                 // Info
                 VStack(alignment: .leading, spacing: Spacing.xxs) {
                     Text("Your Training Plan")
                         .font(.bodyLarge)
                         .fontWeight(.semibold)
                         .foregroundColor(.textPrimary)
-                    
-                    Text("\(plan.completedExercises) of \(plan.totalExercises) exercises completed")
-                        .font(.bodySmall)
-                        .foregroundColor(.textSecondary)
+
+                    Text(
+                        "\(plan.completedExercises) of \(plan.totalExercises) exercises completed"
+                    )
+                    .font(.bodySmall)
+                    .foregroundColor(.textSecondary)
                 }
-                
+
                 Spacer()
-                
+
                 Image(systemName: "chevron.right")
                     .foregroundColor(.textTertiary)
             }
-            
+
             // Progress Bar
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 6)
                         .fill(Color.cardBorder)
                         .frame(height: 8)
-                    
+
                     RoundedRectangle(cornerRadius: 6)
                         .fill(
                             LinearGradient(
-                                colors: [Color.primaryOrange, Color.primaryLight],
+                                colors: [
+                                    Color.primaryOrange, Color.primaryLight,
+                                ],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )
@@ -673,7 +676,7 @@ struct TrainingPlanHomeCard: View {
                 }
             }
             .frame(height: 8)
-            
+
             // Quick Stats
             HStack(spacing: Spacing.xl) {
                 PlanStatBadge(
@@ -681,13 +684,13 @@ struct TrainingPlanHomeCard: View {
                     value: "\(plan.targetedMetrics.count)",
                     label: "Metrics"
                 )
-                
+
                 PlanStatBadge(
                     icon: "calendar",
                     value: "Updated \(relativeDateString(plan.generatedDate))",
                     label: ""
                 )
-                
+
                 PlanStatBadge(
                     icon: "percent",
                     value: String(format: "%.0f%%", plan.completionRate * 100),
@@ -703,7 +706,7 @@ struct TrainingPlanHomeCard: View {
                 .stroke(Color.primaryOrange.opacity(0.3), lineWidth: 1)
         )
     }
-    
+
     // MARK: - Empty Plan Card
     private var emptyPlanCard: some View {
         VStack(spacing: Spacing.m) {
@@ -713,42 +716,42 @@ struct TrainingPlanHomeCard: View {
                     Circle()
                         .fill(Color.primaryOrange.opacity(0.2))
                         .frame(width: 50, height: 50)
-                    
+
                     Image(systemName: "sparkles")
                         .font(.system(size: 24))
                         .foregroundColor(.primaryOrange)
                 }
-                
+
                 // Info
                 VStack(alignment: .leading, spacing: Spacing.xxs) {
                     Text("Get Your Training Plan")
                         .font(.bodyLarge)
                         .fontWeight(.semibold)
                         .foregroundColor(.textPrimary)
-                    
+
                     Text("Personalized exercises based on your metrics")
                         .font(.bodySmall)
                         .foregroundColor(.textSecondary)
                 }
-                
+
                 Spacer()
-                
+
                 Image(systemName: "chevron.right")
                     .foregroundColor(.textTertiary)
             }
-            
+
             // Feature Highlights
             HStack(spacing: Spacing.m) {
                 EmptyPlanFeature(
                     icon: "chart.line.uptrend.xyaxis",
                     text: "Metric-Based"
                 )
-                
+
                 EmptyPlanFeature(
                     icon: "arrow.triangle.2.circlepath",
                     text: "Dynamic"
                 )
-                
+
                 EmptyPlanFeature(
                     icon: "bandage.fill",
                     text: "Pain Focus"
@@ -763,18 +766,19 @@ struct TrainingPlanHomeCard: View {
                 .stroke(Color.cardBorder, lineWidth: 1)
         )
     }
-    
+
     // MARK: - Helper Functions
     private func relativeDateString(_ date: Date) -> String {
         let calendar = Calendar.current
         let now = Date()
-        
+
         if calendar.isDateInToday(date) {
             return "today"
         } else if calendar.isDateInYesterday(date) {
             return "yesterday"
         } else {
-            let days = calendar.dateComponents([.day], from: date, to: now).day ?? 0
+            let days =
+                calendar.dateComponents([.day], from: date, to: now).day ?? 0
             if days < 7 {
                 return "\(days)d ago"
             } else {
@@ -789,19 +793,19 @@ struct PlanStatBadge: View {
     let icon: String
     let value: String
     let label: String
-    
+
     var body: some View {
         HStack(spacing: Spacing.xs) {
             Image(systemName: icon)
                 .font(.caption)
                 .foregroundColor(.primaryOrange)
-            
+
             VStack(alignment: .leading, spacing: 0) {
                 Text(value)
                     .font(.caption)
                     .fontWeight(.semibold)
                     .foregroundColor(.textPrimary)
-                
+
                 if !label.isEmpty {
                     Text(label)
                         .font(.system(size: 9))
@@ -817,13 +821,13 @@ struct PlanStatBadge: View {
 struct EmptyPlanFeature: View {
     let icon: String
     let text: String
-    
+
     var body: some View {
         HStack(spacing: Spacing.xs) {
             Image(systemName: icon)
                 .font(.system(size: 12))
                 .foregroundColor(.primaryOrange)
-            
+
             Text(text)
                 .font(.caption)
                 .foregroundColor(.textSecondary)
@@ -834,7 +838,6 @@ struct EmptyPlanFeature: View {
         .cornerRadius(CornerRadius.small)
     }
 }
-
 
 // MARK: - Quick Metric Card
 struct QuickMetricCard: View {
@@ -863,7 +866,6 @@ struct QuickMetricCard: View {
         )
     }
 }
-
 
 // MARK: - Tip Card
 struct TipCard: View {
@@ -907,7 +909,7 @@ struct TipCard: View {
             RoundedRectangle(cornerRadius: CornerRadius.large)
                 .stroke(tipColor.opacity(0.8), lineWidth: 1)
         )
-        
+
     }
 
     private var tipColor: Color {
@@ -939,7 +941,7 @@ struct MiniAchievementCard: View {
                     .foregroundColor(achievement.tier.color)
             }
 
-            Text(achievement.name)
+            Text(achievement.name.replacingOccurrences(of: " ", with: "\n"))
                 .font(.caption)
                 .foregroundColor(.textPrimary)
                 .lineLimit(2)
@@ -955,7 +957,7 @@ struct MiniAchievementCard: View {
                 .background(achievement.tier.color.opacity(0.2))
                 .cornerRadius(4)
         }
-        .frame(width: 100)
+        .frame(width: 120)
         .padding(.vertical, Spacing.s)
         .background(Color.cardBackground)
         .cornerRadius(CornerRadius.medium)
@@ -965,11 +967,11 @@ struct MiniAchievementCard: View {
 // MARK: - Quick Stats Section
 struct QuickStatsSection: View {
     var body: some View {
-        VStack{
+        VStack {
             Text("Quick Stats")
                 .font(.headline)
                 .foregroundColor(.textPrimary)
-            
+
             HStack(spacing: Spacing.m) {
                 QuickStatCard(
                     value: "3.2",
@@ -992,9 +994,9 @@ struct QuickStatsSection: View {
                     color: .infoBlue
                 )
             }
-            
+
         }
-        
+
     }
 }
 
@@ -1075,7 +1077,6 @@ struct ForcePortraitSection: View {
     }
 }
 
-
 #Preview {
     HomeView(
         onLibraryTap: {},
@@ -1086,9 +1087,3 @@ struct ForcePortraitSection: View {
     .environmentObject(GamificationManager())
     .environmentObject(AuthenticationManager())
 }
-
-
-
-
-
-

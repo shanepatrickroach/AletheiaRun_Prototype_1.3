@@ -124,6 +124,8 @@ struct ExerciseDetailView: View {
                 .foregroundColor(.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
+        .frame(maxWidth: .infinity)
+
     }
     
     // MARK: - Quick Stats
@@ -145,13 +147,6 @@ struct ExerciseDetailView: View {
                 color: .infoBlue
             )
             
-            // Difficulty
-            QuickStatBadge(
-                icon: "star.fill",
-                label: "Difficulty",
-                value: String(repeating: "★", count: exercise.difficultyRating),
-                color: .warningYellow
-            )
         }
     }
     
@@ -167,7 +162,7 @@ struct ExerciseDetailView: View {
                     .foregroundColor(.textPrimary)
             }
             
-            VStack(alignment: .leading, spacing: Spacing.s) {
+            VStack(alignment: .leading, spacing: Spacing.m) {
                 ForEach(Array(exercise.instructions.enumerated()), id: \.offset) { index, instruction in
                     HStack(alignment: .top, spacing: Spacing.m) {
                         // Step number
@@ -208,9 +203,9 @@ struct ExerciseDetailView: View {
                     .foregroundColor(.textPrimary)
             }
             
-            VStack(alignment: .leading, spacing: Spacing.s) {
+            VStack(alignment: .leading, spacing: Spacing.m) {
                 ForEach(exercise.benefits, id: \.self) { benefit in
-                    HStack(alignment: .top, spacing: Spacing.s) {
+                    HStack(alignment: .center, spacing: Spacing.s) {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundColor(.successGreen)
                             .font(.bodySmall)
@@ -220,9 +215,13 @@ struct ExerciseDetailView: View {
                             .foregroundColor(.textPrimary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
                 }
             }
         }
+        .frame(maxWidth: .infinity)
+
         .padding(Spacing.m)
         .background(Color.cardBackground)
         .cornerRadius(CornerRadius.large)

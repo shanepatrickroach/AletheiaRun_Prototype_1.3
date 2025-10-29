@@ -102,17 +102,17 @@ class RunningHistoryViewModel: ObservableObject {
             
             let point = DataPoint(
                 date: date,
-                efficiency: Int.random(in: 70...85) + Int(trendFactor),
-                braking: Int.random(in: 70...85) + Int(trendFactor),
-                impact: Int.random(in: 75...88) + Int(trendFactor),
-                sway: Int.random(in: 65...80) + Int(trendFactor),
-                variation: Int.random(in: 73...85) + Int(trendFactor),
-                warmup: Int.random(in: 68...80) + Int(trendFactor),
-                endurance: Int.random(in: 72...85) + Int(trendFactor),
-                hipMobility: Int.random(in: 72...85),
-                hipStability: Int.random(in: 72...85),
-                portraitSymmetry: Int.random(in: 72...85),
-                overallScore: Int.random(in: 72...85)
+                efficiency: Int.random(in: 30...85) + Int(trendFactor),
+                braking: Int.random(in: 30...85) + Int(trendFactor),
+                impact: Int.random(in: 15...88) + Int(trendFactor),
+                sway: Int.random(in: 15...80) + Int(trendFactor),
+                variation: Int.random(in: 15...85) + Int(trendFactor),
+                warmup: Int.random(in: 15...80) + Int(trendFactor),
+                endurance: Int.random(in: 15...85) + Int(trendFactor),
+                hipMobility: Int.random(in: 15...85),
+                hipStability: Int.random(in: 15...85),
+                portraitSymmetry: Int.random(in: 15...85),
+                overallScore: Int.random(in: 15...85)
             )
             points.append(point)
         }

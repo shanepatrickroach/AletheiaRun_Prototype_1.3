@@ -11,43 +11,7 @@ struct SampleData {
 
     static let runs: [Run] = generateRuns(count: 30)
 
-    //    static let runs: [Run] = createSampleRuns()
 
-    //    static func createSampleRuns() -> [Run] {
-    //        let calendar = Calendar.current
-    //        var runs: [Run] = []
-    //
-    //        // Create runs for the past 30 days
-    //        for i in 0..<30 {
-    //            let date = calendar.date(byAdding: .day, value: -i, to: Date()) ?? Date()
-    //
-    //            // Skip some days randomly to make it realistic
-    //            if Int.random(in: 0...2) == 0 {
-    //                continue
-    //            }
-    //
-    //            let run = Run(
-    //                date: date,
-    //                mode: RunMode.allCases.randomElement() ?? .run,
-    //                terrain: TerrainType.allCases.randomElement() ?? .road,
-    //                distance: Double.random(in: 2.0...10.0),
-    //                duration: Double.random(in: 1200...3600),
-    //                metrics: RunMetrics(
-    //                    efficiency: Int.random(in: 50...95),
-    //                    sway: Int.random(in: 50...95),
-    //                    endurance: Int.random(in: 50...95),
-    //                    warmup: Int.random(in: 50...95),
-    //                    impact: Int.random(in: 50...95),
-    //                    braking: Int.random(in: 50...95),
-    //                    variation: Int.random(in: 50...95)
-    //                )
-    //            )
-    //
-    //            runs.append(run)
-    //        }
-    //
-    //        return runs.sorted { $0.date > $1.date }
-    //    }
 
     static func generateRuns(count: Int = 60) -> [Run] {
         var runs: [Run] = []
@@ -116,9 +80,9 @@ struct SampleData {
     
     static func randomGaitCycleMetrics() -> GaitCycleMetrics {
         // Generate base percentages
-        let baseLanding = Double.random(in: 12...18)
-        let baseStabilizing = Double.random(in: 18...25)
-        let baseLaunching = Double.random(in: 12...18)
+        let baseLanding = Double.random(in: 5...18)
+        let baseStabilizing = Double.random(in: 5...25)
+        let baseLaunching = Double.random(in: 5...18)
         let baseFlying = 100 - baseLanding - baseStabilizing - baseLaunching
         
         // Add slight asymmetry between legs (realistic)

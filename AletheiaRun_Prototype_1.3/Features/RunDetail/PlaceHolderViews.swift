@@ -348,16 +348,7 @@ struct DetailItem: View {
     }
 }
 
-// MARK: - Preview
-#Preview("Tech Mode") {
-    ZStack {
-        Color.backgroundBlack.ignoresSafeArea()
-        ScrollView {
-            TechModeView()
-                .padding(Spacing.m)
-        }
-    }
-}
+
 
 #Preview("Metrics Over Time") {
     ZStack {

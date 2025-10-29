@@ -21,6 +21,8 @@ class TrainingPlanViewModel: ObservableObject {
     
     @Published var selectedMetricFilter: ExerciseMetric?
     @Published var selectedLevelFilter: ExerciseLevel?
+    @Published var optimalDifficultySort: ExerciseLevel?
+    
 
     // Generate a training plan based on current metrics
     func generatePlan(
@@ -115,5 +117,13 @@ class TrainingPlanViewModel: ObservableObject {
                 || exercise.level == selectedLevelFilter
             return matchesMetric && matchesLevel
         }
+    }
+    
+    
+    var sortedExercises: [Exercise] {
+        guard let plan = currentPlan else { return [] }
+        
+        
+        return plan.exercises.sorted { $0.difficultyRating < $1.difficultyRating }
     }
 }

@@ -7,8 +7,8 @@ struct RunDetailView: View {
     // MARK: - Properties
     let run: Run
     @Environment(\.dismiss) private var dismiss
-    @State private var selectedTab: DetailTab = .snapshots  
-    @State private var snapshots: [RunSnapshot] = [] 
+    @State private var selectedTab: DetailTab = .snapshots
+    @State private var snapshots: [RunSnapshot] = []
 
     // MARK: - Body
     var body: some View {
@@ -37,7 +37,7 @@ struct RunDetailView: View {
                                 snapshots: snapshots
                             )
                         case .tech:
-                            TechModeView()
+                            TechModeView(snapshots: snapshots)
                         case .trainingPlan:
                             TrainingPlanLinkView()
                         case .notes:
@@ -108,7 +108,6 @@ struct RunDetailView: View {
                         .font(.headline)
                         .foregroundColor(.textPrimary)
 
-                    
                     HStack(spacing: Spacing.m) {
                         HStack(spacing: Spacing.xs) {
                             Image(systemName: run.mode.icon)
@@ -116,7 +115,7 @@ struct RunDetailView: View {
                         }
                         .font(.bodySmall)
                         .foregroundColor(.textSecondary)
-                        
+
                         HStack(spacing: Spacing.xs) {
                             Image(systemName: run.terrain.icon)
                             Text(run.terrain.rawValue)
@@ -124,7 +123,7 @@ struct RunDetailView: View {
                         .font(.bodySmall)
                         .foregroundColor(.textSecondary)
                     }
-                    
+
                 }
 
                 Spacer()
@@ -139,7 +138,7 @@ struct RunDetailView: View {
                         .foregroundColor(.textSecondary)
                 }
             }
-            
+
             // Progress Bar
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
@@ -152,12 +151,12 @@ struct RunDetailView: View {
                     RoundedRectangle(cornerRadius: 2)
                         .fill(scoreColor(run.metrics.overallScore))
                         .frame(
-                            width: geometry.size.width * CGFloat(run.metrics.overallScore) / 100,
+                            width: geometry.size.width
+                                * CGFloat(run.metrics.overallScore) / 100,
                             height: 4)
                 }
             }
             .frame(height: 4)
-
 
             Divider()
                 .background(Color.cardBorder)
@@ -167,19 +166,22 @@ struct RunDetailView: View {
                 RunDetailStatItem(
                     icon: "figure.run",
                     value: String(format: "%.2f", run.distance),
-                    label: "Miles"
+                    label: "Distance",
+                    unit: "miles"
                 )
 
                 RunDetailStatItem(
                     icon: "timer",
                     value: formatDuration(run.duration),
-                    label: "Duration"
+                    label: "Duration",
+                    unit: ""
                 )
 
                 RunDetailStatItem(
                     icon: "speedometer",
                     value: formatPace(run.distance, run.duration),
-                    label: "Pace"
+                    label: "Pace",
+                    unit: "mi/mile"
                 )
 
             }
@@ -288,22 +290,33 @@ struct RunDetailStatItem: View {
     let icon: String
     let value: String
     let label: String
+    let unit: String?
 
     var body: some View {
         VStack(spacing: Spacing.xxs) {
             Image(systemName: icon)
                 .font(.bodyMedium)
                 .foregroundColor(.primaryOrange)
+            HStack(alignment: .lastTextBaseline, spacing: 4) {
+                Text(value)
+                    .font(.bodyMedium)
+                    .foregroundColor(.textPrimary)
 
-            Text(value)
-                .font(.bodyMedium)
-                .foregroundColor(.textPrimary)
+                Text(unit ?? "")
+                    .font(.caption)
+                    .foregroundColor(.textSecondary)
+            }
 
             Text(label)
                 .font(.caption)
                 .foregroundColor(.textSecondary)
+
         }
         .frame(maxWidth: .infinity)
+        .padding(.vertical, Spacing.m)
+        .background(Color.cardBackground)
+        .cornerRadius(CornerRadius.medium)
+
     }
 }
 
@@ -356,11 +369,17 @@ struct SnapshotCard: View {
                         .background(Color.primaryOrange)
                         .cornerRadius(CornerRadius.small)
 
+                    //                    // Force Portrait Thumbnail
+                    //                    ForcePortraitMini(
+                    //                        snapshot: snapshot.performanceMetrics.overallScore
+                    //                    )
+                    //                    .frame(width: 60, height: 50)
+
                     // Force Portrait Thumbnail
-                    ForcePortraitThumbnail(
+                    ForcePortraitSnapshotThumbnail(
                         score: snapshot.performanceMetrics.overallScore
                     )
-                    .frame(width: 60, height: 50)
+                    .frame(width: 90, height: 70)
 
                     // Quick Stats
                     VStack(alignment: .leading, spacing: Spacing.xxs) {
@@ -410,14 +429,15 @@ struct SnapshotCard: View {
                         .background(Color.cardBorder)
 
                     // Injury Diagnostics
-//                    InjuryDiagnosticsSection(metrics: snapshot.injuryMetrics)
-                    InjuryDiagnosticsDetailSection(metrics: snapshot.injuryMetrics)
+                    //                    InjuryDiagnosticsSection(metrics: snapshot.injuryMetrics)
+                    InjuryDiagnosticsDetailSection(
+                        metrics: snapshot.injuryMetrics)
 
                     Divider()
                         .background(Color.cardBorder)
 
-//                    // Gait Cycle Mini View
-//                    GaitCycleSnapshotSection(metrics: snapshot.gaitCycleMetrics)
+                    //                    // Gait Cycle Mini View
+                    //                    GaitCycleSnapshotSection(metrics: snapshot.gaitCycleMetrics)
                 }
                 .padding(.horizontal, Spacing.m)
                 .padding(.bottom, Spacing.m)
@@ -441,6 +461,80 @@ struct SnapshotCard: View {
         }
     }
 }
+
+struct ForcePortraitSnapshotThumbnail: View {
+    let score: Int
+    
+    private var scoreColor: Color {
+        if score >= 80 { return .successGreen }
+        if score >= 60 { return .warningYellow }
+        return .errorRed
+    }
+    
+    private var gradientColors: [Color] {
+        if score >= 80 {
+            return [Color.successGreen.opacity(0.8), Color.successGreen.opacity(0.3)]
+        } else if score >= 60 {
+            return [Color.warningYellow.opacity(0.8), Color.warningYellow.opacity(0.3)]
+        } else {
+            return [Color.errorRed.opacity(0.8), Color.errorRed.opacity(0.3)]
+        }
+    }
+    
+    var body: some View {
+        ZStack {
+            // Background
+            RoundedRectangle(cornerRadius: CornerRadius.small)
+                .fill(Color.backgroundBlack)
+            
+            // Gradient overlay based on score
+            RoundedRectangle(cornerRadius: CornerRadius.small)
+                .fill(
+                    LinearGradient(
+                        colors: gradientColors,
+                        startPoint: .bottomLeading,
+                        endPoint: .topTrailing
+                    )
+                )
+                .opacity(0.3)
+            
+            // Force Portrait Icon/Waveform
+            Image(systemName: "waveform.path.ecg")
+                .font(.system(size: 32, weight: .medium))
+                .foregroundColor(scoreColor)
+                .opacity(0.9)
+            
+//            // Score Badge (small)
+//            VStack {
+//                HStack {
+//                    Spacer()
+//                    Text("\(score)")
+//                        .font(.system(size: 10, weight: .bold))
+//                        .foregroundColor(.backgroundBlack)
+//                        .padding(.horizontal, 6)
+//                        .padding(.vertical, 2)
+//                        .background(scoreColor)
+//                        .cornerRadius(4)
+//                        .padding(4)
+//                }
+//                Spacer()
+//            }
+        }
+        .overlay(
+            RoundedRectangle(cornerRadius: CornerRadius.small)
+                .stroke(
+                    LinearGradient(
+                        colors: [scoreColor.opacity(0.6), scoreColor.opacity(0.2)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1.5
+                )
+        )
+    }
+}
+
+
 // MARK: - Performance Metrics Section (UPDATED)
 struct PerformanceMetricsSection: View {
     let metrics: PerformanceMetrics
@@ -448,10 +542,18 @@ struct PerformanceMetricsSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.s) {
-            Text("Performance Metrics")
-                .font(.bodyMedium)
-                .foregroundColor(.textPrimary)
-                .fontWeight(.semibold)
+
+            HStack {
+                Image(systemName: "medal.star.fill")
+                    .foregroundColor(.primaryOrange)
+
+                Text("Performance Metrics")
+                    .font(.headline)
+                    .foregroundColor(.textPrimary)
+                    .fontWeight(.semibold)
+
+                Spacer()
+            }
 
             MetricRow(
                 name: "Efficiency",
@@ -476,7 +578,7 @@ struct PerformanceMetricsSection: View {
                 metricType: .impact,
                 snapshots: snapshots
             )
-            
+
             MetricRow(
                 name: "Sway",
                 value: metrics.sway,
@@ -492,7 +594,7 @@ struct PerformanceMetricsSection: View {
                 metricType: .variation,
                 snapshots: snapshots
             )
-            
+
             MetricRow(
                 name: "Warmup",
                 value: metrics.warmup,
@@ -616,8 +718,7 @@ struct MetricRow: View {
                 }
             }
             .frame(height: 4)
-            
-            
+
         }
         .sheet(isPresented: $showMetricDetail) {
             if let metricType = metricType {

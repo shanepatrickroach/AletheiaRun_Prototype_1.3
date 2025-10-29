@@ -54,6 +54,7 @@ struct RunnerDetailView: View {
                         }
                     }
                     .padding(.horizontal, Spacing.m)
+                    .padding(.top, Spacing.m)
                     .padding(.bottom, Spacing.xxl)
                 }
             }
@@ -158,23 +159,12 @@ struct RunnerDetailView: View {
                     label: "Streak"
                 )
                 
-                QuickStat(
-                    icon: "chart.line.uptrend.xyaxis",
-                    value: "\(runner.averageEfficiency)",
-                    label: "Avg Eff."
-                )
             }
             .padding(.top, Spacing.s)
         }
         .padding(.vertical, Spacing.m)
         .padding(.horizontal, Spacing.m)
-        .background(Color.cardBackground)
-        .overlay(
-            Rectangle()
-                .frame(height: 1)
-                .foregroundColor(Color.cardBorder),
-            alignment: .bottom
-        )
+        
     }
     
     // MARK: - Tab Selector
@@ -238,6 +228,7 @@ struct QuickStat: View {
         VStack(spacing: Spacing.xxs) {
             Image(systemName: icon)
                 .font(.bodyMedium)
+                .frame(width:30, height: 30)
                 .foregroundColor(.primaryOrange)
             
             Text(value)

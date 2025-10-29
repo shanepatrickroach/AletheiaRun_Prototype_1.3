@@ -91,14 +91,14 @@ enum ExerciseMetric: String, CaseIterable, Codable {
     
     var color: Color {
         switch self {
-        case .impact: return .warningYellow
-        case .braking: return .errorRed
-        case .sway: return .infoBlue
-        case .cadence: return .primaryOrange
+        case .impact: return .impactColor
+        case .braking: return .brakingColor
+        case .sway: return .swayColor
+        case .cadence: return .infoBlue
         case .flightTime: return .infoBlue
-        case .contactTime: return .errorRed
-        case .hipMobility: return .primaryOrange
-        case .hipStability: return .successGreen
+        case .contactTime: return .infoBlue
+        case .hipMobility: return .hipMobilityColor
+        case .hipStability: return .hipStabilityColor
         }
     }
 }

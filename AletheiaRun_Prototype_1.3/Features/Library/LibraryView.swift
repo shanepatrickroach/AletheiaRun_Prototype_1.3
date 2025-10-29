@@ -493,7 +493,11 @@ struct ForcePortraitThumbnail: View {
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 80, height: 60)
                 .opacity(0.9)
-            
+//            // Force Portrait Image
+//            Image(systemName: "waveform.path.ecg")
+//                .aspectRatio(contentMode: .fit)
+//                .frame(width: 100, height: 80)
+//                .opacity(0.9)
             
 //            // Overlay color based on score
 //            RoundedRectangle(cornerRadius: CornerRadius.small)

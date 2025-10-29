@@ -259,7 +259,7 @@ enum MetricType: String, CaseIterable {
                 id: "hipMobility",
                 name: "Hip Mobility",
                 icon: "figure.walk.motion",
-                color: .primaryOrange,
+                color: .hipMobilityColor,
                 unit: "score",
                 optimalRange: 75...100,
                 description:
@@ -290,7 +290,7 @@ enum MetricType: String, CaseIterable {
                 id: "hipStability",
                 name: "Hip Stability",
                 icon: "figure.stand",
-                color: .infoBlue,
+                color: .hipStabilityColor,
                 unit: "score",
                 optimalRange: 75...100,
                 description:
@@ -320,7 +320,7 @@ enum MetricType: String, CaseIterable {
                 id: "portraitSymmetry",
                 name: "Portrait Symmetry",
                 icon: "arrow.left.and.right.circle.fill",
-                color: .successGreen,
+                color: .primaryOrange,
                 unit: "score",
                 optimalRange: 80...100,
                 description:

@@ -11,27 +11,39 @@ import SwiftUI
 struct TrainingPlanView: View {
     @StateObject private var viewModel = TrainingPlanViewModel()
     @State private var showGeneratePlan = false
+    var isEmbedded: Bool = false  // Add this parameter
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                Color.backgroundBlack.ignoresSafeArea()
-
-                if let plan = viewModel.currentPlan {
-                    planContentView(plan: plan)
-                } else {
-                    emptyStateView
-                }
-
+        Group {
+            if isEmbedded {
+                // When embedded, don't wrap in NavigationStack
+                contentView
+            } else {
+                // When standalone, wrap in NavigationStack
+                NavigationStack {
+                    contentView
+                }.navigationTitle("Training Plan")
+                    .navigationBarTitleDisplayMode(.large)
             }
-
-            .onAppear {
-                // Auto-generate plan on first launch
-                if viewModel.currentPlan == nil {
-                    generateSamplePlan()
-                }
+        }
+        .onAppear {
+            // Auto-generate plan on first launch
+            if viewModel.currentPlan == nil {
+                generateSamplePlan()
             }
+        }
+    }
 
+    // MARK: - Content View
+    private var contentView: some View {
+        ZStack {
+            Color.backgroundBlack.ignoresSafeArea()
+
+            if let plan = viewModel.currentPlan {
+                planContentView(plan: plan)
+            } else {
+                emptyStateView
+            }
         }
     }
 
@@ -62,9 +74,12 @@ struct TrainingPlanView: View {
                         .font(.headline)
                         .foregroundColor(.textPrimary)
 
+                    Text(
+                        "Created for run recorded on \(plan.generatedDate.formatted(date: .abbreviated, time: .omitted))"
+                    )
+                    .font(.caption)
+                    .foregroundColor(.textSecondary)
                 }
-
-                Spacer()
 
             }
 
@@ -112,7 +127,6 @@ struct TrainingPlanView: View {
                 .stroke(Color.primaryOrange.opacity(0.3), lineWidth: 1)
         )
     }
-
     // MARK: - Progress Card
     private func progressCard(plan: TrainingPlan) -> some View {
         VStack(spacing: Spacing.m) {
@@ -238,7 +252,7 @@ struct TrainingPlanView: View {
                 Spacer()
             }
 
-            ForEach(viewModel.filteredExercises) { exercise in
+            ForEach(viewModel.sortedExercises) { exercise in
                 NavigationLink(
                     destination: ExerciseDetailView(
                         exercise: exercise,
@@ -324,10 +338,10 @@ struct TrainingPlanView: View {
     // MARK: - Helper Methods
     private func generateSamplePlan() {
         let sampleMetrics: [ExerciseMetric: Int] = [
-            .impact: 45,
-            .braking: 62,
+            .impact: 20,
+            .braking: 32,
             .sway: 78,
-            .hipMobility: 55,
+            .hipMobility: 15,
             .hipStability: 68,
             .cadence: 72,
         ]
@@ -421,32 +435,44 @@ struct ExerciseCard: View {
             // Icon/Thumbnail
             ZStack {
                 RoundedRectangle(cornerRadius: CornerRadius.medium)
-                    .fill(exercise.targetMetric.color.opacity(0.2))
+                    .fill(exercise.level.color.opacity(0.2))
 
                 Image(systemName: exercise.videoThumbnail)
                     .font(.system(size: 32))
-                    .foregroundColor(exercise.targetMetric.color)
+                    .foregroundColor(Color.white)
             }
             .frame(width: 70, height: 70)
 
             // Exercise Info
             VStack(alignment: .leading, spacing: Spacing.xs) {
+
+                HStack(spacing: Spacing.s) {
+                    // Level badge
+                    HStack(spacing: 4) {
+
+                        Text(exercise.level.rawValue)
+                    }
+                    .font(.caption)
+                    .foregroundColor(exercise.level.color)
+
+                    // Target metric
+                    HStack(spacing: Spacing.xxs) {
+
+                        Text(exercise.targetMetric.rawValue)
+                            .font(.caption)
+                    }.foregroundColor(exercise.targetMetric.color)
+                        .padding(.horizontal, Spacing.xs)
+                        .padding(.vertical, 2)
+                        .background(exercise.targetMetric.color.opacity(0.15))
+                        .cornerRadius(4)
+                }
+
                 Text(exercise.name)
                     .font(.bodyLarge)
                     .fontWeight(.semibold)
                     .foregroundColor(.textPrimary)
 
                 HStack(spacing: Spacing.s) {
-                    //                    // Level badge
-                    //                    HStack(spacing: 4) {
-                    //                        Image(systemName: exercise.level.icon)
-                    //                        Text(exercise.level.rawValue)
-                    //                    }
-                    //                    .font(.caption)
-                    //                    .foregroundColor(exercise.level.color)
-
-                    //                    Text("•")
-                    //                        .foregroundColor(.textTertiary)
 
                     // Duration
                     Text(exercise.duration)
@@ -454,24 +480,6 @@ struct ExerciseCard: View {
                         .foregroundColor(.textSecondary)
                 }
 
-                HStack(spacing: 4) {
-                    Image(systemName: exercise.level.icon)
-                    Text(exercise.level.rawValue)
-                }
-                .font(.caption)
-                .foregroundColor(exercise.level.color)
-//                // Target metric
-//                HStack(spacing: Spacing.xxs) {
-//                    Image(systemName: exercise.targetMetric.icon)
-//                        .font(.system(size: 10))
-//                    Text(exercise.targetMetric.rawValue)
-//                        .font(.caption)
-//                }
-//                .foregroundColor(exercise.targetMetric.color)
-//                .padding(.horizontal, Spacing.xs)
-//                .padding(.vertical, 2)
-//                .background(exercise.targetMetric.color.opacity(0.15))
-//                .cornerRadius(4)
             }
 
             Spacer()

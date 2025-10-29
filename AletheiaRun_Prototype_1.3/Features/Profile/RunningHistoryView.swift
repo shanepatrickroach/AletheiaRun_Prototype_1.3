@@ -423,16 +423,7 @@ struct DetailedMetricCard: View {
 
                     Spacer()
 
-                    // Trend indicator
-                    HStack(spacing: 4) {
-                        Image(systemName: stats.trend.icon)
-                            .foregroundColor(stats.trend.color)
-
-                        //                        Text(stats.trendPercentage)
-                        //                            .font(.caption)
-                        //                            .foregroundColor(stats.trend.color)
-                    }
-
+                    
                     Image(
                         systemName: isExpanded ? "chevron.up" : "chevron.down"
                     )
