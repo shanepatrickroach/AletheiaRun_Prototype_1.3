@@ -5,14 +5,6 @@
 //  Created by Shane Roach on 10/22/25.
 //
 
-
-//
-//  ExerciseDetailView.swift
-//  AletheiaRun_Prototype_1.3
-//
-//  Created by Shane Roach on 10/22/25.
-//
-
 import SwiftUI
 
 // MARK: - Exercise Detail View
@@ -124,8 +116,7 @@ struct ExerciseDetailView: View {
                 .foregroundColor(.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .frame(maxWidth: .infinity)
-
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     // MARK: - Quick Stats
@@ -146,13 +137,13 @@ struct ExerciseDetailView: View {
                 value: exercise.duration,
                 color: .infoBlue
             )
-            
         }
     }
     
     // MARK: - Instructions Section
     private var instructionsSection: some View {
         VStack(alignment: .leading, spacing: Spacing.m) {
+            // Section header
             HStack {
                 Image(systemName: "list.number")
                     .foregroundColor(.primaryOrange)
@@ -162,6 +153,7 @@ struct ExerciseDetailView: View {
                     .foregroundColor(.textPrimary)
             }
             
+            // Instructions list
             VStack(alignment: .leading, spacing: Spacing.m) {
                 ForEach(Array(exercise.instructions.enumerated()), id: \.offset) { index, instruction in
                     HStack(alignment: .top, spacing: Spacing.m) {
@@ -174,14 +166,18 @@ struct ExerciseDetailView: View {
                             .background(Color.primaryOrange)
                             .cornerRadius(12)
                         
+                        // Step text
                         Text(instruction)
                             .font(.bodyMedium)
                             .foregroundColor(.textPrimary)
                             .fixedSize(horizontal: false, vertical: true)
+                        
+                        Spacer(minLength: 0)
                     }
                 }
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Spacing.m)
         .background(Color.cardBackground)
         .cornerRadius(CornerRadius.large)
@@ -194,6 +190,7 @@ struct ExerciseDetailView: View {
     // MARK: - Benefits Section
     private var benefitsSection: some View {
         VStack(alignment: .leading, spacing: Spacing.m) {
+            // Section header
             HStack {
                 Image(systemName: "checkmark.seal.fill")
                     .foregroundColor(.successGreen)
@@ -203,9 +200,10 @@ struct ExerciseDetailView: View {
                     .foregroundColor(.textPrimary)
             }
             
+            // Benefits list
             VStack(alignment: .leading, spacing: Spacing.m) {
                 ForEach(exercise.benefits, id: \.self) { benefit in
-                    HStack(alignment: .center, spacing: Spacing.s) {
+                    HStack(alignment: .top, spacing: Spacing.s) {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundColor(.successGreen)
                             .font(.bodySmall)
@@ -214,14 +212,13 @@ struct ExerciseDetailView: View {
                             .font(.bodyMedium)
                             .foregroundColor(.textPrimary)
                             .fixedSize(horizontal: false, vertical: true)
+                        
+                        Spacer(minLength: 0)
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-
                 }
             }
         }
-        .frame(maxWidth: .infinity)
-
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Spacing.m)
         .background(Color.cardBackground)
         .cornerRadius(CornerRadius.large)
@@ -234,6 +231,7 @@ struct ExerciseDetailView: View {
     // MARK: - Equipment Section
     private var equipmentSection: some View {
         VStack(alignment: .leading, spacing: Spacing.m) {
+            // Section header
             HStack {
                 Image(systemName: "wrench.and.screwdriver.fill")
                     .foregroundColor(.infoBlue)
@@ -243,6 +241,7 @@ struct ExerciseDetailView: View {
                     .foregroundColor(.textPrimary)
             }
             
+            // Equipment tags
             FlowLayout(spacing: Spacing.xs) {
                 ForEach(exercise.equipmentNeeded, id: \.self) { equipment in
                     Text(equipment)
@@ -255,6 +254,7 @@ struct ExerciseDetailView: View {
                 }
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Spacing.m)
         .background(Color.cardBackground)
         .cornerRadius(CornerRadius.large)

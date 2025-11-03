@@ -47,7 +47,7 @@ struct PostRunNotesView: View {
             notesSection
             
             // Settings Recommendation
-            settingsRecommendationSection
+            //settingsRecommendationSection
         }
     }
     

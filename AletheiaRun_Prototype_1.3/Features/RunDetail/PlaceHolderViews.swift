@@ -10,93 +10,6 @@ import SwiftUI
 
 
 
-// MARK: - Metrics Over Time View (Placeholder)
-/// Shows trend analysis of metrics across multiple runs
-struct MetricsOverTimeView: View {
-    var body: some View {
-        VStack(spacing: Spacing.m) {
-            PlaceholderCard(
-                icon: "chart.line.uptrend.xyaxis",
-                title: "Metrics Over Time",
-                description: "Track your progress and see how your metrics improve over weeks and months",
-                features: [
-                    "Line charts for each metric",
-                    "Compare current vs previous week",
-                    "Identify improvement trends",
-                    "Set metric goals",
-                    "Weekly/monthly/yearly views",
-                    "Export data to CSV"
-                ]
-            )
-            
-            // Mock chart preview
-            VStack(alignment: .leading, spacing: Spacing.s) {
-                Text("Sample Chart Preview")
-                    .font(.bodySmall)
-                    .foregroundColor(.textSecondary)
-                
-                // Simple mock line chart
-                GeometryReader { geometry in
-                    Path { path in
-                        let points: [(x: CGFloat, y: CGFloat)] = [
-                            (0, 0.8), (0.2, 0.6), (0.4, 0.7),
-                            (0.6, 0.5), (0.8, 0.65), (1.0, 0.45)
-                        ]
-                        
-                        path.move(to: CGPoint(
-                            x: points[0].x * geometry.size.width,
-                            y: points[0].y * geometry.size.height
-                        ))
-                        
-                        for point in points.dropFirst() {
-                            path.addLine(to: CGPoint(
-                                x: point.x * geometry.size.width,
-                                y: point.y * geometry.size.height
-                            ))
-                        }
-                    }
-                    .stroke(Color.primaryOrange, lineWidth: 2)
-                }
-                .frame(height: 120)
-                .background(Color.backgroundBlack)
-                .cornerRadius(CornerRadius.small)
-            }
-            .padding(Spacing.m)
-            .background(Color.cardBackground)
-            .cornerRadius(CornerRadius.medium)
-            .overlay(
-                RoundedRectangle(cornerRadius: CornerRadius.medium)
-                    .stroke(Color.cardBorder, lineWidth: 1)
-            )
-        }
-    }
-}
-
-
-// MARK: - Pocket Coach View (Placeholder)
-/// Personalized exercise recommendations based on Force Portrait analysis
-struct PocketCoachView: View {
-    var body: some View {
-        VStack(spacing: Spacing.m) {
-            PlaceholderCard(
-                icon: "person.fill.checkmark",
-                title: "Pocket Coach",
-                description: "Get personalized exercise recommendations based on your Force Portrait analysis",
-                features: [
-                    "AI-generated exercise plans",
-                    "Target specific weaknesses",
-                    "Video demonstrations",
-                    "Progress tracking",
-                    "Difficulty levels",
-                    "Integration with calendar"
-                ]
-            )
-            
-            // Sample exercise card
-            ExerciseSampleCard()
-        }
-    }
-}
 
 // MARK: - Route Map View (Placeholder)
 /// Shows the GPS route of the run on a map
@@ -106,7 +19,7 @@ struct RouteMapView: View {
             PlaceholderCard(
                 icon: "map.fill",
                 title: "Route Map",
-                description: "View your running route with elevation profile and split times",
+                description: "View your running route with snapshots.",
                 features: [
                     "Interactive map with route overlay",
                     "Interval markers",
@@ -164,13 +77,7 @@ struct RouteMapView: View {
                         Spacer()
                         HStack {
                             Spacer()
-                            Text("Map view coming soon")
-                                .font(.caption)
-                                .foregroundColor(.textTertiary)
-                                .padding(Spacing.xs)
-                                .background(Color.backgroundBlack.opacity(0.8))
-                                .cornerRadius(CornerRadius.small)
-                                .padding(Spacing.s)
+                            
                         }
                     }
                 }
@@ -209,13 +116,7 @@ struct PlaceholderCard: View {
                         .font(.headline)
                         .foregroundColor(.textPrimary)
                     
-                    Text("Coming Soon")
-                        .font(.caption)
-                        .foregroundColor(.primaryOrange)
-                        .padding(.horizontal, Spacing.xs)
-                        .padding(.vertical, 2)
-                        .background(Color.primaryOrange.opacity(0.15))
-                        .cornerRadius(CornerRadius.small)
+                    
                 }
                 
                 Spacer()
@@ -227,98 +128,27 @@ struct PlaceholderCard: View {
                 .foregroundColor(.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
             
-            Divider()
-                .background(Color.cardBorder)
             
-            // Features list
-            VStack(alignment: .leading, spacing: Spacing.s) {
-                Text("Planned Features:")
-                    .font(.bodySmall)
-                    .foregroundColor(.textTertiary)
-                    .fontWeight(.semibold)
-                
-                ForEach(features, id: \.self) { feature in
-                    HStack(spacing: Spacing.xs) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.caption)
-                            .foregroundColor(.primaryOrange.opacity(0.6))
-                        
-                        Text(feature)
-                            .font(.bodySmall)
-                            .foregroundColor(.textSecondary)
-                    }
-                }
-            }
-        }
-        .padding(Spacing.m)
-        .background(Color.cardBackground)
-        .cornerRadius(CornerRadius.medium)
-        .overlay(
-            RoundedRectangle(cornerRadius: CornerRadius.medium)
-                .stroke(Color.cardBorder, lineWidth: 1)
-        )
-    }
-}
-
-// MARK: - Exercise Sample Card
-/// Shows what a Pocket Coach exercise recommendation would look like
-struct ExerciseSampleCard: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.m) {
-            // Exercise title
-            HStack {
-                VStack(alignment: .leading, spacing: Spacing.xxs) {
-                    Text("Hip Mobility Drill")
-                        .font(.bodyMedium)
-                        .foregroundColor(.textPrimary)
-                        .fontWeight(.semibold)
-                    
-                    Text("Based on your hip mobility score")
-                        .font(.caption)
-                        .foregroundColor(.textSecondary)
-                }
-                
-                Spacer()
-                
-                // Difficulty badge
-                Text("Beginner")
-                    .font(.caption)
-                    .foregroundColor(.infoBlue)
-                    .padding(.horizontal, Spacing.xs)
-                    .padding(.vertical, 4)
-                    .background(Color.infoBlue.opacity(0.15))
-                    .cornerRadius(CornerRadius.small)
-            }
             
-            // Exercise details
-            HStack(spacing: Spacing.xl) {
-                DetailItem(icon: "timer", text: "10 min")
-                DetailItem(icon: "repeat", text: "3 sets")
-                DetailItem(icon: "flame.fill", text: "Low intensity")
-            }
-            
-            Divider()
-                .background(Color.cardBorder)
-            
-            // Description
-            Text("This exercise targets hip flexor mobility and helps reduce the braking forces detected in your recent runs.")
-                .font(.bodySmall)
-                .foregroundColor(.textSecondary)
-            
-            // Action button
-            Button(action: {}) {
-                HStack {
-                    Image(systemName: "play.circle.fill")
-                    Text("View Exercise Demo")
-                }
-                .font(.bodyMedium)
-                .foregroundColor(.backgroundBlack)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, Spacing.s)
-                .background(Color.primaryOrange)
-                .cornerRadius(CornerRadius.small)
-            }
-            .opacity(0.5) // Dimmed since it's a placeholder
+//            // Features list
+//            VStack(alignment: .leading, spacing: Spacing.s) {
+//                Text("Planned Features:")
+//                    .font(.bodySmall)
+//                    .foregroundColor(.textTertiary)
+//                    .fontWeight(.semibold)
+//                
+//                ForEach(features, id: \.self) { feature in
+//                    HStack(spacing: Spacing.xs) {
+//                        Image(systemName: "checkmark.circle.fill")
+//                            .font(.caption)
+//                            .foregroundColor(.primaryOrange.opacity(0.6))
+//                        
+//                        Text(feature)
+//                            .font(.bodySmall)
+//                            .foregroundColor(.textSecondary)
+//                    }
+//                }
+//            }
         }
         .padding(Spacing.m)
         .background(Color.cardBackground)
@@ -348,17 +178,6 @@ struct DetailItem: View {
     }
 }
 
-
-
-#Preview("Metrics Over Time") {
-    ZStack {
-        Color.backgroundBlack.ignoresSafeArea()
-        ScrollView {
-            MetricsOverTimeView()
-                .padding(Spacing.m)
-        }
-    }
-}
 
 
 

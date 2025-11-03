@@ -437,9 +437,11 @@ struct ExerciseCard: View {
                 RoundedRectangle(cornerRadius: CornerRadius.medium)
                     .fill(exercise.level.color.opacity(0.2))
 
-                Image(systemName: exercise.videoThumbnail)
-                    .font(.system(size: 32))
-                    .foregroundColor(Color.white)
+                Image("exercise-thumbnail")
+                    .resizable()
+                    .cornerRadius(4)
+                    .opacity(0.80)
+                
             }
             .frame(width: 70, height: 70)
 

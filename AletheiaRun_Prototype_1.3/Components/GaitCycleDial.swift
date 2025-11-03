@@ -474,13 +474,13 @@ struct GaitCycleTimingCard: View {
                     color: .primaryOrange
                 )
                 
-                // Cadence
+                // Unit
                 TimingMetricItem(
-                    icon: "metronome.fill",
-                    label: "Cadence",
-                    value: "\(metrics.cadence)",
-                    unit: "SPM",
-                    color: .primaryOrange
+                    icon: "figure.run",
+                    label: "Duty Factor",
+                    value: "\(metrics.cadence/2)",
+                    unit: "%",
+                    color: .warningYellow
                 )
             }
         }

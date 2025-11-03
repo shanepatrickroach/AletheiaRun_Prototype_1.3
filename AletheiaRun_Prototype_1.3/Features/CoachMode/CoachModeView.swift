@@ -133,11 +133,7 @@ struct CoachModeView: View {
         ScrollView {
             LazyVStack(spacing: Spacing.m) {
                 ForEach(viewModel.filteredRunners) { runner in
-                    NavigationLink(destination: RunnerDetailView(
-                        runner: runner,
-                        runs: viewModel.getRuns(for: runner),
-                        viewModel: viewModel
-                    )) {
+                    NavigationLink(destination: FloatingButtonExityCoachModeView()) {
                         RunnerCard(runner: runner)
                     }
                     .buttonStyle(PlainButtonStyle())

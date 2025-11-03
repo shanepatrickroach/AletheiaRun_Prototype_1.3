@@ -7,8 +7,9 @@ struct RunDetailView: View {
     // MARK: - Properties
     let run: Run
     @Environment(\.dismiss) private var dismiss
-    @State private var selectedTab: DetailTab = .snapshots
+    @State private var selectedTab: DetailTab = .overview
     @State private var snapshots: [RunSnapshot] = []
+    @State private var isSummaryExpanded: Bool = false
 
     // MARK: - Body
     var body: some View {
@@ -26,12 +27,18 @@ struct RunDetailView: View {
                 ScrollView {
                     VStack(spacing: Spacing.m) {
                         // Run Summary Card at top
-                        runSummaryCard
+                        //                        runSummaryCard
+
+//                        if selectedTab != .tech {
+//                            adaptiveSummaryCard
+//                        }
+                        
+                        adaptiveSummaryCard
 
                         // Tab Content
                         switch selectedTab {
-                        case .snapshots:  // CHANGED from .intervals
-                            SnapshotsContentView(snapshots: snapshots)
+                        case .overview:  // CHANGED from .intervals
+                            OverviewContentView(snapshots: snapshots)
                         case .gaitCycle:
                             GaitCycleDetailView(
                                 snapshots: snapshots
@@ -55,6 +62,44 @@ struct RunDetailView: View {
         .onAppear {
             loadSnapshots()  // CHANGED from loadIntervals
         }
+    }
+
+    @ViewBuilder
+    private var adaptiveSummaryCard: some View {
+        switch selectedTab {
+        case .overview:
+            // Overview tab shows collapsible performance metrics
+            OverviewSummaryCard(
+                run: run,
+                isExpanded: $isSummaryExpanded
+            )
+
+        case .gaitCycle:
+            // Gait Cycle tab shows collapsible gait metrics
+            GaitCycleSummaryCard(
+                run: run,
+                isExpanded: $isSummaryExpanded
+            )
+
+        case .tech:
+            // Tech view hides the summary (we already handle this above)
+            TechViewSummaryCard(
+                run: run,
+                isExpanded: $isSummaryExpanded
+            )
+
+        case .notes, .map:
+            // Other tabs show the basic summary (non-collapsible)
+            EmptyView()
+            
+        case .trainingPlan:
+            TrainingPlanSummaryCard(
+                run: run,
+                isExpanded: $isSummaryExpanded
+            )
+        }
+        
+    
     }
 
     // MARK: - Navigation Header
@@ -236,7 +281,7 @@ struct RunDetailView: View {
 
 // MARK: - Detail Tab Enum (UPDATED)
 enum DetailTab: String, CaseIterable, Identifiable {
-    case snapshots = "Snapshots"  // CHANGED from intervals
+    case overview = "Overview"  // CHANGED from intervals
     case gaitCycle = "Gait Cycle"  // NEW
     case tech = "Tech View"
     case trainingPlan = "Training Plan"
@@ -248,7 +293,7 @@ enum DetailTab: String, CaseIterable, Identifiable {
 
     var icon: String {
         switch self {
-        case .snapshots: return "chart.bar.fill"  // Changed from intervals
+        case .overview: return "list.clipboard"  // Changed from intervals
         case .gaitCycle: return "circle.dotted.and.circle"  // NEW
         case .tech: return "cpu"
         case .trainingPlan: return "person.fill.checkmark"
@@ -321,7 +366,7 @@ struct RunDetailStatItem: View {
 }
 
 // MARK: - Snapshots Content View (UPDATED)
-struct SnapshotsContentView: View {
+struct OverviewContentView: View {
     let snapshots: [RunSnapshot]
 
     var body: some View {
@@ -428,16 +473,13 @@ struct SnapshotCard: View {
                     Divider()
                         .background(Color.cardBorder)
 
-                    // Injury Diagnostics
-                    //                    InjuryDiagnosticsSection(metrics: snapshot.injuryMetrics)
+                
                     InjuryDiagnosticsDetailSection(
                         metrics: snapshot.injuryMetrics)
 
                     Divider()
                         .background(Color.cardBorder)
 
-                    //                    // Gait Cycle Mini View
-                    //                    GaitCycleSnapshotSection(metrics: snapshot.gaitCycleMetrics)
                 }
                 .padding(.horizontal, Spacing.m)
                 .padding(.bottom, Spacing.m)
@@ -464,29 +506,35 @@ struct SnapshotCard: View {
 
 struct ForcePortraitSnapshotThumbnail: View {
     let score: Int
-    
+
     private var scoreColor: Color {
         if score >= 80 { return .successGreen }
         if score >= 60 { return .warningYellow }
         return .errorRed
     }
-    
+
     private var gradientColors: [Color] {
         if score >= 80 {
-            return [Color.successGreen.opacity(0.8), Color.successGreen.opacity(0.3)]
+            return [
+                Color.successGreen.opacity(0.8),
+                Color.successGreen.opacity(0.3),
+            ]
         } else if score >= 60 {
-            return [Color.warningYellow.opacity(0.8), Color.warningYellow.opacity(0.3)]
+            return [
+                Color.warningYellow.opacity(0.8),
+                Color.warningYellow.opacity(0.3),
+            ]
         } else {
             return [Color.errorRed.opacity(0.8), Color.errorRed.opacity(0.3)]
         }
     }
-    
+
     var body: some View {
         ZStack {
             // Background
             RoundedRectangle(cornerRadius: CornerRadius.small)
                 .fill(Color.backgroundBlack)
-            
+
             // Gradient overlay based on score
             RoundedRectangle(cornerRadius: CornerRadius.small)
                 .fill(
@@ -497,34 +545,20 @@ struct ForcePortraitSnapshotThumbnail: View {
                     )
                 )
                 .opacity(0.3)
-            
+
             // Force Portrait Icon/Waveform
             Image(systemName: "waveform.path.ecg")
                 .font(.system(size: 32, weight: .medium))
                 .foregroundColor(scoreColor)
                 .opacity(0.9)
-            
-//            // Score Badge (small)
-//            VStack {
-//                HStack {
-//                    Spacer()
-//                    Text("\(score)")
-//                        .font(.system(size: 10, weight: .bold))
-//                        .foregroundColor(.backgroundBlack)
-//                        .padding(.horizontal, 6)
-//                        .padding(.vertical, 2)
-//                        .background(scoreColor)
-//                        .cornerRadius(4)
-//                        .padding(4)
-//                }
-//                Spacer()
-//            }
         }
         .overlay(
             RoundedRectangle(cornerRadius: CornerRadius.small)
                 .stroke(
                     LinearGradient(
-                        colors: [scoreColor.opacity(0.6), scoreColor.opacity(0.2)],
+                        colors: [
+                            scoreColor.opacity(0.6), scoreColor.opacity(0.2),
+                        ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ),
@@ -533,7 +567,6 @@ struct ForcePortraitSnapshotThumbnail: View {
         )
     }
 }
-
 
 // MARK: - Performance Metrics Section (UPDATED)
 struct PerformanceMetricsSection: View {

@@ -1,3 +1,11 @@
+//
+//  HipMetricsVisualizationPrototypes.swift
+//  AletheiaRun_Prototype_1.3
+//
+//  Created by Shane Roach on 10/30/25.
+//
+
+
 // Features/RunDetail/HipMetricsVisualizationPrototypes.swift
 
 import SwiftUI
@@ -142,8 +150,8 @@ struct Prototype1_DualLineChart: View {
                 
                 // Legend
                 HStack(spacing: Spacing.xl) {
-                    LegendItem(color: .leftSide, label: "Left", shape: .line)
-                    LegendItem(color: .rightSide, label: "Right", shape: .line)
+                    ProtoLegendItem(color: .leftSide, label: "Left", shape: .line)
+                    ProtoLegendItem(color: .rightSide, label: "Right", shape: .line)
                 }
                 
                 // Chart
@@ -177,8 +185,8 @@ struct Prototype1_DualLineChart: View {
                 
                 // Legend
                 HStack(spacing: Spacing.xl) {
-                    LegendItem(color: .leftSide, label: "Left", shape: .line)
-                    LegendItem(color: .rightSide, label: "Right", shape: .line)
+                    ProtoLegendItem(color: .leftSide, label: "Left", shape: .line)
+                    ProtoLegendItem(color: .rightSide, label: "Right", shape: .line)
                 }
                 
                 // Chart
@@ -226,8 +234,8 @@ struct Prototype2_StackedArea: View {
                 .foregroundColor(.textPrimary)
             
             HStack(spacing: Spacing.xl) {
-                LegendItem(color: .leftSide, label: "Left", shape: .area)
-                LegendItem(color: .rightSide, label: "Right", shape: .area)
+                ProtoLegendItem(color: .leftSide, label: "Left", shape: .area)
+                ProtoLegendItem(color: .rightSide, label: "Right", shape: .area)
             }
             
             StackedAreaChartView(
@@ -308,8 +316,8 @@ struct Prototype4_OverlayedBars: View {
                 .foregroundColor(.textPrimary)
             
             HStack(spacing: Spacing.xl) {
-                LegendItem(color: .leftSide, label: "Left", shape: .bar)
-                LegendItem(color: .rightSide, label: "Right", shape: .bar)
+                ProtoLegendItem(color: .leftSide, label: "Left", shape: .bar)
+                ProtoLegendItem(color: .rightSide, label: "Right", shape: .bar)
             }
             
             OverlayedBarChartView(
@@ -913,7 +921,7 @@ struct GroupedBarChartView: View {
 
 // MARK: - Supporting Components
 
-struct LegendItem: View {
+struct ProtoLegendItem: View {
     let color: Color
     let label: String
     let shape: LegendShape

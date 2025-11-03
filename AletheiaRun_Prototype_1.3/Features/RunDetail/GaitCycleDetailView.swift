@@ -62,8 +62,9 @@ struct GaitCycleDetailView: View {
             // Header text
             HStack {
                 VStack(alignment: .leading, spacing: Spacing.xxs) {
-                    Text("Gait Cycle Analysis")
-                        .font(.headline)
+                    Text("Snapshot Navigation")
+                        .font(.bodyMedium)
+                        .fontWeight(.semibold)
                         .foregroundColor(.textPrimary)
                     
                     if let snapshot = currentSnapshot {
@@ -93,11 +94,11 @@ struct GaitCycleDetailView: View {
                 
                 // Snapshot counter
                 Text("\(currentSnapshotIndex + 1) of \(snapshots.count)")
-                    .font(.caption)
-                    .foregroundColor(.textTertiary)
+                    .font(.bodySmall)
+                    .foregroundColor(.textPrimary)
                     .padding(.horizontal, Spacing.s)
-                    .padding(.vertical, Spacing.xxs)
-                    .background(Color.cardBorder)
+                    .padding(.vertical, 4)
+                    .background(Color.primaryOrange.opacity(0.2))
                     .cornerRadius(CornerRadius.small)
             }
             
@@ -110,10 +111,13 @@ struct GaitCycleDetailView: View {
                         Text("Previous")
                             .font(.bodySmall)
                     }
-                    .foregroundColor(currentSnapshotIndex > 0 ? .primaryOrange : .textTertiary)
+                    .foregroundColor(
+                        currentSnapshotIndex > 0
+                            ? .primaryOrange : .textTertiary
+                    )
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, Spacing.s)
-                    .background(Color.cardBackground)
+                    .background(Color.backgroundBlack)
                     .cornerRadius(CornerRadius.small)
                     .overlay(
                         RoundedRectangle(cornerRadius: CornerRadius.small)
@@ -121,10 +125,10 @@ struct GaitCycleDetailView: View {
                     )
                 }
                 .disabled(currentSnapshotIndex == 0)
-                
-                // Snapshot timeline/dots
+
+                // Timeline dots
                 snapshotTimeline
-                
+
                 // Next button
                 Button(action: nextSnapshot) {
                     HStack(spacing: Spacing.xs) {
@@ -132,10 +136,13 @@ struct GaitCycleDetailView: View {
                             .font(.bodySmall)
                         Image(systemName: "chevron.right")
                     }
-                    .foregroundColor(currentSnapshotIndex < snapshots.count - 1 ? .primaryOrange : .textTertiary)
+                    .foregroundColor(
+                        currentSnapshotIndex < snapshots.count - 1
+                            ? .primaryOrange : .textTertiary
+                    )
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, Spacing.s)
-                    .background(Color.cardBackground)
+                    .background(Color.backgroundBlack)
                     .cornerRadius(CornerRadius.small)
                     .overlay(
                         RoundedRectangle(cornerRadius: CornerRadius.small)
@@ -147,10 +154,10 @@ struct GaitCycleDetailView: View {
         }
         .padding(Spacing.m)
         .background(Color.cardBackground)
-        .cornerRadius(CornerRadius.large)
+        .cornerRadius(CornerRadius.medium)
         .overlay(
-            RoundedRectangle(cornerRadius: CornerRadius.large)
-                .stroke(Color.cardBorder, lineWidth: 1)
+            RoundedRectangle(cornerRadius: CornerRadius.medium)
+                .stroke(Color.primaryOrange.opacity(0.3), lineWidth: 1)
         )
     }
     

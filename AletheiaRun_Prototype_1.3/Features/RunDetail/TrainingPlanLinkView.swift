@@ -20,22 +20,7 @@ import SwiftUI
 struct TrainingPlanLinkView: View {
     var body: some View {
         VStack(spacing: Spacing.m) {
-            // Header
-            VStack(alignment: .leading, spacing: Spacing.s) {
-                HStack {
-                    Image(systemName: "figure.strengthtraining.traditional")
-                        .foregroundColor(.primaryOrange)
-                    
-                    Text("Training Plan")
-                        .font(.headline)
-                        .foregroundColor(.textPrimary)
-                }
-                
-                Text("Personalized exercises to improve your metrics")
-                    .font(.bodyMedium)
-                    .foregroundColor(.textSecondary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            
             
             // Feature Cards
             VStack(spacing: Spacing.s) {

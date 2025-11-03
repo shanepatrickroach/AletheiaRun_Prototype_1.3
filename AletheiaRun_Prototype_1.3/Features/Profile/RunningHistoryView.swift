@@ -36,7 +36,7 @@ struct RunningHistoryView: View {
                     detailedStatsSection
 
                     // Trends & Insights
-                    trendsSection
+                    //trendsSection
                 }
                 .padding(.horizontal, Spacing.m)
                 .padding(.bottom, 100)
@@ -114,6 +114,7 @@ struct RunningHistoryView: View {
 
     // MARK: - Multi-Metric Chart
     private var multiMetricChart: some View {
+
         VStack(alignment: .leading, spacing: Spacing.m) {
             HStack {
                 Text("Metrics Over Time")
@@ -310,7 +311,7 @@ struct OverallStatCard: View {
     }
 }
 
-// MARK: - Metric Toggle Row
+// MARK: - Updated Metric Toggle Row with Dot Pattern
 struct MetricToggleRow: View {
     let metric: MetricType
     let isEnabled: Bool
@@ -319,6 +320,16 @@ struct MetricToggleRow: View {
 
     private var metricInfo: MetricInfo {
         metric.info
+    }
+
+    private var isHipMetric: Bool {
+        switch metric {
+        case .hipMobilityLeft, .hipMobilityRight, .hipStabilityLeft,
+            .hipStabilityRight:
+            return true
+        default:
+            return false
+        }
     }
 
     var body: some View {
@@ -363,11 +374,17 @@ struct MetricToggleRow: View {
 
                 Spacer()
 
-                // Color indicator line
+                // Legend indicator
                 if isEnabled {
-                    RoundedRectangle(cornerRadius: 2)
-                        .fill(metricInfo.color)
-                        .frame(width: 4, height: 40)
+                    if isHipMetric {
+                        // Alternating dots pattern for hip metrics
+                        HipMetricDotLegend(metric: metric)
+                    } else {
+                        // Regular color bar for other metrics
+                        RoundedRectangle(cornerRadius: 2)
+                            .fill(metricInfo.color)
+                            .frame(width: 4, height: 40)
+                    }
                 }
             }
             .padding(Spacing.m)
@@ -385,6 +402,57 @@ struct MetricToggleRow: View {
         .buttonStyle(PlainButtonStyle())
     }
 }
+
+// MARK: - Hip Metric Dot Legend
+struct HipMetricDotLegend: View {
+    let metric: MetricType
+
+    private var sideColor: Color {
+        switch metric {
+        case .hipMobilityLeft, .hipStabilityLeft:
+            return .leftSide
+        case .hipMobilityRight, .hipStabilityRight:
+            return .rightSide
+        default:
+            return metric.info.color
+        }
+    
+    }
+
+    private var metricTypeColor: Color {
+        switch metric {
+        case .hipMobilityLeft, .hipMobilityRight:
+            return .hipMobilityColor
+        case .hipStabilityLeft, .hipStabilityRight:
+            return .hipStabilityColor
+        default:
+            return sideColor
+        }
+    }
+
+    var body: some View {
+        VStack(spacing: 4) {
+            // Alternating dots pattern
+            Circle()
+                .fill(sideColor)
+                .frame(width: 8, height: 8)
+
+            Circle()
+                .fill(metricTypeColor)
+                .frame(width: 8, height: 8)
+
+            Circle()
+                .fill(sideColor)
+                .frame(width: 8, height: 8)
+
+            Circle()
+                .fill(metricTypeColor)
+                .frame(width: 8, height: 8)
+        }
+    }
+}
+
+
 
 // MARK: - Detailed Metric Card
 struct DetailedMetricCard: View {
@@ -416,14 +484,13 @@ struct DetailedMetricCard: View {
                             .fontWeight(.semibold)
                             .foregroundColor(.textPrimary)
 
-                        Text("Average: \(stats.average)")
-                            .font(.bodySmall)
-                            .foregroundColor(.textSecondary)
+//                        Text("Average: \(stats.average)")
+//                            .font(.bodySmall)
+//                            .foregroundColor(.textSecondary)
                     }
 
                     Spacer()
 
-                    
                     Image(
                         systemName: isExpanded ? "chevron.up" : "chevron.down"
                     )
@@ -440,12 +507,14 @@ struct DetailedMetricCard: View {
                         .background(Color.cardBorder)
 
                     HStack(spacing: Spacing.m) {
-                        RunningHistoryStatItem(
-                            label: "Best", value: "\(stats.best)",
-                            color: .successGreen)
+                        
                         RunningHistoryStatItem(
                             label: "Worst", value: "\(stats.worst)",
                             color: .errorRed)
+                        
+                        RunningHistoryStatItem(
+                            label: "Best", value: "\(stats.best)",
+                            color: .successGreen)
                         RunningHistoryStatItem(
                             label: "Range", value: "\(stats.range)",
                             color: .infoBlue)
@@ -454,16 +523,16 @@ struct DetailedMetricCard: View {
                     // Consistency indicator
                     VStack(alignment: .leading, spacing: Spacing.xs) {
                         HStack {
-                            Text("Consistency")
+                            Text("Average Score")
                                 .font(.bodySmall)
                                 .foregroundColor(.textSecondary)
 
                             Spacer()
 
-                            Text(stats.consistencyLabel)
-                                .font(.caption)
-                                .fontWeight(.semibold)
-                                .foregroundColor(stats.consistencyColor)
+//                            Text(stats.consistencyLabel)
+//                                .font(.caption)
+//                                .fontWeight(.semibold)
+//                                .foregroundColor(stats.consistencyColor)
                         }
 
                         GeometryReader { geometry in
@@ -476,7 +545,7 @@ struct DetailedMetricCard: View {
                                     .fill(stats.consistencyColor)
                                     .frame(
                                         width: geometry.size.width
-                                            * CGFloat(stats.consistency) / 100,
+                                        * CGFloat(stats.average) / 100,
                                         height: 8
                                     )
                             }
@@ -633,6 +702,7 @@ struct Insight: Identifiable {
     let color: Color
 }
 
+// MARK: - Updated DataPoint
 struct DataPoint: Identifiable {
     let id = UUID()
     let date: Date
@@ -643,11 +713,12 @@ struct DataPoint: Identifiable {
     let variation: Int
     let warmup: Int
     let endurance: Int
-    let hipMobility: Int
-    let hipStability: Int
+    let hipMobilityLeft: Int  // NEW
+    let hipMobilityRight: Int  // NEW
+    let hipStabilityLeft: Int  // NEW
+    let hipStabilityRight: Int  // NEW
     let portraitSymmetry: Int
     let overallScore: Int
-    
 
     func valueFor(metric: MetricType) -> Int {
         switch metric {
@@ -658,15 +729,20 @@ struct DataPoint: Identifiable {
         case .variation: return variation
         case .warmup: return warmup
         case .endurance: return endurance
-        case .hipMobility: return hipMobility
-        case .hipStability: return hipStability
+        case .hipMobilityLeft: return hipMobilityLeft
+        case .hipMobilityRight: return hipMobilityRight
+        case .hipStabilityLeft: return hipStabilityLeft
+        case .hipStabilityRight: return hipStabilityRight
         case .portraitSymmetry: return portraitSymmetry
         case .overallScore: return overallScore
         }
     }
 }
 
-#Preview {
+
+
+
+#Preview("Running History") {
     NavigationStack {
         RunningHistoryView()
     }

@@ -40,6 +40,14 @@ extension Color {
     static let timeColor = Color(hex: "92400E")
     
     
+    static let leftSide = Color(yellow)      // Cool Blue
+    static let rightSide = Color(purple)     // Warm Red
+
+    // With opacity variations for backgrounds
+    static let leftSideBackground = Color(hex: "3B82F6").opacity(0.15)
+    static let rightSideBackground = Color(hex: "EF4444").opacity(0.15)
+    
+    
     // MARK: - Helper to create Color from hex
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)

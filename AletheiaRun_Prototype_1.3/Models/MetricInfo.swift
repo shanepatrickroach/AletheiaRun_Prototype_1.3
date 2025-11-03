@@ -58,10 +58,17 @@ enum MetricType: String, CaseIterable {
     case variation = "Variation"
     case warmup = "Warmup"
     case endurance = "Endurance"
-    case hipMobility = "Hip Mobility"
-    case hipStability = "Hip Stability"
+    case hipMobilityLeft = "Hip Mobility (L)"  // NEW
+    case hipMobilityRight = "Hip Mobility (R)"  // NEW
+    case hipStabilityLeft = "Hip Stability (L)"  // NEW
+    case hipStabilityRight = "Hip Stability (R)"  // NEW
     case portraitSymmetry = "Portrait Symmetry"
     case overallScore = "Overall Score"
+    
+    
+    var id: String { rawValue }
+    
+    
 
     var info: MetricInfo {
         switch self {
@@ -253,11 +260,44 @@ enum MetricType: String, CaseIterable {
                 relatedMetrics: ["Efficiency", "Variation"],
                 videoPlaceholderTitle: "Building Running Endurance"
             )
+            
+            
 
-        case .hipMobility:
+        case .hipMobilityLeft:
             return MetricInfo(
                 id: "hipMobility",
-                name: "Hip Mobility",
+                name: "Hip Mobility (Left Side)",
+                icon: "figure.walk.motion",
+                color: .hipMobilityColor,
+                unit: "score",
+                optimalRange: 75...100,
+                description:
+                    "Hip Mobility measures the range of motion in your hip joints during running. Good hip mobility allows for longer, more efficient strides and reduces compensatory stress on other joints.",
+                whyItMatters: [
+                    "Limited hip mobility restricts stride length and efficiency",
+                    "Poor hip mobility increases risk of lower back and knee pain",
+                    "Affects your ability to maintain proper running posture",
+                    "Critical for power generation during the push-off phase",
+                    "Directly impacts injury risk in hips, IT band, and knees",
+                ],
+                howToOptimize: [
+                    "Perform dynamic hip circles and leg swings before runs",
+                    "Practice the 90/90 stretch for hip external and internal rotation",
+                    "Include pigeon pose and couch stretch in your routine",
+                    "Do hip flexor stretches daily, especially if you sit a lot",
+                    "Try yoga poses: low lunge, lizard pose, and warrior sequences",
+                    "Use a foam roller on hip flexors and glutes regularly",
+                ],
+                relatedMetrics: [
+                    "Hip Stability", "Overall Symmetry", "Efficiency",
+                ],
+                videoPlaceholderTitle: "Hip Mobility Exercises for Runners"
+            )
+            
+        case .hipMobilityRight:
+            return MetricInfo(
+                id: "hipMobility",
+                name: "Hip Mobility (Right Side)",
                 icon: "figure.walk.motion",
                 color: .hipMobilityColor,
                 unit: "score",
@@ -285,10 +325,41 @@ enum MetricType: String, CaseIterable {
                 videoPlaceholderTitle: "Hip Mobility Exercises for Runners"
             )
 
-        case .hipStability:
+
+        case .hipStabilityLeft:
             return MetricInfo(
                 id: "hipStability",
-                name: "Hip Stability",
+                name: "Hip Stability (Left Side)",
+                icon: "figure.stand",
+                color: .hipStabilityColor,
+                unit: "score",
+                optimalRange: 75...100,
+                description:
+                    "Hip Stability measures your ability to control hip movement and prevent excessive drop or rotation during the stance phase of running. Strong, stable hips are essential for injury prevention.",
+                whyItMatters: [
+                    "Weak hip stability causes knee valgus (knee caving inward)",
+                    "Primary factor in IT band syndrome and runner's knee",
+                    "Unstable hips lead to compensatory movements and injuries",
+                    "Affects your ability to maintain form when fatigued",
+                    "Critical for preventing stress fractures and hip pain",
+                ],
+                howToOptimize: [
+                    "Strengthen glute medius with side-lying leg raises",
+                    "Practice single-leg balance exercises (30-60 seconds each leg)",
+                    "Do clamshell exercises with resistance band",
+                    "Include single-leg deadlifts and step-ups in strength training",
+                    "Try lateral band walks to activate hip stabilizers",
+                    "Focus on hip hikes and single-leg squats",
+                ],
+                relatedMetrics: ["Hip Mobility", "Sway", "Overall Symmetry"],
+                videoPlaceholderTitle:
+                    "Hip Stability Exercises for Injury Prevention"
+            )
+            
+        case .hipStabilityRight:
+            return MetricInfo(
+                id: "hipStability",
+                name: "Hip Stability (Right Side)",
                 icon: "figure.stand",
                 color: .hipStabilityColor,
                 unit: "score",

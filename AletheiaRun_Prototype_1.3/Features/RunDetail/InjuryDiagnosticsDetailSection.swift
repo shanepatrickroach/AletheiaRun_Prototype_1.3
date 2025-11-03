@@ -35,7 +35,7 @@ struct InjuryDiagnosticsDetailSection: View {
             
             
             // Symmetry Analysis
-            symmetryAnalysis
+//            symmetryAnalysis
         }
     }
     
@@ -43,7 +43,7 @@ struct InjuryDiagnosticsDetailSection: View {
     private var sectionHeader: some View {
         VStack(alignment: .leading, spacing: Spacing.s) {
             HStack {
-                Image(systemName: "heart.fill")
+                Image(systemName: "cross.case.fill")
                     .foregroundColor(.primaryOrange)
                 
                 Text("Injury Diagnostics")
@@ -275,6 +275,28 @@ struct LegComparisonRow: View {
         }
     }
     
+    private var dominantSide: String {
+        if leftValue > rightValue {
+            return "Left stronger by \(difference)%"
+        } else if rightValue > leftValue {
+            return "Right stronger by \(difference)%"
+        } else {
+            return "Balanced"
+        }
+    }
+    
+    private var differenceColor: Color {
+        if difference <= 5 {
+            return .successGreen
+        } else if difference <= 10 {
+            return .warningYellow
+        } else {
+            return .errorRed
+        }
+    }
+    
+
+    
     var body: some View {
         VStack(spacing: Spacing.s) {
             // Header
@@ -287,15 +309,26 @@ struct LegComparisonRow: View {
                 
                 Spacer()
                 
-                if difference > 5 {
-                    HStack(spacing: 4) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .font(.caption)
-                        Text("\(difference)% diff")
-                            .font(.caption)
-                    }
-                    .foregroundColor(.warningYellow)
-                }
+                
+                
+//                if difference > 5 {
+//                    HStack(spacing: 4) {
+//                        Image(systemName: "exclamationmark.triangle.fill")
+//                            .font(.caption)
+//                        Text("\(String(describing: strongerSide)) by \(difference)")
+//                            .font(.caption)
+//                    }
+//                    .foregroundColor(.warningYellow)
+//                }
+                
+                Text(dominantSide)
+                    .font(.bodySmall)
+                    .foregroundColor(differenceColor)
+                    .fontWeight(.medium)
+                
+                
+                
+                
             }
             
             // Comparison Bars
@@ -305,7 +338,7 @@ struct LegComparisonRow: View {
                     HStack {
                         Image(systemName: LegSide.left.icon)
                             .font(.caption)
-                            .foregroundColor(Color.infoBlue)
+                            .foregroundColor(Color.leftSide)
                         Text("Left")
                             .font(.caption)
                             .foregroundColor(.textSecondary)
@@ -344,7 +377,7 @@ struct LegComparisonRow: View {
                     HStack {
                         Image(systemName: LegSide.right.icon)
                             .font(.caption)
-                            .foregroundColor(Color.infoBlue)
+                            .foregroundColor(Color.rightSide)
                         Text("Right")
                             .font(.caption)
                             .foregroundColor(.textSecondary)

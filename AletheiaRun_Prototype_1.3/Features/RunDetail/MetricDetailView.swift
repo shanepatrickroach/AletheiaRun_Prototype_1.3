@@ -499,8 +499,10 @@ struct MetricDetailView: View {
         case .impact: return snapshot.performanceMetrics.impact
         case .braking: return snapshot.performanceMetrics.braking
         case .variation: return snapshot.performanceMetrics.variation
-        case .hipMobility: return snapshot.injuryMetrics.hipMobility
-        case .hipStability: return snapshot.injuryMetrics.hipStability
+        case .hipMobilityLeft: return snapshot.injuryMetrics.hipMobility
+        case .hipMobilityRight: return snapshot.injuryMetrics.hipMobility
+        case .hipStabilityLeft: return snapshot.injuryMetrics.hipStability
+        case .hipStabilityRight: return snapshot.injuryMetrics.hipStability
         case .portraitSymmetry: return snapshot.injuryMetrics.portraitSymmetry
         case .overallScore: return snapshot.performanceMetrics.overallScore
         }
@@ -617,8 +619,10 @@ struct MetricLineChart: View {
         case .impact: return snapshot.performanceMetrics.impact
         case .braking: return snapshot.performanceMetrics.braking
         case .variation: return snapshot.performanceMetrics.variation
-        case .hipMobility: return snapshot.injuryMetrics.hipMobility
-        case .hipStability: return snapshot.injuryMetrics.hipStability
+        case .hipMobilityLeft: return snapshot.injuryMetrics.hipMobility
+        case .hipMobilityRight: return snapshot.injuryMetrics.hipMobility
+        case .hipStabilityLeft: return snapshot.injuryMetrics.hipStability
+        case .hipStabilityRight: return snapshot.injuryMetrics.hipStability
         case .portraitSymmetry: return snapshot.injuryMetrics.portraitSymmetry
         case .overallScore: return snapshot.performanceMetrics.overallScore
         }

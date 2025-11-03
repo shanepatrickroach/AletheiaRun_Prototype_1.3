@@ -29,7 +29,7 @@ struct TechModeView: View {
     var body: some View {
         VStack(spacing: Spacing.m) {
             // Header
-            sectionHeader
+            
 
             // Snapshot Navigation (NEW)
             if snapshots.count > 1 {
@@ -90,15 +90,22 @@ struct TechModeView: View {
 
                     if let snapshot = currentSnapshot {
                         HStack(spacing: Spacing.xs) {
-                            Text(formatTimestamp(snapshot.duration))
-                                .font(.caption)
+                            Text("Snapshot \(snapshot.snapshotNumber)")
+                                .font(.bodySmall)
                                 .foregroundColor(.textSecondary)
-
+                            
                             Text("•")
                                 .foregroundColor(.textTertiary)
-
-                            Text(snapshot.formattedPace)
-                                .font(.caption)
+                            
+                            Text(formatTimestamp(snapshot.duration))
+                                .font(.bodySmall)
+                                .foregroundColor(.textSecondary)
+                            
+                            Text("•")
+                                .foregroundColor(.textTertiary)
+                            
+                            Text(snapshot.formattedDistance)
+                                .font(.bodySmall)
                                 .foregroundColor(.textSecondary)
                         }
                     }
