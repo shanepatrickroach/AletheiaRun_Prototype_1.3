@@ -56,11 +56,12 @@ struct PainPointDetailSheet: View {
         HStack(spacing: Spacing.m) {
             ZStack {
                 Circle()
-                    .fill(painPoint.color.opacity(0.2))
-                    .frame(width: 70, height: 70)
+                    .fill(Color.errorRed.opacity(0.2))
+                    .frame(width: 100, height: 100)
                 
-                Image(systemName: painPoint.bodyIcon)
-                    .font(.system(size: 32))
+                Image(painPoint.bodyIcon)
+                    .resizable()
+                    .frame(width: 100, height: 100)
                     .foregroundColor(painPoint.color)
             }
             

@@ -218,17 +218,7 @@ struct RunnerCard: View {
                 
                 // Stats Row
                 HStack(spacing: Spacing.m) {
-                    StatBadge(
-                        icon: "figure.run",
-                        value: "\(runner.totalRuns)",
-                        color: .infoBlue
-                    )
                     
-                    StatBadge(
-                        icon: "chart.line.uptrend.xyaxis",
-                        value: "\(runner.averageEfficiency)",
-                        color: efficiencyColor(runner.averageEfficiency)
-                    )
                     
                     StatBadge(
                         icon: "flame.fill",

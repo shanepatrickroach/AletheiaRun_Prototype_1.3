@@ -13,9 +13,6 @@ struct PrimaryButton: View {
     let action: () -> Void
     var isEnabled: Bool = true
     
-    
-    
-    
     var body: some View {
         Button(action: action) {
             Text(title)

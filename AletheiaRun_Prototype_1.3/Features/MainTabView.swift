@@ -1,4 +1,4 @@
-import SwiftUI
+	import SwiftUI
 
 struct MainTabView: View {
     @EnvironmentObject var authManager: AuthenticationManager
@@ -93,7 +93,7 @@ struct CenterRecordTabBar: View {
             GeometryReader { geometry in
                 Path { path in
                     let width = geometry.size.width
-                    let height: CGFloat = 84
+                    let height: CGFloat = 300
                     let centerWidth: CGFloat = 80
 
                     path.move(to: CGPoint(x: 0, y: 0))
@@ -256,4 +256,5 @@ struct TabBarButton: View {
 #Preview {
     MainTabView()
         .environmentObject(AuthenticationManager())
+        .environmentObject(SubscriptionManager())
 }

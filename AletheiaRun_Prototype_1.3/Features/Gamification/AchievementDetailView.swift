@@ -591,7 +591,7 @@ struct ShareSheet: View {
                     Spacer()
                     
                     // Share Preview
-                    SharePreviewCard(achievement: achievement)
+                    RunDetailSharePreviewCard(achievement: achievement)
                         .padding(.horizontal, Spacing.l)
                     
                     Spacer()
@@ -635,7 +635,7 @@ struct ShareSheet: View {
     }
 }
 
-struct SharePreviewCard: View {
+struct RunDetailSharePreviewCard: View {
     let achievement: Achievement
     
     var body: some View {

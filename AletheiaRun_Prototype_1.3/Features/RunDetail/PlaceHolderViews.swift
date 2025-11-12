@@ -16,16 +16,7 @@ import SwiftUI
 struct RouteMapView: View {
     var body: some View {
         VStack(spacing: Spacing.m) {
-            PlaceholderCard(
-                icon: "map.fill",
-                title: "Route Map",
-                description: "View your running route with snapshots.",
-                features: [
-                    "Interactive map with route overlay",
-                    "Interval markers",
-                    "Share route with others"
-                ]
-            )
+            
             
             // Mock map preview
             VStack(alignment: .leading, spacing: Spacing.s) {

@@ -17,6 +17,7 @@ struct SignInView: View {
     @State private var isLoading = false
     @State private var showingForgotPassword = false
     @State private var showingSignUp = false
+    @State private var isAnimating: Bool = true
     
     var body: some View {
         NavigationStack {
@@ -28,9 +29,20 @@ struct SignInView: View {
                         
                         // Logo and Header
                         VStack(spacing: Spacing.m) {
-                            Image(systemName: "figure.run.circle.fill")
-                                .font(.system(size: 80))
-                                .foregroundColor(.primaryOrange)
+                            Image("LogoGradient")
+                                .resizable()
+                                    .frame(width: 200, height: 200)
+                                    .scaleEffect(isAnimating ? 1.03 : 1.0)
+                                    .shadow(
+                                        color: .primaryOrange.opacity(isAnimating ? 0.4 : 0.15),
+                                        radius: isAnimating ? 15 : 8
+                                    )
+                                    .animation(
+                                        .easeInOut(duration: 2.5)
+                                        .repeatForever(autoreverses: true),
+                                        value: isAnimating
+                                    )
+                                    .onAppear { isAnimating = true }
                             
                             Text("Welcome Back")
                                 .font(.titleLarge)

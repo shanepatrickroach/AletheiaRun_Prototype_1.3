@@ -19,6 +19,30 @@ struct RunningSensor: Identifiable {
     var batteryLevel: Int? // 0-100
     var isConnected: Bool
     var peripheral: CBPeripheral?
+    
+    
+    
+    static let mockSensors = [
+        RunningSensor(
+            id: UUID(),
+            name: "My Running Sensor",
+            rssi: 80,
+        
+            batteryLevel: 78,
+            isConnected: true,
+            peripheral: nil
+            
+        ),
+        RunningSensor(
+            id: UUID(),
+            name: "Backup Sensor",
+            
+            rssi: 80,
+            batteryLevel: 45,
+            isConnected: false,
+            peripheral: nil
+        )
+    ]
 }
 
 // MARK: - Connection State
@@ -49,9 +73,9 @@ class BluetoothManager: NSObject, ObservableObject {
     
     // MARK: - Published Properties
     @Published var connectionState: SensorConnectionState = .disconnected
-    @Published var availableSensors: [RunningSensor] = []
+    @Published var availableSensors: [RunningSensor] = RunningSensor.mockSensors
     @Published var connectedSensor: RunningSensor?
-    @Published var isBluetoothEnabled = false
+    @Published var isBluetoothEnabled = true
     
     // MARK: - Private Properties
     private var centralManager: CBCentralManager?
@@ -131,6 +155,8 @@ class BluetoothManager: NSObject, ObservableObject {
         }
     }
 }
+
+
 
 // MARK: - CBCentralManagerDelegate
 extension BluetoothManager: CBCentralManagerDelegate {

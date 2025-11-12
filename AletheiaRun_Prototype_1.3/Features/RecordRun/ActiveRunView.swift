@@ -158,37 +158,9 @@ struct ActiveRunView: View {
             }
 
             // MARK: - Live Force Portrait Preview (Placeholder)
-            liveForcePortraitPreview
+            //liveForcePortraitPreview
 
-            //            // MARK: - Secondary Metrics Grid
-            //            LazyVGrid(columns: [
-            //                GridItem(.flexible()),
-            //                GridItem(.flexible())
-            //            ], spacing: Spacing.m) {
-            //                SmallMetricCard(
-            //                    title: "Efficiency",
-            //                    value: runSession.currentEfficiency,
-            //                    color: metricColor(for: runSession.currentEfficiency)
-            //                )
-            //
-            //                SmallMetricCard(
-            //                    title: "Impact",
-            //                    value: runSession.currentImpact,
-            //                    color: metricColor(for: runSession.currentImpact)
-            //                )
-            //
-            //                SmallMetricCard(
-            //                    title: "Sway",
-            //                    value: runSession.currentSway,
-            //                    color: metricColor(for: runSession.currentSway)
-            //                )
-            //
-            //                SmallMetricCard(
-            //                    title: "Braking",
-            //                    value: runSession.currentBraking,
-            //                    color: metricColor(for: runSession.currentBraking)
-            //                )
-            //            }
+            
         }
     }
 

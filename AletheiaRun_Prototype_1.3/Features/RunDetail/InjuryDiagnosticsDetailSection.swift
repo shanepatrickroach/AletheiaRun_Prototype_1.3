@@ -327,8 +327,6 @@ struct LegComparisonRow: View {
                     .fontWeight(.medium)
                 
                 
-                
-                
             }
             
             // Comparison Bars

@@ -31,14 +31,14 @@ struct TechModeView: View {
             // Header
             
 
+            
+            
+            // Force Portrait Display
+            forcePortraitDisplay
             // Snapshot Navigation (NEW)
             if snapshots.count > 1 {
                 snapshotNavigator
             }
-            
-            // Force Portrait Display
-            forcePortraitDisplay
-
 
             // Perspective Selector
             perspectiveSelector
@@ -393,7 +393,7 @@ struct TechModeView: View {
                         "\(currentSnapshotIndex)-\(selectedPerspective.rawValue)-\(selectedView.rawValue)-\(selectedLeg.rawValue)"
                     )  // NEW: Force refresh on changes
             }
-            .frame(height: 400)
+            .frame(height: 300)
             .overlay(
                 RoundedRectangle(cornerRadius: CornerRadius.large)
                     .stroke(
@@ -409,10 +409,10 @@ struct TechModeView: View {
                     )
             )
 
-            // NEW: Snapshot metrics preview
-            if let snapshot = currentSnapshot {
-                snapshotMetricsPreview(snapshot)
-            }
+//            // NEW: Snapshot metrics preview
+//            if let snapshot = currentSnapshot {
+//                snapshotMetricsPreview(snapshot)
+//            }
         }
         .padding(Spacing.m)
         .background(Color.cardBackground)
@@ -664,21 +664,21 @@ struct MetricPreviewBadge: View {
 // MARK: - Force Perspective Enum
 enum ForcePerspective: String, CaseIterable {
     case top = "Top"
-    case bottom = "Bottom"
+    case side = "Side"
     case rear = "Rear"
 
     var icon: String {
         switch self {
-        case .top: return "arrow.down.circle"
-        case .bottom: return "arrow.up.circle"
-        case .rear: return "figure.stand"
+        case .top: return Icon.topViewIcon
+        case .side: return Icon.sideViewIcon
+        case .rear: return Icon.rearViewIcon
         }
     }
 
     var description: String {
         switch self {
         case .top: return "View from above showing lateral movement"
-        case .bottom: return "View from below showing ground contact"
+        case .side: return "View from below showing ground contact"
         case .rear: return "View from behind showing body alignment"
         }
     }
@@ -710,13 +710,13 @@ enum ForceView: String, CaseIterable {
         switch self {
         case .aesthetic:
             return
-                "Overall force distribution visualization showing biomechanical efficiency and form quality."
+                "Overall force distribution visualization."
         case .leftRight:
             return
-                "Side-by-side comparison of left and right leg forces to identify asymmetries and imbalances."
+                "Side-by-side comparison of left and right forces."
         case .gaitCycle:
             return
-                "Force distribution across different gait cycle phases: landing, stabilizing, launching, and flying."
+                "Force distribution across different gait cycle phases."
         }
     }
 
@@ -731,17 +731,17 @@ enum ForceView: String, CaseIterable {
             ]
         case .leftRight:
             return [
-                LegendItem(color: .infoBlue, label: "Left leg forces"),
-                LegendItem(color: .successGreen, label: "Right leg forces"),
+                LegendItem(color: .leftSide, label: "Left leg forces"),
+                LegendItem(color: .rightSide, label: "Right leg forces"),
             ]
         case .gaitCycle:
             return [
-                LegendItem(color: Color(hex: "FF6B6B"), label: "Landing phase"),
+                LegendItem(color: .landingColor, label: "Landing phase"),
                 LegendItem(
-                    color: Color(hex: "4ECDC4"), label: "Stabilizing phase"),
+                    color: .stabilizingColor, label: "Stabilizing phase"),
                 LegendItem(
-                    color: Color(hex: "45B7D1"), label: "Launching phase"),
-                LegendItem(color: Color(hex: "FFA07A"), label: "Flying phase"),
+                    color: .launchingColor, label: "Launching phase"),
+                LegendItem(color: .flyingColor, label: "Flying phase"),
             ]
         }
     }
@@ -763,9 +763,9 @@ enum LegSelection: String, CaseIterable {
 
     var color: Color {
         switch self {
-        case .both: return .primaryOrange
-        case .left: return .infoBlue
-        case .right: return .successGreen
+        case .both: return .successGreen
+        case .left: return .leftSide
+        case .right: return .rightSide
         }
     }
 }
@@ -785,7 +785,7 @@ struct PerspectiveButton: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: Spacing.xs) {
-                Image(systemName: perspective.icon)
+                Image(perspective.icon)
                     .font(.system(size: 24))
                     .foregroundColor(
                         isSelected ? .backgroundBlack : .primaryOrange)
@@ -793,12 +793,12 @@ struct PerspectiveButton: View {
                 Text(perspective.rawValue)
                     .font(.bodySmall)
                     .foregroundColor(
-                        isSelected ? .backgroundBlack : .textPrimary)
+                        .textPrimary)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, Spacing.m)
             .background(
-                isSelected ? Color.primaryOrange : Color.backgroundBlack
+                Color.backgroundBlack
             )
             .cornerRadius(CornerRadius.medium)
             .overlay(

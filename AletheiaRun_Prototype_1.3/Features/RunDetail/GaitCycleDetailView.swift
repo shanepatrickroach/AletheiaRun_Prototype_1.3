@@ -194,28 +194,24 @@ struct GaitCycleDetailView: View {
     private var gaitCycleDialSection: some View {
         VStack(alignment: .leading, spacing: Spacing.m) {
             // Section header with snapshot info
-            HStack {
-                Text("Gait Cycle View")
-                    .font(.headline)
-                    .foregroundColor(.textPrimary)
-                
-                Spacer()
-                
-                // Snapshot badge
-                if let snapshot = currentSnapshot {
-                    HStack(spacing: Spacing.xxs) {
-                        Image(systemName: "camera.fill")
-                            .font(.caption)
-                        Text("#\(snapshot.snapshotNumber)")
-                            .font(.caption)
-                    }
-                    .foregroundColor(.primaryOrange)
-                    .padding(.horizontal, Spacing.s)
-                    .padding(.vertical, 4)
-                    .background(Color.primaryOrange.opacity(0.15))
-                    .cornerRadius(CornerRadius.small)
-                }
-            }
+//            HStack {
+//
+//                
+//                // Snapshot badge
+//                if let snapshot = currentSnapshot {
+//                    HStack(spacing: Spacing.xxs) {
+//                        Image(systemName: "camera.fill")
+//                            .font(.caption)
+//                        Text("#\(snapshot.snapshotNumber)")
+//                            .font(.caption)
+//                    }
+//                    .foregroundColor(.primaryOrange)
+//                    .padding(.horizontal, Spacing.s)
+//                    .padding(.vertical, 4)
+//                    .background(Color.primaryOrange.opacity(0.15))
+//                    .cornerRadius(CornerRadius.small)
+//                }
+//            }
             
             DualGaitCycleDial(metrics: currentGaitMetrics)
                 .padding(Spacing.m)
@@ -226,8 +222,8 @@ struct GaitCycleDetailView: View {
                         .stroke(
                             LinearGradient(
                                 colors: [
-                                    Color.primaryOrange.opacity(0.3),
-                                    Color.primaryOrange.opacity(0.1)
+                                    Color.backgroundBlack.opacity(0.3),
+                                    Color.cardBorder.opacity(0.1)
                                 ],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing

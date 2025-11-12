@@ -146,22 +146,25 @@ struct PostRunSurveyView: View {
                 .font(Font.bodySmall)
                 .foregroundColor(.textSecondary)
 
-            // Quick selection grid
-            LazyVGrid(columns: columns, spacing: Spacing.m) {
-                ForEach(PainPointType.allCases) { painPoint in
-                    PainPointGridCell(
-                        painPoint: painPoint,
-                        isSelected: isPainPointSelected(painPoint),
-                        selectedSides: getSelectedSides(for: painPoint),  // NEW
-                        onToggle: {
-                            handlePainPointTap(painPoint)
-                        },
-                        onInfo: {
-                            showingPainInfo = painPoint
-                        }
-                    )
+            ScrollView(.horizontal, showsIndicators: true){
+                // Quick selection grid
+                HStack(spacing: Spacing.m) {
+                    ForEach(PainPointType.allCases) { painPoint in
+                        PainPointGridCell(
+                            painPoint: painPoint,
+                            isSelected: isPainPointSelected(painPoint),
+                            selectedSides: getSelectedSides(for: painPoint),  // NEW
+                            onToggle: {
+                                handlePainPointTap(painPoint)
+                            },
+                            onInfo: {
+                                showingPainInfo = painPoint
+                            }
+                        )
+                    }
                 }
             }
+            
 
             // Selected summary
             if !selectedPainPoints.isEmpty {
@@ -284,8 +287,7 @@ struct PostRunSurveyView: View {
 
                         // Side badge
                         HStack(spacing: 4) {
-                            Image(systemName: selection.side.icon)
-                                .font(.system(size: 10))
+                            
                             Text(selection.side.rawValue)
                                 .font(.system(size: 10, weight: .semibold))
                         }
@@ -446,7 +448,7 @@ struct PostRunSurveyView: View {
 
             TextEditor(text: $notes)
                 .scrollContentBackground(.hidden)  // hides default background
-                .background(Color.black.opacity(0.6))
+                .background(Color.cardBackground)
                 .font(Font.bodyMedium)
                 .foregroundColor(.textPrimary)
                 .frame(height: 120)
@@ -466,10 +468,6 @@ struct PostRunSurveyView: View {
 
         // Create detailed pain description with sides
         let detailedPainDescription = createDetailedPainDescription()
-
-        
-
-        
         showingCompletion = true
     }
 
@@ -506,21 +504,26 @@ struct PainPointGridCell: View {
 
     var body: some View {
         Button(action: onToggle) {
+            
+            
+
             VStack(spacing: Spacing.m) {
+                
                 // Icon area
                 ZStack {
                     RoundedRectangle(cornerRadius: CornerRadius.medium)
                         .fill(
                             isSelected
-                                ? painPoint.color.opacity(0.2)
+                            ? painPoint.color.opacity(0.2)
                                 : Color.cardBackground
                         )
-                        .frame(height: 100)
+                        .frame(width: .infinity, height: .infinity)
 
                     VStack(spacing: Spacing.s) {
                         // Body part icon
-                        Image(systemName: painPoint.bodyIcon)
-                            .font(.system(size: 36))
+                        Image(painPoint.bodyIcon)
+                            .resizable()
+                            .frame(width: 100, height: 100)	
                             .foregroundColor(
                                 isSelected ? painPoint.color : .textTertiary)
 
@@ -528,11 +531,11 @@ struct PainPointGridCell: View {
                         if isSelected && !selectedSides.isEmpty {
                             HStack(spacing: 4) {
                                 ForEach(selectedSides, id: \.self) { side in
-                                    Image(systemName: side.icon)
-                                        .font(.system(size: 14))
-                                        .foregroundColor(side.color)
+                                    Text(side.rawValue)
+                                        .font(.system(size: 12))
+                                        .foregroundColor(painPoint.color)
                                 }
-                            }
+                            }.padding(.bottom, 4)
                         } else if isSelected {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 18))
@@ -558,13 +561,14 @@ struct PainPointGridCell: View {
 
                 // Label
                 VStack(spacing: 4) {
-                    Text(painPoint.displayName)
+                    Text(painPoint.displayName.breakAtFirstSpace())
                         .font(.bodySmall)
                         .fontWeight(.semibold)
                         .foregroundColor(.textPrimary)
                         .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
                         .lineLimit(2)
-                        .frame(height: 34)
+                        
 
                     Text(painPoint.locationLabel)
                         .font(.caption)
@@ -590,6 +594,15 @@ struct PainPointGridCell: View {
             )
         }
         .buttonStyle(PlainButtonStyle())
+    }
+}
+
+extension String {
+    func breakAtFirstSpace() -> String {
+        guard let range = self.range(of: " ") else { return self }
+        var modified = self
+        modified.replaceSubrange(range, with: "\n")
+        return modified
     }
 }
 

@@ -5,23 +5,24 @@
 //  Created by Shane Roach on 10/7/25.
 //
 
-
 import SwiftUI
 
 struct FirstTimeUserView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var authManager: AuthenticationManager
     @StateObject private var verificationState = VerificationState()
-    
+
     var body: some View {
         ZStack {
-            Color.backgroundBlack
-                .ignoresSafeArea()
             
+            Color.backgroundBlack.ignoresSafeArea()
+
             VStack(spacing: 0) {
                 // Progress indicator
-                VerificationProgressBar(currentStep: verificationState.currentStep)
-                
+                VerificationProgressBar(
+                    currentStep: verificationState.currentStep
+                )
+
                 // Content
                 Group {
                     switch verificationState.currentStep {
@@ -30,13 +31,20 @@ struct FirstTimeUserView: View {
                     case .enterCode:
                         EnterCodeStep(verificationState: verificationState)
                     case .setPassword:
-                        SetPasswordStep(verificationState: verificationState, authManager: authManager)
+                        SetPasswordStep(
+                            verificationState: verificationState,
+                            authManager: authManager
+                        )
                     }
                 }
-                .transition(.asymmetric(
-                    insertion: .move(edge: .trailing).combined(with: .opacity),
-                    removal: .move(edge: .leading).combined(with: .opacity)
-                ))
+                .transition(
+                    .asymmetric(
+                        insertion: .move(edge: .trailing).combined(
+                            with: .opacity
+                        ),
+                        removal: .move(edge: .leading).combined(with: .opacity)
+                    )
+                )
             }
         }
         .navigationBarBackButtonHidden(true)
@@ -70,7 +78,7 @@ struct FirstTimeUserView: View {
 // MARK: - Verification Progress Bar
 struct VerificationProgressBar: View {
     let currentStep: VerificationState.VerificationStep
-    
+
     var progress: Double {
         switch currentStep {
         case .enterEmail: return 0.33
@@ -78,7 +86,7 @@ struct VerificationProgressBar: View {
         case .setPassword: return 1.0
         }
     }
-    
+
     var stepText: String {
         switch currentStep {
         case .enterEmail: return "Step 1 of 3"
@@ -86,29 +94,29 @@ struct VerificationProgressBar: View {
         case .setPassword: return "Step 3 of 3"
         }
     }
-    
+
     var body: some View {
         VStack(spacing: Spacing.xs) {
             HStack(spacing: 4) {
                 Text(stepText)
                     .font(.caption)
                     .foregroundColor(.textSecondary)
-                
+
                 Spacer()
-                
+
                 Text("\(Int(progress * 100))%")
                     .font(.caption)
                     .fontWeight(.semibold)
                     .foregroundColor(.primaryOrange)
             }
             .padding(.horizontal, Spacing.l)
-            
+
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     Rectangle()
                         .fill(Color.cardBackground)
                         .frame(height: 4)
-                    
+
                     Rectangle()
                         .fill(
                             LinearGradient(
@@ -131,20 +139,34 @@ struct VerificationProgressBar: View {
 // MARK: - Step 1: Enter Email
 struct EnterEmailStep: View {
     @ObservedObject var verificationState: VerificationState
-    
+    @State var isAnimating: Bool = false
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: Spacing.xl) {
                 VStack(spacing: Spacing.m) {
-                    Image(systemName: "envelope.badge.fill")
-                        .font(.system(size: 60))
-                        .foregroundColor(.primaryOrange)
-                    
-                    Text("Welcome to Aletheia")
+                    Image("LogoGradient")
+                        .resizable()
+                        .frame(width: 150, height: 150)
+                        .scaleEffect(isAnimating ? 1.03 : 1.0)
+                        .shadow(
+                            color: .primaryOrange.opacity(
+                                isAnimating ? 0.4 : 0.15
+                            ),
+                            radius: isAnimating ? 15 : 8
+                        )
+                        .animation(
+                            .easeInOut(duration: 2.5)
+                                .repeatForever(autoreverses: true),
+                            value: isAnimating
+                        )
+                        .onAppear { isAnimating = true }
+
+                    Text("Welcome to \nAletheia Run")
                         .font(.titleLarge)
                         .fontWeight(.bold)
                         .foregroundColor(.textPrimary)
-                    
+
                     Text("Run Smarter. Run Longer. Run Faster.")
                         .font(.bodyMedium)
                         .foregroundColor(.textSecondary)
@@ -152,35 +174,34 @@ struct EnterEmailStep: View {
                         .padding(.horizontal, Spacing.l)
                 }
                 .padding(.top, Spacing.xxxl)
-                
+
                 VStack(spacing: Spacing.m) {
                     CustomTextField(
                         placeholder: "Email Address",
                         text: $verificationState.email,
                         icon: "envelope.fill"
-                        
+
                     )
-                    
+
                     if let error = verificationState.errorMessage {
                         HStack {
                             Image(systemName: "exclamationmark.circle.fill")
                                 .foregroundColor(.errorRed)
-                            
+
                             Text(error)
                                 .font(.caption)
                                 .foregroundColor(.errorRed)
-                            
+
                             Spacer()
                         }
                     }
                 }
                 .padding(.horizontal, Spacing.l)
-                
+
                 VStack(spacing: Spacing.m) {
                     if verificationState.isLoading {
-                        ProgressView()
-                            .tint(.primaryOrange)
-                            .frame(height: 60)
+                        RotatingArc()
+                                .frame(height: 60)
                     } else {
                         PrimaryButton(
                             title: "Send Verification Code",
@@ -188,25 +209,27 @@ struct EnterEmailStep: View {
                                 withAnimation {
                                     verificationState.sendVerificationCode()
                                 }
-                            }, isEnabled: isValidEmail(verificationState.email)
+                            },
+                            isEnabled: isValidEmail(verificationState.email)
                         )
                     }
                 }
                 .padding(.horizontal, Spacing.l)
-                
-//                // Info box
-//                InfoBox(
-//                    icon: "info.circle.fill",
-//                    title: "Purchased a membership?",
-//                    message: "Use the same email address you used when purchasing through our online store."
-//                )
-//                .padding(.horizontal, Spacing.l)
-                
+
+                // Info box
+                InfoBox(
+                    icon: "info.circle.fill",
+                    title: "Purchased a membership?",
+                    message:
+                        "Use the same email address you used when purchasing through our online store."
+                )
+                .padding(.horizontal, Spacing.l)
+
                 Spacer()
             }
         }
     }
-    
+
     func isValidEmail(_ email: String) -> Bool {
         let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
         let emailPredicate = NSPredicate(format: "SELF MATCHES %@", emailRegex)
@@ -214,11 +237,13 @@ struct EnterEmailStep: View {
     }
 }
 
+
+
 // MARK: - Step 2: Enter Verification Code
 struct EnterCodeStep: View {
     @ObservedObject var verificationState: VerificationState
     @FocusState private var isCodeFieldFocused: Bool
-    
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: Spacing.xl) {
@@ -226,17 +251,17 @@ struct EnterCodeStep: View {
                     Image(systemName: "envelope.open.fill")
                         .font(.system(size: 60))
                         .foregroundColor(.primaryOrange)
-                    
+
                     Text("Check Your Email")
                         .font(.titleLarge)
                         .fontWeight(.bold)
                         .foregroundColor(.textPrimary)
-                    
+
                     VStack(spacing: Spacing.xs) {
                         Text("We sent a 6-digit code to")
                             .font(.bodyMedium)
                             .foregroundColor(.textSecondary)
-                        
+
                         Text(verificationState.email)
                             .font(.bodyMedium)
                             .fontWeight(.semibold)
@@ -246,35 +271,37 @@ struct EnterCodeStep: View {
                     .padding(.horizontal, Spacing.l)
                 }
                 .padding(.top, Spacing.xxxl)
-                
+
                 // Code input
                 VStack(spacing: Spacing.m) {
                     CodeInputField(code: $verificationState.verificationCode)
                         .focused($isCodeFieldFocused)
-                    
+
                     if let error = verificationState.errorMessage {
                         HStack {
                             Image(systemName: "exclamationmark.circle.fill")
                                 .foregroundColor(.errorRed)
-                            
+
                             Text(error)
                                 .font(.caption)
                                 .foregroundColor(.errorRed)
-                            
+
                             Spacer()
                         }
                     }
-                    
+
                     // Resend code
                     HStack {
                         Text("Didn't receive the code?")
                             .font(.bodySmall)
                             .foregroundColor(.textSecondary)
-                        
+
                         if verificationState.resendCooldown > 0 {
-                            Text("Resend in \(verificationState.resendCooldown)s")
-                                .font(.bodySmall)
-                                .foregroundColor(.textTertiary)
+                            Text(
+                                "Resend in \(verificationState.resendCooldown)s"
+                            )
+                            .font(.bodySmall)
+                            .foregroundColor(.textTertiary)
                         } else {
                             Button(action: {
                                 verificationState.resendCode()
@@ -288,12 +315,11 @@ struct EnterCodeStep: View {
                     }
                 }
                 .padding(.horizontal, Spacing.l)
-                
+
                 VStack(spacing: Spacing.m) {
                     if verificationState.isLoading {
-                        ProgressView()
-                            .tint(.primaryOrange)
-                            .frame(height: 60)
+                        RotatingArc()
+                                .frame(height: 60)
                     } else {
                         PrimaryButton(
                             title: "Verify Code",
@@ -301,20 +327,23 @@ struct EnterCodeStep: View {
                                 withAnimation {
                                     verificationState.verifyCode()
                                 }
-                            }, isEnabled: verificationState.verificationCode.count == 6
+                            },
+                            isEnabled: verificationState.verificationCode.count
+                                == 6
                         )
                     }
                 }
                 .padding(.horizontal, Spacing.l)
-                
+
                 // Info box
                 InfoBox(
                     icon: "clock.fill",
                     title: "Code expires soon",
-                    message: "This verification code will expire in 10 minutes. If it expires, you can request a new one."
+                    message:
+                        "This verification code will expire in 10 minutes. If it expires, you can request a new one."
                 )
                 .padding(.horizontal, Spacing.l)
-                
+
                 Spacer()
             }
         }
@@ -330,12 +359,13 @@ struct SetPasswordStep: View {
     @ObservedObject var authManager: AuthenticationManager
     @State private var showPassword: Bool = false
     @State private var showConfirmPassword: Bool = false
-    
+
     var isValidPassword: Bool {
-        verificationState.newPassword.count >= 8 &&
-        verificationState.newPassword == verificationState.confirmPassword
+        verificationState.newPassword.count >= 8
+            && verificationState.newPassword
+                == verificationState.confirmPassword
     }
-    
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: Spacing.xl) {
@@ -343,12 +373,12 @@ struct SetPasswordStep: View {
                     Image(systemName: "lock.shield.fill")
                         .font(.system(size: 60))
                         .foregroundColor(.primaryOrange)
-                    
+
                     Text("Set Your Password")
                         .font(.titleLarge)
                         .fontWeight(.bold)
                         .foregroundColor(.textPrimary)
-                    
+
                     Text("Create a secure password for your account")
                         .font(.bodyMedium)
                         .foregroundColor(.textSecondary)
@@ -356,64 +386,67 @@ struct SetPasswordStep: View {
                         .padding(.horizontal, Spacing.l)
                 }
                 .padding(.top, Spacing.xxxl)
-                
+
                 VStack(spacing: Spacing.m) {
                     CustomSecureField(
                         placeholder: "New Password (min 8 characters)",
                         text: $verificationState.newPassword,
                         icon: "lock.fill"
-                        
+
                     )
-                    
-                    
-                    
+
                     CustomSecureField(
                         placeholder: "Confirm Password",
                         text: $verificationState.confirmPassword,
                         icon: "lock.fill"
-                        
+
                     )
-                    
-                    if !verificationState.confirmPassword.isEmpty &&
-                       verificationState.newPassword != verificationState.confirmPassword {
+
+                    if !verificationState.confirmPassword.isEmpty
+                        && verificationState.newPassword
+                            != verificationState.confirmPassword
+                    {
                         HStack {
                             Image(systemName: "xmark.circle.fill")
                                 .foregroundColor(.errorRed)
-                            
+
                             Text("Passwords do not match")
                                 .font(.caption)
                                 .foregroundColor(.errorRed)
-                            
+
                             Spacer()
                         }
                     }
                 }
                 .padding(.horizontal, Spacing.l)
-                
+
                 VStack(spacing: Spacing.m) {
                     if verificationState.isLoading {
-                        ProgressView()
-                            .tint(.primaryOrange)
-                            .frame(height: 60)
+                        RotatingArc()
+                                .frame(height: 60)
                     } else {
                         PrimaryButton(
-                            title: "Complete Setup", 
+                            title: "Complete Setup",
                             action: {
-                                verificationState.setPassword(authManager: authManager)
-                            }, isEnabled: isValidPassword
+                                verificationState.setPassword(
+                                    authManager: authManager
+                                )
+                            },
+                            isEnabled: isValidPassword
                         )
                     }
                 }
                 .padding(.horizontal, Spacing.l)
-                
+
                 // Info box
                 InfoBox(
                     icon: "checkmark.shield.fill",
                     title: "Password requirements",
-                    message: "Your password must be at least 8 characters long. For better security, use a mix of letters, numbers, and symbols."
+                    message:
+                        "Your password must be at least 8 characters long. For better security, use a mix of letters, numbers, and symbols."
                 )
                 .padding(.horizontal, Spacing.l)
-                
+
                 Spacer()
             }
         }
@@ -424,11 +457,14 @@ struct SetPasswordStep: View {
 struct CodeInputField: View {
     @Binding var code: String
     @FocusState private var isFocused: Bool
-    
+
     var body: some View {
         HStack(spacing: Spacing.m) {
             ForEach(0..<6, id: \.self) { index in
-                CodeDigitBox(digit: getDigit(at: index), isActive: code.count == index)
+                CodeDigitBox(
+                    digit: getDigit(at: index),
+                    isActive: code.count == index
+                )
             }
         }
         .background(
@@ -449,7 +485,7 @@ struct CodeInputField: View {
             isFocused = true
         }
     }
-    
+
     func getDigit(at index: Int) -> String {
         guard index < code.count else { return "" }
         return String(code[code.index(code.startIndex, offsetBy: index)])
@@ -459,7 +495,7 @@ struct CodeInputField: View {
 //struct CodeDigitBox: View {
 //    let digit: String
 //    let isActive: Bool
-//    
+//
 //    var body: some View {
 //        ZStack {
 //            RoundedRectangle(cornerRadius: CornerRadius.medium)
@@ -472,12 +508,12 @@ struct CodeInputField: View {
 //                        .fill(Color.cardBackground)
 //                )
 //                .frame(width: 45, height: 55)
-//            
+//
 //            Text(digit)
 //                .font(.titleMedium)
 //                .fontWeight(.bold)
 //                .foregroundColor(.textPrimary)
-//            
+//
 //            // Blinking cursor
 //            if isActive && digit.isEmpty {
 //                Rectangle()
@@ -494,19 +530,19 @@ struct InfoBox: View {
     let icon: String
     let title: String
     let message: String
-    
+
     var body: some View {
         HStack(alignment: .top, spacing: Spacing.m) {
             Image(systemName: icon)
                 .font(.system(size: 20))
                 .foregroundColor(.infoBlue)
-            
+
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.bodySmall)
                     .fontWeight(.semibold)
                     .foregroundColor(.textPrimary)
-                
+
                 Text(message)
                     .font(.caption)
                     .foregroundColor(.textSecondary)

@@ -12,6 +12,8 @@ struct AccountInfoStep: View {
     
     @State private var confirmPassword = ""
     
+    
+    
     var passwordsMatch: Bool {
         !confirmPassword.isEmpty && profile.password == confirmPassword
     }
@@ -21,8 +23,11 @@ struct AccountInfoStep: View {
     }
     
     var body: some View {
+        
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.xl) {
+                
+                
                 
                 // Header
                 VStack(alignment: .leading, spacing: Spacing.s) {
@@ -139,21 +144,22 @@ struct AccountInfoStep: View {
                                 }
                             }
                             
-                            VStack(alignment: .leading, spacing: 4) {
+                            VStack(alignment: .center, spacing: 4) {
                                 Text("I agree to the Terms of Service and Privacy Policy")
                                     .font(.bodyMedium)
                                     .foregroundColor(.textPrimary)
                                     .fixedSize(horizontal: false, vertical: true)
+                                    .padding(.bottom,6)
                                 
                                 HStack(spacing: Spacing.m) {
                                     Button("Terms of Service") {
-                                        // TODO: Open terms
+                                        
                                     }
                                     .font(.caption)
                                     .foregroundColor(.primaryOrange)
                                     
                                     Button("Privacy Policy") {
-                                        // TODO: Open privacy
+                                        
                                     }
                                     .font(.caption)
                                     .foregroundColor(.primaryOrange)
@@ -165,6 +171,7 @@ struct AccountInfoStep: View {
                 .padding(.horizontal, Spacing.l)
             }
             .padding(.bottom, Spacing.xxxl)
+            .background(Color.black)
         }
     }
     

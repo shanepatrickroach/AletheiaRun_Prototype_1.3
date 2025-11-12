@@ -21,9 +21,7 @@ struct PostRunNotesView: View {
         VStack(spacing: Spacing.m) {
             // Header with edit button
             HStack {
-                Text("Post-Run Survey")
-                    .font(.headline)
-                    .foregroundColor(.textPrimary)
+                
                 
                 Spacer()
                 

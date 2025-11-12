@@ -36,9 +36,9 @@ struct PersonalInfoStep: View {
                         .foregroundColor(.textPrimary)
                     
                     CustomTextField(
-                        placeholder: "person",
+                        placeholder: "First Name",
                         text: $profile.firstName,
-                        icon: "envelope"
+                        icon: "person"
                     )
                     .textInputAutocapitalization(.words)
                 }
@@ -53,7 +53,7 @@ struct PersonalInfoStep: View {
                     CustomTextField(
                         placeholder: "Last Name",
                         text: $profile.lastName,
-                        icon: "person.fill"
+                        icon: "person"
                     )
                     .textInputAutocapitalization(.words)
                 }
@@ -76,6 +76,7 @@ struct PersonalInfoStep: View {
                     .padding(Spacing.m)
                     .background(Color.cardBackground)
                     .cornerRadius(CornerRadius.medium)
+                    .preferredColorScheme(.dark)
                 }
                 .padding(.horizontal, Spacing.l)
                 
@@ -110,6 +111,7 @@ struct PersonalInfoStep: View {
             }
             .padding(.bottom, Spacing.xxxl)
         }
+        .background(Color.black)
         .sheet(isPresented: $showingCountryPicker) {
             CountryPickerView(selectedCountry: $profile.country)
         }

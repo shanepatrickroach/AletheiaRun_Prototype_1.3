@@ -34,7 +34,7 @@ enum RunGoal: String, CaseIterable, Codable, Hashable, Identifiable {
         case .preventInjuries:
             return "Stay healthy and run injury-free"
         case .understandForm:
-            return "Analyze and improve running mechanics"
+            return "Understand running mechanics"
         case .returnFromInjury:
             return "Safely return to running after injury"
         case .coachOthers:

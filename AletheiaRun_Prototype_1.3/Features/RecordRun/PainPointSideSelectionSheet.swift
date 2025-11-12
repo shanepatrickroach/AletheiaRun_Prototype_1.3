@@ -51,10 +51,11 @@ struct PainPointSideSelectionSheet: View {
             ZStack {
                 Circle()
                     .fill(painPoint.color.opacity(0.2))
-                    .frame(width: 80, height: 80)
+                    .frame(width: 200, height: 200)
                 
-                Image(systemName: painPoint.bodyIcon)
-                    .font(.system(size: 40))
+                Image(painPoint.bodyIcon)
+                    .resizable()
+                    .frame(width: 200, height: 200)
                     .foregroundColor(painPoint.color)
             }
             
@@ -77,16 +78,36 @@ struct PainPointSideSelectionSheet: View {
                     dismiss()
                 }) {
                     HStack(spacing: Spacing.m) {
-                        // Icon
-                        ZStack {
-                            RoundedRectangle(cornerRadius: CornerRadius.medium)
-                                .fill(side.color.opacity(0.2))
-                                .frame(width: 50, height: 50)
-                            
-                            Image(systemName: side.icon)
-                                .font(.system(size: 24))
-                                .foregroundColor(side.color)
+                        
+                        if side == .both {
+                            // Icon
+                            ZStack {
+                                RoundedRectangle(cornerRadius: CornerRadius.medium)
+                                    .fill(side.color.opacity(0.2))
+                                    .frame(width: 50, height: 50)
+                                
+                                
+                                    Text("L R")
+                                        .backgroundStyle(.white)
+                                        .padding(5)
+                                        .foregroundColor(.white.opacity(0.8))
+                                
+                                
+                            }
+                        } else {
+                            // Icon
+                            ZStack {
+                                RoundedRectangle(cornerRadius: CornerRadius.medium)
+                                    .fill(side.color.opacity(0.2))
+                                    .frame(width: 50, height: 50)
+                                
+                                Text(String(side.rawValue.prefix(1)).uppercased())
+                                    .backgroundStyle(.white)
+                                    .padding(5)
+                                    .foregroundColor(.white.opacity(0.8))
+                            }
                         }
+                        
                         
                         // Text
                         VStack(alignment: .leading, spacing: 4) {
@@ -111,7 +132,7 @@ struct PainPointSideSelectionSheet: View {
                     .cornerRadius(CornerRadius.large)
                     .overlay(
                         RoundedRectangle(cornerRadius: CornerRadius.large)
-                            .stroke(side.color.opacity(0.3), lineWidth: 1)
+                            .stroke(side.gradient.opacity(0.5), lineWidth: 1)
                     )
                 }
                 .buttonStyle(PlainButtonStyle())

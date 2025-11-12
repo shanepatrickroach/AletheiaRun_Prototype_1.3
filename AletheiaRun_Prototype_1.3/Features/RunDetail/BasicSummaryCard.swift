@@ -160,7 +160,8 @@ struct OverviewSummaryCard: View {
                             Text("\(run.metrics.overallScore)")
                                 .font(.titleLarge)
                                 .foregroundColor(
-                                    scoreColor(run.metrics.overallScore))
+                                    scoreColor(run.metrics.overallScore)
+                                )
 
                             Text("Overall")
                                 .font(.caption)
@@ -177,45 +178,47 @@ struct OverviewSummaryCard: View {
                 }
                 .padding(Spacing.m)
             }
+            Spacer()
+            // Run Stats
+            HStack(spacing: Spacing.xl) {
+                RunSummaryStatItem(
+                    icon: "figure.run",
+                    value: String(format: "%.2f", run.distance),
+                    label: "Distance",
+                    unit: "mi"
+                )
+
+                RunSummaryStatItem(
+                    icon: "timer",
+                    value: formatDuration(run.duration),
+                    label: "Duration",
+                    unit: ""
+                )
+
+                RunSummaryStatItem(
+                    icon: "speedometer",
+                    value: formatPace(run.distance, run.duration),
+                    label: "Pace",
+                    unit: "/mi"
+                )
+            }
+            .padding(.horizontal, Spacing.m)
+
+            Spacer()
+            Spacer()
 
             // Expanded Content
             if isExpanded {
                 VStack(spacing: Spacing.m) {
-                    Divider()
-                        .background(Color.cardBorder)
-
-                    // Run Stats
-                    HStack(spacing: Spacing.xl) {
-                        RunSummaryStatItem(
-                            icon: "figure.run",
-                            value: String(format: "%.2f", run.distance),
-                            label: "Distance",
-                            unit: "mi"
-                        )
-
-                        RunSummaryStatItem(
-                            icon: "timer",
-                            value: formatDuration(run.duration),
-                            label: "Duration",
-                            unit: ""
-                        )
-
-                        RunSummaryStatItem(
-                            icon: "speedometer",
-                            value: formatPace(run.distance, run.duration),
-                            label: "Pace",
-                            unit: "/mi"
-                        )
-                    }
-                    .padding(.horizontal, Spacing.m)
-
+                    
+                    
                     Divider()
                         .background(Color.cardBorder)
 
                     // Performance Metrics Section
                     VStack(alignment: .leading, spacing: Spacing.s) {
                         HStack {
-                            Image(systemName: "chart.bar.fill")
+                            Image(systemName: Icon.performanceIcon)
                                 .foregroundColor(.primaryOrange)
 
                             Text("Average Performance Metrics")
@@ -230,25 +233,38 @@ struct OverviewSummaryCard: View {
                             MetricProgressRow(
                                 name: "Efficiency",
                                 value: run.metrics.efficiency,
-                                color: .efficiencyColor)
+                                color: .efficiencyColor
+                            )
                             MetricProgressRow(
-                                name: "Braking", value: run.metrics.braking,
-                                color: .brakingColor)
+                                name: "Braking",
+                                value: run.metrics.braking,
+                                color: .brakingColor
+                            )
                             MetricProgressRow(
-                                name: "Impact", value: run.metrics.impact,
-                                color: .impactColor)
+                                name: "Impact",
+                                value: run.metrics.impact,
+                                color: .impactColor
+                            )
                             MetricProgressRow(
-                                name: "Sway", value: run.metrics.sway,
-                                color: .swayColor)
+                                name: "Sway",
+                                value: run.metrics.sway,
+                                color: .swayColor
+                            )
                             MetricProgressRow(
-                                name: "Variation", value: run.metrics.variation,
-                                color: .variationColor)
+                                name: "Variation",
+                                value: run.metrics.variation,
+                                color: .variationColor
+                            )
                             MetricProgressRow(
-                                name: "Warmup", value: run.metrics.warmup,
-                                color: .warmupColor)
+                                name: "Warmup",
+                                value: run.metrics.warmup,
+                                color: .warmupColor
+                            )
                             MetricProgressRow(
-                                name: "Endurance", value: run.metrics.endurance,
-                                color: .enduranceColor)
+                                name: "Endurance",
+                                value: run.metrics.endurance,
+                                color: .enduranceColor
+                            )
                         }
                         .padding(.horizontal, Spacing.m)
                     }
@@ -308,18 +324,18 @@ private var injuryMetricsSection: some View {
     VStack(alignment: .leading, spacing: Spacing.m) {
         // Section header
         HStack {
-            Image(systemName: "cross.case.fill")
+            Image(systemName: Icon.injuryDiagnosisticsIcon)
                 .foregroundColor(.primaryOrange)
 
-            Text("Injury Diagnostics")
+            Text("Average Injury Diagnostics")
                 .font(.bodyMedium)
                 .foregroundColor(.textPrimary)
                 .fontWeight(.semibold)
 
             Spacer()
 
-            // Risk level badge (computed from average injury metrics)
-            RiskLevelBadge(riskLevel: computedRiskLevel)
+//            // Risk level badge (computed from average injury metrics)
+//            RiskLevelBadge(riskLevel: computedRiskLevel)
         }
         .padding(.horizontal, Spacing.m)
 
@@ -341,11 +357,11 @@ private var injuryMetricsSection: some View {
         )
         .padding(.horizontal, Spacing.m)
 
-        // Asymmetry warning if needed
-        if hasSignificantAsymmetry {
-            AsymmetryWarningBanner()
-                .padding(.horizontal, Spacing.m)
-        }
+//        // Asymmetry warning if needed
+//        if hasSignificantAsymmetry {
+//            AsymmetryWarningBanner()
+//                .padding(.horizontal, Spacing.m)
+//        }
     }
 }
 
@@ -438,6 +454,36 @@ struct LateralMetricComparison: View {
     private var asymmetryPercent: Int {
         abs(leftValue - rightValue)
     }
+    
+    private var dominantSide: String {
+        if leftValue > rightValue {
+            return "Left stronger by \(difference)%"
+        } else if rightValue > leftValue {
+            return "Right stronger by \(difference)%"
+        } else {
+            return "Balanced"
+        }
+    }
+    
+    private var difference: Int {
+        abs(leftValue - rightValue)
+    }
+    
+    private var strongerSide: LegSide? {
+        if leftValue > rightValue { return .left }
+        if rightValue > leftValue { return .right }
+        return nil
+    }
+    
+    private var differenceColor: Color {
+        if difference <= 5 {
+            return .successGreen
+        } else if difference <= 10 {
+            return .warningYellow
+        } else {
+            return .errorRed
+        }
+    }
 
     var body: some View {
         VStack(spacing: Spacing.s) {
@@ -449,106 +495,91 @@ struct LateralMetricComparison: View {
 
                 Spacer()
 
-                // Asymmetry indicator
-                if asymmetryPercent > 5 {
-                    HStack(spacing: 4) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .font(.system(size: 10))
-                        Text("\(asymmetryPercent)% diff")
-                            .font(.system(size: 10))
-                    }
-                    .foregroundColor(
-                        asymmetryPercent > 10 ? .errorRed : .warningYellow
-                    )
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(
-                        (asymmetryPercent > 10
-                            ? Color.errorRed : Color.warningYellow)
-                            .opacity(0.15)
-                    )
-                    .cornerRadius(4)
-                }
+                Text(dominantSide)
+                    .font(.bodySmall)
+                    .foregroundColor(differenceColor)
+                    .fontWeight(.medium)
             }
 
             // Left vs Right comparison bars
-            HStack(spacing: Spacing.xs) {
+            VStack(spacing: Spacing.m) {
                 // Left side
-                HStack(spacing: Spacing.xs) {
-                    Text("L")
-                        .font(.caption)
-                        .foregroundColor(.leftSide)
-                        .fontWeight(.semibold)
-                        .frame(width: 20)
+                VStack(alignment: .leading, spacing: Spacing.s) {
+                    HStack {
+                        Image(systemName: LegSide.left.icon)
+                            .font(.caption)
+                            .foregroundColor(Color.leftSide)
+                        Text("Left")
+                            .font(.caption)
+                            .foregroundColor(.textSecondary)
+                        
+                        Spacer()
+                        
+                        Text("\(leftValue)")
+                            .font(.bodySmall)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.textPrimary)
+                    }
 
+                    // Progress Bar
                     GeometryReader { geometry in
-                        HStack(spacing: 0) {
-                            Spacer()
+                        ZStack(alignment: .leading) {
+                            // Background
                             RoundedRectangle(cornerRadius: 2)
-                                .fill(
-                                    LinearGradient(
-                                        colors: [
-                                            Color.leftSide.opacity(0.3),
-                                            Color.leftSide,
-                                        ],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                )
+                                .fill(Color.cardBorder)
+                                .frame(height: 8)
+
+                            // Progress
+                            RoundedRectangle(cornerRadius: 2)
+                                .fill(scoreColor(leftValue))
                                 .frame(
-                                    width: geometry.size.width
-                                        * CGFloat(leftValue) / 100)
+                                    width: geometry.size.width * CGFloat(leftValue) / 100,
+                                    height: 8)
                         }
                     }
                     .frame(height: 8)
 
-                    Text("\(leftValue)")
-                        .font(.bodySmall)
-                        .foregroundColor(.textPrimary)
-                        .fontWeight(.semibold)
-                        .frame(width: 30)
                 }
 
-                // Center divider
-                Rectangle()
-                    .fill(Color.cardBorder)
-                    .frame(width: 2, height: 24)
-
-                // Right side
-                HStack(spacing: Spacing.xs) {
-                    Text("\(rightValue)")
-                        .font(.bodySmall)
-                        .foregroundColor(.textPrimary)
-                        .fontWeight(.semibold)
-                        .frame(width: 30)
-
+                
+                // Right Leg
+                VStack(alignment: .leading, spacing: Spacing.s) {
+                    HStack {
+                        Image(systemName: LegSide.right.icon)
+                            .font(.caption)
+                            .foregroundColor(Color.rightSide)
+                        Text("Right")
+                            .font(.caption)
+                            .foregroundColor(.textSecondary)
+                        
+                        Spacer()
+                        
+                        Text("\(rightValue)")
+                            .font(.bodySmall)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.textPrimary)
+                    }
+                    
+                    
+                    // Progress Bar
                     GeometryReader { geometry in
-                        HStack(spacing: 0) {
+                        ZStack(alignment: .leading) {
+                            // Background
                             RoundedRectangle(cornerRadius: 2)
-                                .fill(
-                                    LinearGradient(
-                                        colors: [
-                                            Color.rightSide,
-                                            Color.rightSide.opacity(0.3),
-                                        ],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                )
+                                .fill(Color.cardBorder)
+                                .frame(height: 8)
+
+                            // Progress
+                            RoundedRectangle(cornerRadius: 2)
+                                .fill(scoreColor(rightValue))
                                 .frame(
-                                    width: geometry.size.width
-                                        * CGFloat(rightValue) / 100)
-                            Spacer()
+                                    width: geometry.size.width * CGFloat(rightValue) / 100,
+                                    height: 8)
                         }
                     }
                     .frame(height: 8)
-
-                    Text("R")
-                        .font(.caption)
-                        .foregroundColor(.rightSide)
-                        .fontWeight(.semibold)
-                        .frame(width: 20)
                 }
+                
             }
         }
     }
@@ -683,6 +714,70 @@ struct TrainingPlanSummaryCard: View {
                     .stroke(Color.cardBorder, lineWidth: 1)
             )
 
+    }
+}
+
+struct MapViewSummaryCard: View {
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: Spacing.xs) {
+                Text("Map View")
+                    .font(.headline)
+                    .foregroundColor(.textPrimary)
+
+                HStack(spacing: Spacing.m) {
+                    HStack(spacing: Spacing.xs) {
+
+                        Text(
+                            "View your path from a map view with snapshop seperation."
+                        )
+                        .font(.bodySmall)
+                    }
+                    .foregroundColor(.textSecondary)
+
+                }
+            }
+
+            Spacer()
+        }.padding(Spacing.m)
+            .background(Color.cardBackground)
+            .cornerRadius(CornerRadius.medium)
+            .overlay(
+                RoundedRectangle(cornerRadius: CornerRadius.medium)
+                    .stroke(Color.cardBorder, lineWidth: 1)
+            )
+    }
+}
+
+struct PostRunSurveySummaryCard: View {
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: Spacing.xs) {
+                Text("Post Run Survey")
+                    .font(.headline)
+                    .foregroundColor(.textPrimary)
+
+                HStack(spacing: Spacing.m) {
+                    HStack(spacing: Spacing.xs) {
+
+                        Text(
+                            "View your observations from your completed post run survey."
+                        )
+                        .font(.bodySmall)
+                    }
+                    .foregroundColor(.textSecondary)
+
+                }
+            }
+
+            Spacer()
+        }.padding(Spacing.m)
+            .background(Color.cardBackground)
+            .cornerRadius(CornerRadius.medium)
+            .overlay(
+                RoundedRectangle(cornerRadius: CornerRadius.medium)
+                    .stroke(Color.cardBorder, lineWidth: 1)
+            )
     }
 }
 
@@ -867,7 +962,7 @@ struct MetricProgressRow: View {
 
                     // Progress with metric-specific color
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(color.opacity(0.8))
+                        .fill(scoreColor.opacity(0.8))
                         .frame(
                             width: geometry.size.width * CGFloat(value) / 100,
                             height: 4

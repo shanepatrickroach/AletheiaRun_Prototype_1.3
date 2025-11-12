@@ -43,9 +43,8 @@ struct ProgressView: View {
                     }
                     .tabViewStyle(.page(indexDisplayMode: .never))
                 }
+              
             }
-            .navigationTitle("Progress")
-            .navigationBarTitleDisplayMode(.large)
             .environmentObject(gamificationManager)
         }
         .sheet(isPresented: $gamificationManager.showAchievementUnlock) {

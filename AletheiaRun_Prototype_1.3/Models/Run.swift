@@ -240,9 +240,9 @@ enum PerspectiveType: String, Codable, CaseIterable, Identifiable {
 
     var icon: String {
         switch self {
-        case .top: return "arrow.up.circle.fill"
-        case .side: return "arrow.left.and.right.circle.fill"
-        case .rear: return "arrow.down.circle.fill"
+        case .top: return Icon.topViewIcon
+        case .side: return Icon.sideViewIcon
+        case .rear: return Icon.rearViewIcon
         }
     }
 

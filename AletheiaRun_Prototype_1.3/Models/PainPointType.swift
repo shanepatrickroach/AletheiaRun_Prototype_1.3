@@ -13,15 +13,33 @@ enum PainPointSide: String, Codable, CaseIterable {
         switch self {
         case .left: return "l.square.fill"
         case .right: return "r.square.fill"
-        case .both: return "lr.square.fill"
+        case .both: return "arrowshape.left.arrowshape.right.fill"
         }
     }
 
     var color: Color {
         switch self {
-        case .left: return .infoBlue
-        case .right: return .warningYellow
-        case .both: return .errorRed
+        case .left: return .leftSide
+        case .right: return .rightSide
+        case .both: return .primaryOrange  // Fallback
+        }
+    }
+
+    var gradient: LinearGradient {
+        switch self {
+        case .left:
+            return LinearGradient(
+                colors: [.leftSide],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        case .right:
+            return LinearGradient(
+                colors: [.rightSide],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        case .both: return LinearGradient.bothSides
         }
     }
 }
@@ -180,17 +198,17 @@ enum PainPointType: String, CaseIterable, Identifiable, Hashable, Codable {
 
     var bodyIcon: String {
         switch self {
-        case .patelloFemoral: return "figure.walk"
-        case .patellaTendonitis: return "figure.walk"
-        case .itBand: return "figure.walk"
-        case .hipBursitis: return "figure.stand"
-        case .lowBack: return "figure.stand.line.dotted.figure.stand"
-        case .achilles: return "figure.walk.motion"
-        case .plantarFasciitis: return "shoe.fill"
-        case .anteriorShinSplints: return "figure.run"
-        case .posteriorShinSplints: return "figure.run"
-        case .stressFracture: return "cross.case.fill"
-        case .hamstring: return "figure.strengthtraining.traditional"
+        case .patelloFemoral: return "Icon-Patella"
+        case .patellaTendonitis: return "Icon-Patella"
+        case .itBand: return "Icon-ITBand"
+        case .hipBursitis: return "Icon-HipBursitis"
+        case .lowBack: return "Icon-LowerBack"
+        case .achilles: return "Icon-Achilles"
+        case .plantarFasciitis: return "Icon-Plantar"
+        case .anteriorShinSplints: return "Icon-Anterior"
+        case .posteriorShinSplints: return "Icon-Posterior"
+        case .stressFracture: return "Icon-Patella"
+        case .hamstring: return "Icon-Hamstring"
         }
     }
 
@@ -321,69 +339,84 @@ enum PainPointType: String, CaseIterable, Identifiable, Hashable, Codable {
                 Treatment(
                     icon: "pause.circle.fill",
                     text: "Rest and reduce running intensity",
-                    color: .warningYellow),
+                    color: .warningYellow
+                ),
                 Treatment(
                     icon: "snowflake",
                     text: "Ice after running to reduce inflammation",
-                    color: .infoBlue),
+                    color: .infoBlue
+                ),
                 Treatment(
                     icon: "figure.strengthtraining.traditional",
                     text: "Strengthen quadriceps and hip muscles",
-                    color: .successGreen),
+                    color: .successGreen
+                ),
                 Treatment(
                     icon: "figure.flexibility",
                     text: "Stretch hamstrings and IT band",
-                    color: .primaryOrange),
+                    color: .primaryOrange
+                ),
                 Treatment(
                     icon: "stethoscope",
                     text: "Consider physical therapy for persistent pain",
-                    color: .errorRed),
+                    color: .errorRed
+                ),
             ]
-        case.patellaTendonitis:
+        case .patellaTendonitis:
             return [
                 Treatment(
                     icon: "pause.circle.fill",
                     text: "Rest and reduce running intensity",
-                    color: .warningYellow),
+                    color: .warningYellow
+                ),
                 Treatment(
                     icon: "snowflake",
                     text: "Ice after running to reduce inflammation",
-                    color: .infoBlue),
+                    color: .infoBlue
+                ),
                 Treatment(
                     icon: "figure.strengthtraining.traditional",
                     text: "Strengthen quadriceps and hip muscles",
-                    color: .successGreen),
+                    color: .successGreen
+                ),
                 Treatment(
                     icon: "figure.flexibility",
                     text: "Stretch hamstrings and IT band",
-                    color: .primaryOrange),
+                    color: .primaryOrange
+                ),
                 Treatment(
                     icon: "stethoscope",
                     text: "Consider physical therapy for persistent pain",
-                    color: .errorRed),
+                    color: .errorRed
+                ),
             ]
         case .itBand:
             return [
                 Treatment(
                     icon: "pause.circle.fill",
                     text: "Reduce mileage and avoid hills",
-                    color: .warningYellow),
+                    color: .warningYellow
+                ),
                 Treatment(
                     icon: "figure.roll.runningpace",
                     text: "Foam roll the IT band and outer thigh",
-                    color: .successGreen),
+                    color: .successGreen
+                ),
                 Treatment(
                     icon: "figure.strengthtraining.traditional",
                     text: "Strengthen hip abductor muscles",
-                    color: .primaryOrange),
+                    color: .primaryOrange
+                ),
                 Treatment(
                     icon: "figure.walk",
                     text: "Modify running form to reduce impact",
-                    color: .infoBlue),
+                    color: .infoBlue
+                ),
                 Treatment(
                     icon: "stethoscope",
                     text: "Seek professional help if pain persists",
-                    color: .errorRed),
+                    color: .errorRed
+                ),
             ]
 
         case .hipBursitis:
@@ -391,44 +424,57 @@ enum PainPointType: String, CaseIterable, Identifiable, Hashable, Codable {
                 Treatment(
                     icon: "pause.circle.fill",
                     text: "Rest and avoid aggravating activities",
-                    color: .warningYellow),
+                    color: .warningYellow
+                ),
                 Treatment(
-                    icon: "snowflake", text: "Apply ice to reduce inflammation",
-                    color: .infoBlue),
+                    icon: "snowflake",
+                    text: "Apply ice to reduce inflammation",
+                    color: .infoBlue
+                ),
                 Treatment(
                     icon: "figure.strengthtraining.traditional",
                     text: "Strengthen hip and glute muscles",
-                    color: .successGreen),
+                    color: .successGreen
+                ),
                 Treatment(
                     icon: "bed.double.fill",
                     text: "Avoid lying on the affected side",
-                    color: .primaryOrange),
+                    color: .primaryOrange
+                ),
                 Treatment(
                     icon: "stethoscope",
                     text: "Consult a doctor for persistent symptoms",
-                    color: .errorRed),
+                    color: .errorRed
+                ),
             ]
 
         case .lowBack:
             return [
                 Treatment(
                     icon: "figure.core.training",
-                    text: "Strengthen core muscles", color: .successGreen),
+                    text: "Strengthen core muscles",
+                    color: .successGreen
+                ),
                 Treatment(
                     icon: "figure.flexibility",
                     text: "Stretch hip flexors and hamstrings",
-                    color: .primaryOrange),
+                    color: .primaryOrange
+                ),
                 Treatment(
                     icon: "figure.walk",
-                    text: "Focus on proper running posture", color: .infoBlue),
+                    text: "Focus on proper running posture",
+                    color: .infoBlue
+                ),
                 Treatment(
                     icon: "pause.circle.fill",
                     text: "Reduce training intensity if needed",
-                    color: .warningYellow),
+                    color: .warningYellow
+                ),
                 Treatment(
                     icon: "stethoscope",
                     text: "See a healthcare provider for severe pain",
-                    color: .errorRed),
+                    color: .errorRed
+                ),
             ]
 
         case .achilles:
@@ -436,44 +482,57 @@ enum PainPointType: String, CaseIterable, Identifiable, Hashable, Codable {
                 Treatment(
                     icon: "pause.circle.fill",
                     text: "Rest and reduce running volume",
-                    color: .warningYellow),
+                    color: .warningYellow
+                ),
                 Treatment(
-                    icon: "snowflake", text: "Ice after activity",
-                    color: .infoBlue),
+                    icon: "snowflake",
+                    text: "Ice after activity",
+                    color: .infoBlue
+                ),
                 Treatment(
                     icon: "figure.flexibility",
                     text: "Stretch and strengthen calf muscles",
-                    color: .successGreen),
+                    color: .successGreen
+                ),
                 Treatment(
-                    icon: "shoe.fill", text: "Check running shoe support",
-                    color: .primaryOrange),
+                    icon: "shoe.fill",
+                    text: "Check running shoe support",
+                    color: .primaryOrange
+                ),
                 Treatment(
                     icon: "stethoscope",
-                    text: "Seek treatment for persistent pain", color: .errorRed
+                    text: "Seek treatment for persistent pain",
+                    color: .errorRed
                 ),
             ]
 
         case .plantarFasciitis:
             return [
                 Treatment(
-                    icon: "snowflake", text: "Ice the bottom of your foot",
-                    color: .infoBlue),
+                    icon: "snowflake",
+                    text: "Ice the bottom of your foot",
+                    color: .infoBlue
+                ),
                 Treatment(
                     icon: "figure.flexibility",
                     text: "Stretch calves and plantar fascia",
-                    color: .successGreen),
+                    color: .successGreen
+                ),
                 Treatment(
                     icon: "circle.grid.cross.fill",
                     text: "Roll foot on a frozen water bottle",
-                    color: .primaryOrange),
+                    color: .primaryOrange
+                ),
                 Treatment(
                     icon: "shoe.fill",
                     text: "Ensure proper arch support in shoes",
-                    color: .warningYellow),
+                    color: .warningYellow
+                ),
                 Treatment(
                     icon: "stethoscope",
                     text: "Consider orthotics if pain continues",
-                    color: .errorRed),
+                    color: .errorRed
+                ),
             ]
 
         case .anteriorShinSplints, .posteriorShinSplints:
@@ -481,65 +540,86 @@ enum PainPointType: String, CaseIterable, Identifiable, Hashable, Codable {
                 Treatment(
                     icon: "pause.circle.fill",
                     text: "Rest and reduce impact activities",
-                    color: .warningYellow),
+                    color: .warningYellow
+                ),
                 Treatment(
-                    icon: "snowflake", text: "Ice after running",
-                    color: .infoBlue),
+                    icon: "snowflake",
+                    text: "Ice after running",
+                    color: .infoBlue
+                ),
                 Treatment(
                     icon: "figure.strengthtraining.traditional",
                     text: "Strengthen shin and calf muscles",
-                    color: .successGreen),
+                    color: .successGreen
+                ),
                 Treatment(
-                    icon: "shoe.fill", text: "Replace worn-out running shoes",
-                    color: .primaryOrange),
+                    icon: "shoe.fill",
+                    text: "Replace worn-out running shoes",
+                    color: .primaryOrange
+                ),
                 Treatment(
                     icon: "stethoscope",
-                    text: "Seek medical evaluation if severe", color: .errorRed),
+                    text: "Seek medical evaluation if severe",
+                    color: .errorRed
+                ),
             ]
 
         case .stressFracture:
             return [
                 Treatment(
                     icon: "exclamationmark.triangle.fill",
-                    text: "STOP running immediately", color: .errorRed),
+                    text: "STOP running immediately",
+                    color: .errorRed
+                ),
                 Treatment(
                     icon: "stethoscope",
-                    text: "See a doctor for proper diagnosis", color: .errorRed),
+                    text: "See a doctor for proper diagnosis",
+                    color: .errorRed
+                ),
                 Treatment(
                     icon: "pause.circle.fill",
                     text: "Complete rest from impact activities",
-                    color: .warningYellow),
+                    color: .warningYellow
+                ),
                 Treatment(
                     icon: "pill.fill",
                     text: "Ensure adequate calcium and vitamin D",
-                    color: .infoBlue),
+                    color: .infoBlue
+                ),
                 Treatment(
                     icon: "figure.walk",
                     text: "Follow medical advice for return to running",
-                    color: .successGreen),
+                    color: .successGreen
+                ),
             ]
 
         case .hamstring:
             return [
                 Treatment(
                     icon: "pause.circle.fill",
-                    text: "Rest immediately after injury", color: .warningYellow
+                    text: "Rest immediately after injury",
+                    color: .warningYellow
                 ),
                 Treatment(
-                    icon: "snowflake", text: "Ice in the first 48 hours",
-                    color: .infoBlue),
+                    icon: "snowflake",
+                    text: "Ice in the first 48 hours",
+                    color: .infoBlue
+                ),
                 Treatment(
                     icon: "figure.flexibility",
                     text: "Gentle stretching after initial healing",
-                    color: .successGreen),
+                    color: .successGreen
+                ),
                 Treatment(
                     icon: "figure.strengthtraining.traditional",
                     text: "Progressive strengthening exercises",
-                    color: .primaryOrange),
+                    color: .primaryOrange
+                ),
                 Treatment(
                     icon: "stethoscope",
                     text: "Physical therapy for severe strains",
-                    color: .errorRed),
+                    color: .errorRed
+                ),
             ]
         }
     }

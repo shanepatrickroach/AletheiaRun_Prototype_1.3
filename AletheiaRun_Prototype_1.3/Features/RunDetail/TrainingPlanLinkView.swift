@@ -73,7 +73,7 @@ struct TrainingPlanLinkView: View {
                 Image(systemName: "lightbulb.fill")
                     .foregroundColor(.infoBlue)
                 
-                Text("Your plan is generated based on your latest run metrics and evolves with your progress")
+                Text("Your plan is generated based on your latest run metrics.")
                     .font(.caption)
                     .foregroundColor(.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)

@@ -33,90 +33,99 @@ struct HomeView: View {
         NavigationStack {
             ZStack {
                 Color.backgroundBlack.ignoresSafeArea()
+                // MARK: - Header with Greeting
+                VStack(){
+                    headerSection
+                    
+                    ScrollView {
+                        VStack(spacing: Spacing.xxl) {
+                            //SubscriptionBanner()
 
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: Spacing.xxl) {
-                        //SubscriptionBanner()
+                            
 
-                        // MARK: - Header with Greeting
-                        headerSection
+                            // MARK: - Latest Force Portrait (3 Views)
+                            forcePortraitSection
 
-                        // MARK: - Latest Force Portrait (3 Views)
-                        forcePortraitSection
+                            trainingPlanSection
 
-                        trainingPlanSection
+                            // MARK: - Coach Mode Feature Card (NEW)
+                            coachModeFeatureCard
 
-                        // MARK: - Coach Mode Feature Card (NEW)
-                        coachModeFeatureCard
+                            // Recent Achievements (NEW)
+                            if !gamificationManager.unlockedAchievements.isEmpty {
+                                VStack(alignment: .leading, spacing: Spacing.m) {
+                                    HStack {
+                                        Text("Recent Achievements")
+                                            .font(.headline)
+                                            .foregroundColor(.textPrimary)
 
-                        // Recent Achievements (NEW)
-                        if !gamificationManager.unlockedAchievements.isEmpty {
-                            VStack(alignment: .leading, spacing: Spacing.m) {
-                                HStack {
-                                    Text("Recent Achievements")
-                                        .font(.headline)
-                                        .foregroundColor(.textPrimary)
+                                        Spacer()
 
-                                    Spacer()
-
-                                    NavigationLink(destination: ProgressView())
-                                    {
-                                        Text("See All")
-                                            .font(.bodySmall)
-                                            .foregroundColor(.primaryOrange)
-                                    }
-                                }
-                                .padding(.horizontal, Spacing.l)
-
-                                ScrollView(.horizontal, showsIndicators: false)
-                                {
-                                    HStack(spacing: Spacing.m) {
-                                        ForEach(
-                                            gamificationManager
-                                                .unlockedAchievements.prefix(5)
-                                        ) { achievement in
-                                            MiniAchievementCard(
-                                                achievement: achievement)
-                                        }.frame(maxWidth: .infinity, maxHeight: .infinity) // expand equally
+                                        NavigationLink(destination: ProgressView())
+                                        {
+                                            Text("See All")
+                                                .font(.bodySmall)
+                                                .foregroundColor(.primaryOrange)
+                                        }
                                     }
                                     .padding(.horizontal, Spacing.l)
-                                    .frame(maxWidth: .infinity, alignment: .top)
-                                }
-                            }
-                        }
 
-                        // Active Challenge (NEW)
-                        if let challenge = gamificationManager.activeChallenges
-                            .first
-                        {
-                            VStack(alignment: .leading, spacing: Spacing.m) {
-                                HStack {
-                                    Text("Active Challenge")
-                                        .font(.headline)
-                                        .foregroundColor(.textPrimary)
-
-                                    Spacer()
-
-                                    NavigationLink(destination: ProgressView())
+                                    ScrollView(.horizontal, showsIndicators: false)
                                     {
-                                        Text("View All")
-                                            .font(.bodySmall)
-                                            .foregroundColor(.primaryOrange)
+                                        HStack(spacing: Spacing.m) {
+                                            ForEach(
+                                                gamificationManager
+                                                    .unlockedAchievements.prefix(5)
+                                            ) { achievement in
+                                                MiniAchievementCard(
+                                                    achievement: achievement
+                                                )
+                                            }.frame(
+                                                maxWidth: .infinity,
+                                                maxHeight: .infinity
+                                            )  // expand equally
+                                        }
+                                        .padding(.horizontal, Spacing.l)
+                                        .frame(maxWidth: .infinity, alignment: .top)
                                     }
                                 }
-                                .padding(.horizontal, Spacing.l)
-
-                                ChallengeCard(challenge: challenge)
-                                    .padding(.horizontal, Spacing.l)
                             }
-                        }
 
-                        // MARK: - Tip of the Week
-                        tipOfTheWeekSection
+                            // Active Challenge (NEW)
+                            if let challenge = gamificationManager.activeChallenges
+                                .first
+                            {
+                                VStack(alignment: .leading, spacing: Spacing.m) {
+                                    HStack {
+                                        Text("Active Challenge")
+                                            .font(.headline)
+                                            .foregroundColor(.textPrimary)
+
+                                        Spacer()
+
+                                        NavigationLink(destination: ProgressView())
+                                        {
+                                            Text("View All")
+                                                .font(.bodySmall)
+                                                .foregroundColor(.primaryOrange)
+                                        }
+                                    }
+                                    .padding(.horizontal, Spacing.l)
+
+                                    ChallengeCard(challenge: challenge)
+                                        .padding(.horizontal, Spacing.l)
+                                }
+                            }
+
+                            // MARK: - Tip of the Week
+                            tipOfTheWeekSection
+                        }
+                        
+                        .padding(.top, 40)
+                        .padding(.bottom, 120)  // Extra space for tab bar
                     }
-                    .padding(.top, 40)
-                    .padding(.bottom, 120)  // Extra space for tab bar
                 }
+                
             }
 
         }
@@ -140,9 +149,11 @@ struct HomeView: View {
                     .font(.bodySmall)
                     .foregroundColor(.textSecondary)
             }
+            
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, Spacing.m)
+        .padding(.vertical, Spacing.m)
     }
 
     private var greeting: String {
@@ -512,14 +523,18 @@ struct HomeView: View {
                 }
                 .padding(Spacing.l)
             }
-            
+
             .cornerRadius(CornerRadius.large)
             .overlay(
                 RoundedRectangle(cornerRadius: CornerRadius.large)
                     .stroke(Color.primaryOrange.opacity(0.6), lineWidth: 2)
             )
             .shadow(
-                color: Color.primaryOrange.opacity(0.3), radius: 10, x: 0, y: 5)
+                color: Color.primaryOrange.opacity(0.3),
+                radius: 10,
+                x: 0,
+                y: 5
+            )
         }
         .buttonStyle(PlainButtonStyle())
         .padding(.horizontal, Spacing.m)

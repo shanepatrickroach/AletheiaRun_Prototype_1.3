@@ -10,6 +10,8 @@ struct RunDetailView: View {
     @State private var selectedTab: DetailTab = .overview
     @State private var snapshots: [RunSnapshot] = []
     @State private var isSummaryExpanded: Bool = false
+    @State private var showingShareSheet: Bool = false
+    
 
     // MARK: - Body
     var body: some View {
@@ -26,37 +28,37 @@ struct RunDetailView: View {
                 // Content based on selected tab
                 ScrollView {
                     VStack(spacing: Spacing.m) {
-                        // Run Summary Card at top
-                        //                        runSummaryCard
-
-//                        if selectedTab != .tech {
-//                            adaptiveSummaryCard
-//                        }
+                        
                         
                         adaptiveSummaryCard
 
                         // Tab Content
                         switch selectedTab {
-                        case .overview:  // CHANGED from .intervals
+                        case .overview:
                             OverviewContentView(snapshots: snapshots)
+                        case .trainingPlan:
+                            TrainingPlanLinkView()
+                        case .tech:
+                            TechModeView(snapshots: snapshots)
                         case .gaitCycle:
                             GaitCycleDetailView(
                                 snapshots: snapshots
                             )
-                        case .tech:
-                            TechModeView(snapshots: snapshots)
-                        case .trainingPlan:
-                            TrainingPlanLinkView()
                         case .notes:
                             PostRunNotesView(run: run)
                         case .map:
                             RouteMapView()
                         }
+                        
+                        
                     }
                     .padding(.horizontal, Spacing.m)
                     .padding(.bottom, Spacing.xxl)
                 }
             }
+        }
+        .sheet(isPresented: $showingShareSheet) {
+            RunShareSheet(run: run)
         }
         .navigationBarHidden(true)
         .onAppear {
@@ -72,33 +74,33 @@ struct RunDetailView: View {
             OverviewSummaryCard(
                 run: run,
                 isExpanded: $isSummaryExpanded
+                
             )
-
+        case .trainingPlan:
+            TrainingPlanSummaryCard(
+                run: run,
+                isExpanded: $isSummaryExpanded
+            )
+            
+            
         case .gaitCycle:
             // Gait Cycle tab shows collapsible gait metrics
             GaitCycleSummaryCard(
                 run: run,
                 isExpanded: $isSummaryExpanded
             )
-
+            
         case .tech:
-            // Tech view hides the summary (we already handle this above)
-            TechViewSummaryCard(
-                run: run,
-                isExpanded: $isSummaryExpanded
-            )
-
-        case .notes, .map:
-            // Other tabs show the basic summary (non-collapsible)
             EmptyView()
             
-        case .trainingPlan:
-            TrainingPlanSummaryCard(
-                run: run,
-                isExpanded: $isSummaryExpanded
-            )
+        case .map:
+            EmptyView()
+            
+        case .notes:
+            EmptyView()
+            
+            
         }
-        
     
     }
 
@@ -115,7 +117,7 @@ struct RunDetailView: View {
 
             Spacer()
 
-            Button(action: {}) {
+            Button(action: {showingShareSheet = true}) {
                 Image(systemName: "square.and.arrow.up")
                     .foregroundColor(.primaryOrange)
             }
@@ -127,8 +129,8 @@ struct RunDetailView: View {
 
     // MARK: - Tab Selector
     private var tabSelector: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: Spacing.xs) {
+        ScrollView(.horizontal) {
+            HStack(spacing: Spacing.xxs) {
                 ForEach(DetailTab.allCases) { tab in
                     TabButton(
                         title: tab.title,
@@ -218,7 +220,7 @@ struct RunDetailView: View {
                 RunDetailStatItem(
                     icon: "timer",
                     value: formatDuration(run.duration),
-                    label: "Duration",
+                    label: "Time",
                     unit: ""
                 )
 
@@ -281,12 +283,14 @@ struct RunDetailView: View {
 
 // MARK: - Detail Tab Enum (UPDATED)
 enum DetailTab: String, CaseIterable, Identifiable {
-    case overview = "Overview"  // CHANGED from intervals
-    case gaitCycle = "Gait Cycle"  // NEW
-    case tech = "Tech View"
+    case overview = "Overview"
     case trainingPlan = "Training Plan"
-    case notes = "Notes"
+    case tech = "Tech View"
+    case gaitCycle = "Gait Cycle"
     case map = "Map"
+    
+    case notes = "Notes"
+    
 
     var id: String { rawValue }
     var title: String { rawValue }
@@ -294,9 +298,9 @@ enum DetailTab: String, CaseIterable, Identifiable {
     var icon: String {
         switch self {
         case .overview: return "list.clipboard"  // Changed from intervals
+        case .trainingPlan: return "person.fill.checkmark"
         case .gaitCycle: return "circle.dotted.and.circle"  // NEW
         case .tech: return "cpu"
-        case .trainingPlan: return "person.fill.checkmark"
         case .notes: return "note.text"
         case .map: return "map.fill"
         }
@@ -320,7 +324,7 @@ struct TabButton: View {
                     .font(.caption)
             }
             .foregroundColor(isSelected ? .primaryOrange : .textSecondary)
-            .padding(.horizontal, Spacing.m)
+            .padding(.horizontal, Spacing.s)
             .padding(.vertical, Spacing.xs)
             .background(
                 isSelected ? Color.primaryOrange.opacity(0.15) : Color.clear
@@ -414,13 +418,6 @@ struct SnapshotCard: View {
                         .background(Color.primaryOrange)
                         .cornerRadius(CornerRadius.small)
 
-                    //                    // Force Portrait Thumbnail
-                    //                    ForcePortraitMini(
-                    //                        snapshot: snapshot.performanceMetrics.overallScore
-                    //                    )
-                    //                    .frame(width: 60, height: 50)
-
-                    // Force Portrait Thumbnail
                     ForcePortraitSnapshotThumbnail(
                         score: snapshot.performanceMetrics.overallScore
                     )
@@ -577,7 +574,7 @@ struct PerformanceMetricsSection: View {
         VStack(alignment: .leading, spacing: Spacing.s) {
 
             HStack {
-                Image(systemName: "medal.star.fill")
+                Image(systemName: Icon.performanceIcon)
                     .foregroundColor(.primaryOrange)
 
                 Text("Performance Metrics")

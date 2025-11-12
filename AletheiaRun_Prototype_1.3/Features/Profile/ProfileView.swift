@@ -75,7 +75,7 @@ struct ProfileView: View {
 
                             // Personal Records
                             NavigationLink(
-                                destination: Text("Personal Records")
+                                destination: PersonalBestsView()
                             ) {
                                 HStack(spacing: Spacing.m) {
                                     ZStack {
@@ -263,9 +263,8 @@ struct ProfileView: View {
                 PrivacySettingsView()
             }
             .navigationDestination(isPresented: $showingSubscription) {
-                SubscriptionView()
+                EnhancedSubscriptionView()
             }
-
             .navigationDestination(isPresented: $showingSensorSettings) {
                 SensorSettingsView()
             }
@@ -369,32 +368,32 @@ struct ProfileHeader: View {
                 )
             }
 
-            // Running goals
-            if let goals = user?.runningGoals, !goals.isEmpty {
-                VStack(alignment: .leading, spacing: Spacing.xs) {
-                    Text("Goals")
-                        .font(.caption)
-                        .foregroundColor(.textSecondary)
-
-                    FlowLayout(spacing: Spacing.xs) {
-                        ForEach(Array(goals), id: \.self) { goal in
-                            HStack(spacing: Spacing.xs) {
-                                Image(systemName: goal.icon)
-                                    .font(.system(size: 12))
-
-                                Text(goal.rawValue)
-                                    .font(.caption)
-                            }
-                            .foregroundColor(.primaryOrange)
-                            .padding(.horizontal, Spacing.s)
-
-                            .background(Color.primaryOrange.opacity(0.2))
-                            .cornerRadius(CornerRadius.small)
-                        }
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
+//            // Running goals
+//            if let goals = user?.runningGoals, !goals.isEmpty {
+//                VStack(alignment: .leading, spacing: Spacing.xs) {
+//                    Text("Goals")
+//                        .font(.caption)
+//                        .foregroundColor(.textSecondary)
+//
+//                    FlowLayout(spacing: Spacing.xs) {
+//                        ForEach(Array(goals), id: \.self) { goal in
+//                            HStack(spacing: Spacing.xs) {
+//                                Image(systemName: goal.icon)
+//                                    .font(.system(size: 12))
+//
+//                                Text(goal.rawValue)
+//                                    .font(.caption)
+//                            }
+//                            .foregroundColor(.primaryOrange)
+//                            .padding(.horizontal, Spacing.s)
+//
+//                            .background(Color.primaryOrange.opacity(0.2))
+//                            .cornerRadius(CornerRadius.small)
+//                        }
+//                    }
+//                }
+//                .frame(maxWidth: .infinity, alignment: .leading)
+//            }
         }
         .padding(.horizontal, Spacing.l)
     }
@@ -595,5 +594,7 @@ struct SettingsRow: View {
 
 #Preview {
     ProfileView()
-        .environmentObject(AuthenticationManager())
+        .environmentObject(AuthenticationManager()
+        )
+        .environmentObject(SubscriptionManager())
 }

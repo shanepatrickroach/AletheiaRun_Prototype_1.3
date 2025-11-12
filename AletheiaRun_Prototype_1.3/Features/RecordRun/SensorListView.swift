@@ -25,10 +25,10 @@ struct SensorListView: View {
                     if !bluetoothManager.isBluetoothEnabled {
                         bluetoothDisabledView
                     } else {
-                        // MARK: - Scanning Indicator
-                        if bluetoothManager.connectionState == .scanning {
-                            scanningIndicator
-                        }
+//                        // MARK: - Scanning Indicator
+//                        if bluetoothManager.connectionState == .scanning {
+//                            scanningIndicator
+//                        }
                         
                         // MARK: - Sensors List
                         if bluetoothManager.availableSensors.isEmpty {
@@ -41,6 +41,8 @@ struct SensorListView: View {
                             sensorsList
                         }
                     }
+                    
+                    
                     
                     Spacer()
                 }
@@ -112,7 +114,7 @@ struct SensorListView: View {
     // MARK: - Scanning Indicator
     private var scanningIndicator: some View {
         HStack(spacing: Spacing.m) {
-            ProgressView()
+            RotatingArc()
                 .tint(.primaryOrange)
             
             Text("Scanning for sensors...")
@@ -128,8 +130,7 @@ struct SensorListView: View {
     // MARK: - Searching View
     private var searchingView: some View {
         VStack(spacing: Spacing.l) {
-            ProgressView()
-                .scaleEffect(1.5)
+            RotatingArc()
                 .tint(.primaryOrange)
             
             Text("Looking for sensors nearby...")
@@ -225,28 +226,28 @@ struct SensorRow: View {
                 }
                 
                 // Sensor Info
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text(sensor.name)
-                        .font(Font.bodyLarge)
+                        .font(Font.bodyMedium)
                         .foregroundColor(.textPrimary)
                     
-                    HStack(spacing: Spacing.xs) {
+                    HStack(spacing: Spacing.s) {
                         // Signal Strength
                         signalStrengthIndicator
                         
-                        // Battery Level
-                        if let battery = sensor.batteryLevel {
-                            Text("•")
-                                .foregroundColor(.textTertiary)
-                            
-                            HStack(spacing: 4) {
-                                Image(systemName: "battery.100")
-                                    .foregroundColor(.textTertiary)
-                                Text("\(battery)%")
-                            }
-                            .font(Font.caption)
-                            .foregroundColor(.textSecondary)
-                        }
+//                        // Battery Level
+//                        if let battery = sensor.batteryLevel {
+//                            Text("•")
+//                                .foregroundColor(.textTertiary)
+//                            
+//                            HStack(spacing: 4) {
+//                                Image(systemName: "battery.100")
+//                                    .foregroundColor(.textTertiary)
+//                                Text("\(battery)%")
+//                            }
+//                            .font(Font.caption)
+//                            .foregroundColor(.textSecondary)
+//                        }
                     }
                 }
                 
@@ -264,7 +265,8 @@ struct SensorRow: View {
                             .foregroundColor(.successGreen)
                     }
                 } else if isConnecting {
-                    ProgressView()
+                    RotatingArc(size: 20)
+                        
                         .tint(.primaryOrange)
                 } else {
                     Image(systemName: "chevron.right")

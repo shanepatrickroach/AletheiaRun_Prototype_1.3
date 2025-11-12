@@ -7,22 +7,29 @@
 
 import SwiftUI
 
-// MARK: - Custom Text Field
 struct CustomTextField: View {
     let placeholder: String
     @Binding var text: String
     let icon: String
-    
+    let placeholderColor: Color = .gray // Add a color property if you want
+
     var body: some View {
         HStack(spacing: Spacing.m) {
             Image(systemName: icon)
                 .foregroundColor(.primaryOrange)
                 .frame(width: 24)
-            
-            TextField(placeholder, text: $text)
-                .font(.bodyMedium)
-                .foregroundColor(.textPrimary)
-                .autocorrectionDisabled()
+
+            ZStack(alignment: .leading) {
+                if text.isEmpty {
+                    Text(placeholder)
+                        .foregroundColor(placeholderColor)
+                        .font(.bodyMedium)
+                }
+                TextField("", text: $text)
+                    .font(.bodyMedium)
+                    .foregroundColor(.textPrimary)
+                    .autocorrectionDisabled()
+            }
         }
         .padding(Spacing.m)
         .background(Color.cardBackground)
@@ -34,11 +41,13 @@ struct CustomTextField: View {
     }
 }
 
+
 // MARK: - Custom Secure Field
 struct CustomSecureField: View {
     let placeholder: String
     @Binding var text: String
     let icon: String
+    let placeholderColor: Color = .gray
     
     var body: some View {
         HStack(spacing: Spacing.m) {
@@ -46,10 +55,19 @@ struct CustomSecureField: View {
                 .foregroundColor(.primaryOrange)
                 .frame(width: 24)
             
-            SecureField(placeholder, text: $text)
-                .font(.bodyMedium)
-                .foregroundColor(.textPrimary)
-                .autocorrectionDisabled()
+            
+            ZStack(alignment: .leading) {
+                if text.isEmpty {
+                    Text(placeholder)
+                        .foregroundColor(placeholderColor)
+                        .font(.bodyMedium)
+                }
+                
+                SecureField(placeholder, text: $text)
+                    .font(.bodyMedium)
+                    .foregroundColor(.textPrimary)
+                    .autocorrectionDisabled()
+            }
         }
         .padding(Spacing.m)
         .background(Color.cardBackground)

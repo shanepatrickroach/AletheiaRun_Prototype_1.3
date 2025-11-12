@@ -42,17 +42,7 @@ struct AddRunnerView: View {
 
                         // Form Fields
                         VStack(spacing: Spacing.m) {
-                            FormField(
-                                label: "First Name",
-                                placeholder: "Enter first name",
-                                text: $firstName
-                            )
-
-                            FormField(
-                                label: "Last Name",
-                                placeholder: "Enter last name",
-                                text: $lastName
-                            )
+                            
 
                             FormField(
                                 label: "Email",
@@ -61,26 +51,7 @@ struct AddRunnerView: View {
                                 keyboardType: .emailAddress
                             )
 
-                            // Notes field
-                            VStack(alignment: .leading, spacing: Spacing.xs) {
-                                Text("Notes (Optional)")
-                                    .font(.bodySmall)
-                                    .foregroundColor(.textSecondary)
 
-                                TextEditor(text: $notes)
-                                    .foregroundColor(.textPrimary)
-                                    .font(.bodyMedium)
-                                    .padding(Spacing.s)
-                                    .frame(height: 100)
-                                    .background(Color.cardBackground)
-                                    .cornerRadius(CornerRadius.small)
-                                    .overlay(
-                                        RoundedRectangle(
-                                            cornerRadius: CornerRadius.small
-                                        )
-                                        .stroke(Color.cardBorder, lineWidth: 1)
-                                    )
-                            }
                         }
                         .padding(.horizontal, Spacing.m)
 
@@ -124,9 +95,7 @@ struct AddRunnerView: View {
 
     // MARK: - Computed Properties
     private var canAdd: Bool {
-        !firstName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            && !lastName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            && !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             && isValidEmail(email)
     }
 
@@ -158,26 +127,39 @@ struct FormField: View {
     let placeholder: String
     @Binding var text: String
     var keyboardType: UIKeyboardType = .default
+    var placeholderColor: Color = .gray
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.xs) {
             Text(label)
                 .font(.bodySmall)
                 .foregroundColor(.textSecondary)
+            
+            
 
-            TextField(placeholder, text: $text)
-                .foregroundColor(.textPrimary)
-                .font(.bodyMedium)
-                .padding(Spacing.m)
-                .background(Color.cardBackground)
-                .cornerRadius(CornerRadius.small)
-                .overlay(
-                    RoundedRectangle(cornerRadius: CornerRadius.small)
-                        .stroke(Color.cardBorder, lineWidth: 1)
-                )
-                .keyboardType(keyboardType)
-                .autocapitalization(
-                    keyboardType == .emailAddress ? .none : .words)
+            ZStack(alignment: .leading) {
+                if text.isEmpty {
+                    Text(placeholder)
+                        .foregroundColor(.gray)
+                        .font(.bodyMedium)
+                        .padding(Spacing.m)
+                }
+
+                TextField("", text: $text)
+                    .foregroundColor(.textPrimary)
+                    .font(.bodyMedium)
+                    .padding(Spacing.m)
+                    .background(Color.cardBackground)
+                    .cornerRadius(CornerRadius.small)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: CornerRadius.small)
+                            .stroke(Color.cardBorder, lineWidth: 1)
+                    )
+                    .keyboardType(keyboardType)
+                    .autocapitalization(
+                        keyboardType == .emailAddress ? .none : .words
+                    )
+            }
         }
     }
 }

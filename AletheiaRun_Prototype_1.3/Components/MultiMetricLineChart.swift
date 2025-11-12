@@ -166,7 +166,7 @@ struct MultiMetricLineChart: View {
             let y = 10 + chartHeight - (CGFloat(normalizedValue) * chartHeight)
             
             // Alternate between side color and metric type color
-            let dotColor = index % 2 == 0 ? baseColor : metricTypeColor
+            let dotColor = baseColor
             
             // Draw dot
             context.fill(
